@@ -1,0 +1,42 @@
+/* Rules Page Styles */
+.rules-page .rules-main {
+  padding-top: 120px;
+  min-height: 100vh;
+}
+
+.rules-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.rules-section {
+  margin-bottom: 3rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.rules-section h2 {
+  color: #667eea;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.rules-section ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rules-section li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.rules-footer {
+  background: #e9ecef;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 3rem;
+}
