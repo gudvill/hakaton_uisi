@@ -1,24 +1,11 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Registration from './pages/Registration';
-import Schedule from './pages/Schedule';
-import Rules from './pages/Rules';
-import './App.css';
+import Header from './components/header';
+import Hero from './components/hero';
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/registration" element={<Registration />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/rules" element={<Rules />} />
-        </Routes>
-      </div>
-    </Router>
-  );
+    <div className="min-h-screen bg-black">
+      <Header />
+      <Hero />
+    </div>
+  )
 }
-
-export default App;

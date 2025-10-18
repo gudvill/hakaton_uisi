@@ -1,0 +1,97 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+.header-nav {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 0.05em;
+}
+
+.header-logo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-menu {
+  display: none;
+  align-items: center;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .header-menu {
+    display: flex;
+  }
+}
+
+.header-link {
+  color: #d1d5db;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.header-link:hover {
+  color: white;
+}
+
+.header-signin {
+  background: linear-gradient(135deg, #0077ff, #00ccff);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 119, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-signin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.header-signin:hover::before {
+  left: 100%;
+}
+
+.header-signin:hover {
+  box-shadow: 0 0 30px rgba(0, 204, 255, 0.7), 0 0 40px rgba(0, 119, 255, 0.5);
+  transform: translateY(-2px);
+}
