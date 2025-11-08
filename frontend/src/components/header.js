@@ -6,19 +6,20 @@ export default function Header() {
       <nav className="header-nav">
         <div className="header-container">
           <div className="header-logo">
-            <img src="images/logo.jpg" alt="логотип" />
-            <span>Всероссийский хакатон связи</span>
+            <img src="images/Logo Urtisi (White).png" alt="HAKATON" />
+            <span className="header-logo-text">HAKATON</span>
           </div>
 
           <div className="header-menu">
-            <a href="#company" className="header-link">Кейсы</a>
-            <a href="#features" className="header-link">Новости</a>
-            <a href="#resources" className="header-link">FAQ</a>
-            <a href="#docs" className="header-link">Партнеры</a>
+            <a href="#hakaton" className="header-link">О хакатоне</a>
+            <a href="#cases" className="header-link">Кейсы</a>
+            <a href="#partners" className="header-link">Партнеры</a>
+            <a href="#news" className="header-link">Новости</a>
+            <a href="#faq" className="header-link">FAQ</a>
           </div>
 
-          <button className="header-signin">
-            Записаться
+          <button className="header-signin" type="button">
+            Регистрация
           </button>
         </div>
       </nav>
