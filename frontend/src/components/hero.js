@@ -1,5 +1,5 @@
 import './hero.css';
-import ComputerModel from './ComputerModel';
+import AnimatedComputer from './AnimatedComputer';
 
 export default function Hero() {
   return (
@@ -8,8 +8,8 @@ export default function Hero() {
         <div className="hero-grid">
           <div className="hero-content">
             <h1 className="hero-title">
-              КОДИРУЙ.<br />
-              СОЗДАВАЙ.<br />
+              Кодируй.<br />
+              Создавай.<br />
               Взламывай границы возможного.
             </h1>
             <p className="hero-description">
@@ -27,7 +27,7 @@ export default function Hero() {
           </div>
 
           <div className="hero-visual">
-            <ComputerModel />
+            <AnimatedComputer />
           </div>
         </div>
       </div>
