@@ -8,20 +8,16 @@ export default function Hero() {
         <div className="hero-grid">
           <div className="hero-content">
             <h1 className="hero-title">
-              Кодируй.<br />
-              Создавай.<br />
-              Взламывай границы возможного.
+              КОДИРУЙ<br />
+              СОЗДАВАЙ<br />
+              ВЗЛАМЫВАЙ ГРАНИЦЫ ВОЗМОЖНОГО
             </h1>
-            <p className="hero-description">
-              Присоединяйтесь к хакатону и покажите свои навыки в создании
-              инновационных решений. Участвуйте в захватывающих соревнованиях.
-            </p>
             <div className="hero-buttons">
               <button className="hero-btn hero-btn-outline">
-                Подробнее
+                подробнее
               </button>
               <button className="hero-btn hero-btn-solid">
-                Зарегистрироваться
+                учавствовать
               </button>
             </div>
           </div>

@@ -6,8 +6,7 @@ export default function Header() {
       <nav className="header-nav">
         <div className="header-container">
           <div className="header-logo">
-            <img src="images/Logo Urtisi (White).png" alt="HAKATON" />
-            <span className="header-logo-text">HAKATON</span>
+            <img src="images/logo2.svg" alt="HAKATON" />
           </div>
 
           <div className="header-menu">
