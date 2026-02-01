@@ -52,7 +52,6 @@ export default function Cases() {
       <div className='cases_container container'>
         {casesData.map((caseItem) => (
           <div className='case_card' key={caseItem.id}>
-            <div className='case_image'></div>
             <h3 className='case_header'>{caseItem.title}</h3>
             <button className='level'>{caseItem.level}</button>
             <p className='partner_name'>{caseItem.partner}</p>

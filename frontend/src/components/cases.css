@@ -1,6 +1,5 @@
 .cases {
   background-color: #06011F;
-  padding: 4rem 2rem;
   min-height: 100vh;
 }
 
@@ -10,18 +9,17 @@
   font-weight: 700;
   margin-bottom: 3rem;
   text-align: left;
-  padding-left: 2rem;
 }
 
 .cases_container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
 }
 
 .case_card {
-  background-image: url('../assets/images/cases_background.png');
-  background-size: cover;
+  background-image: url('../assets/cases_background.png');
+  background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 12px;

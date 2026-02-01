@@ -2,6 +2,7 @@ import './App.css';
 import Header from './components/header';
 import Hero from './components/hero';
 import Time from './components/time';
+import Cases from './components/cases';
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Header />
       <Hero />
       <Time />
+      <Cases />
     </div>
   )
 }
