@@ -31,7 +31,7 @@ export default function Time() {
 
   return (
     <section className="time">
-      <div className="time-container">
+      <div className="time-container container">
         <h2 className="time-title">ДО СОБЫТИЯ ОСТАЛОСЬ</h2>
         <div className="time-countdown">
           <div className="time-box">

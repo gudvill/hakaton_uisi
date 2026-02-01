@@ -49,7 +49,7 @@ export default function Cases() {
   return (
     <section className="cases">
       <h2>КЕЙСЫ</h2>
-      <div className='cases_container'>
+      <div className='cases_container container'>
         {casesData.map((caseItem) => (
           <div className='case_card' key={caseItem.id}>
             <div className='case_image'></div>

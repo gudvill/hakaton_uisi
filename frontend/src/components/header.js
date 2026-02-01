@@ -3,7 +3,7 @@ import './header.css';
 export default function Header() {
   return (
     <header className="header">
-      <nav className="header-nav">
+      <nav className="header-nav container">
         <div className="header-container">
           <div className="header-logo">
             <img src="images/logo2.svg" alt="HAKATON" />

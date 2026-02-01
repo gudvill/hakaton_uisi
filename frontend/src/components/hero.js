@@ -4,7 +4,8 @@ import AnimatedComputer from './AnimatedComputer';
 export default function Hero() {
   return (
     <section className="hero">
-      <div className="hero-container">
+      <div className="hero-background"></div>
+      <div className="hero-container container">
         <div className="hero-grid">
           <div className="hero-content">
             <h1 className="hero-title">

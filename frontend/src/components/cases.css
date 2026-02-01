@@ -17,9 +17,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
 }
 
 .case_card {
@@ -107,6 +104,5 @@
 
   .cases_container {
     grid-template-columns: 1fr;
-    padding: 0 1rem;
   }
 }
