@@ -47,9 +47,9 @@ export default function Cases() {
   ];
 
   return (
-    <section className="cases">
+    <section className="cases container">
       <h2>КЕЙСЫ</h2>
-      <div className='cases_container container'>
+      <div className='cases_container'>
         {casesData.map((caseItem) => (
           <div className='case_card' key={caseItem.id}>
             <h3 className='case_header'>{caseItem.title}</h3>
@@ -58,6 +58,15 @@ export default function Cases() {
             <p className='case_number'>{caseItem.number}</p>
           </div>
         ))}
+        <div className='info-baner'>
+          <div className='info-text'>
+            <p>Стартовый уровень - для студентов 1-2 курсов.</p>
+            <p>Продвинутый уровень - для студентов 3-5 курса и студентов магистратуры.</p>
+          </div>
+            <div className='info-image'>
+              <img src='images/computer.png'></img>
+            </div>
+          </div>
       </div>
     </section>
   );
