@@ -18,7 +18,7 @@ export default function Hero() {
                 подробнее
               </button>
               <button className="hero-btn hero-btn-solid">
-                учавствовать
+                участвовать
               </button>
             </div>
           </div>

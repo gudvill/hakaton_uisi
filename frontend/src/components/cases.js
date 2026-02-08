@@ -51,22 +51,22 @@ export default function Cases() {
       <h2>КЕЙСЫ</h2>
       <div className='cases_container'>
         {casesData.map((caseItem) => (
-          <div className='case_card' key={caseItem.id}>
+          <a className='case_card' key={caseItem.id} href={`/case/${caseItem.id}`}>
             <h3 className='case_header'>{caseItem.title}</h3>
-            <button className='level'>{caseItem.level}</button>
+            <span className='level'>{caseItem.level}</span>
             <p className='partner_name'>{caseItem.partner}</p>
             <p className='case_number'>{caseItem.number}</p>
-          </div>
+          </a>
         ))}
         <div className='info-baner'>
           <div className='info-text'>
             <p>Стартовый уровень - для студентов 1-2 курсов.</p>
             <p>Продвинутый уровень - для студентов 3-5 курса и студентов магистратуры.</p>
           </div>
-            <div className='info-image'>
+          <div className='info-image'>
               <img src='images/computer.png'></img>
-            </div>
           </div>
+        </div>
       </div>
     </section>
   );
