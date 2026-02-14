@@ -1,10 +1,16 @@
 import './App.css';
-import Header from './components/header';
-import Hero from './components/hero';
-import Time from './components/time';
-import Cases from './components/cases';
-import About from './components/about';
-import Partners from './components/partners'
+import Header from './components/Header/header';
+import Hero from './components/Hero/hero';
+import Time from './components/Time/time';
+import Cases from './components/Cases/cases';
+import About from './components/About/about';
+import Partners from './components/Partners/partners'
+import Program from './components/Program/program';
+import Contacts from './components/Contacts/contacts';
+import News from './components/News/news';
+import Faq from './components/Faq/faq';
+import Photo from './components/Photo/photo';
+import Footer from './components/Footer/footer';
 
 export default function App() {
   return (
@@ -15,6 +21,14 @@ export default function App() {
       <Cases />
       <About />
       <Partners />
+      <div className="program-contacts-wrapper">
+        <Program />
+        <Contacts />
+      </div>
+      <News />
+      <Faq />
+      <Photo />
+      <Footer />
     </div>
   )
 }

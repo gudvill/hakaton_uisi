@@ -1,0 +1,25 @@
+.footer {
+  padding: 4rem 2rem;
+  background: linear-gradient(to top, #9868FF, transparent);
+  height: 550px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+}
+
+.footer-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+}
+
+.logo img{
+    width: 350px;
+}
+
+.copy {
+    text-align: center;
+    color: white;
+}

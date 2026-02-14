@@ -1,0 +1,156 @@
+.cases {
+  background-color: #06011F;
+  min-height: 100vh;
+}
+
+
+
+.cases_container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.case_card {
+  background-image: url('../../assets/cases_background.png');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 2rem;
+  position: relative;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.case_card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../../assets/purple_background.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.case_card:hover {
+  transform: translateY(-5px);
+}
+
+.case_card:hover::before {
+  opacity: 1;
+}
+
+.case_card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.case_card:hover .case_header,
+.case_card:hover .partner_name,
+.case_card:hover .case_number {
+  color: white;
+}
+
+
+.case_header {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #000;
+  margin: 2.3rem 0;
+  line-height: 1.2;
+  min-height: 80px;
+  transition: color 0.3s ease;
+}
+
+.level {
+  background: #2055C7;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.partner_name {
+  color: #000;
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 1rem 0 0.5rem 0;
+  transition: color 0.3s ease;
+}
+
+.case_number {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: #2055C7;
+  transition: color 0.3s ease;
+}
+
+.info-baner {
+  background-image: url('../../assets/Subtract.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+  padding: 2rem;
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+}
+
+.info-text {
+  flex: 1;
+}
+
+.info-text p {
+  margin: 0.5rem 0;
+  font-size: 1.8rem;
+}
+
+.info-image {
+  flex-shrink: 0;
+}
+
+.info-image img {
+  max-height: 300px;
+  width: auto;
+}
+
+@media (max-width: 1200px) {
+  .cases_container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .cases {
+    padding: 2rem 1rem;
+  }
+
+  .cases h2 {
+    font-size: 2rem;
+    padding-left: 1rem;
+  }
+
+  .cases_container {
+    grid-template-columns: 1fr;
+  }
+}

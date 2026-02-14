@@ -10,6 +10,7 @@
 html, body {
   overflow-x: hidden;
   width: 100%;
+  cursor: url('./assets/cursor.svg'), auto;
 }
 
 body {
@@ -17,18 +18,40 @@ body {
   background-color: #06011F;
 }
 
-/* App wrapper */
 .app-wrapper {
-  overflow-x: hidden;
+  overflow: hidden;
   width: 100%;
 }
 
-/* Container - общая ширина для всех секций */
 .container {
   max-width: 1800px;
   margin: 0 auto;
   padding: 0 2rem;
   width: 100%;
+}
+
+h2 {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 4rem;
+  text-transform: uppercase;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.program-contacts-wrapper {
+  background-image: url('./assets/background-oval.png');
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: 100% auto;
+  padding-bottom: 200px;
+  margin-bottom: -200px;
 }
 
 

@@ -1,0 +1,32 @@
+.program {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.program-card{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 350px;
+    border-bottom: 6px solid white;
+    margin-bottom: 60px;
+    padding-bottom: 25px;
+}
+
+.date{
+    font-size: 40px;
+    font-family: "Russo One", sans-serif;
+    flex-shrink: 0;
+    white-space: nowrap;
+    align-self: flex-end;
+}
+
+.program-text{
+    font-size: 30px;
+    font-weight: 500;
+    max-width: 850px;
+}
+
