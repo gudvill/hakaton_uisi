@@ -22,7 +22,7 @@ class Case:
     image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
-    partner_id: int
+    partner_id: int = 0
     role: Optional[str] = None
     is_available: bool = True
 
@@ -55,7 +55,7 @@ class PhotoAlbum:
 @dataclass
 class Photo:
     id: int = None
-    photo_album_id: int
+    photo_album_id: int = 0
     path: Optional[str] = None
     created_at: date = None
     is_available: bool = True
