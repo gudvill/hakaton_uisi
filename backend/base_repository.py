@@ -22,7 +22,7 @@ class BaseRepository:
         return entity_id
 
     def get_all(self) -> List[T]:
-        query = f"""SELECT id,{",".join(self.columns)} FROM {self.table_name} WHERE status = TRUE ORDER BY id"""
+        query = f"""SELECT id,{",".join(self.columns)} FROM {self.table_name} WHERE is_available = TRUE ORDER BY id"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)

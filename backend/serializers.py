@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
-from entities import Main, Admin, Cases, News, Partners, PhotoAlbum, Photo, Reviews, Registration, Participants
+from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 
 
 class MainSerializer(BaseModel):
@@ -33,10 +33,10 @@ class CasesSerializer(BaseModel):
     description: Optional[str] = None
     partner_id: int
     role: Optional[str] = None
-    status: bool = True
+    is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Cases) -> "CasesSerializer":
+    def from_entity(cls, entity: Case) -> "CasesSerializer":
         return cls(
             id=entity.id,
             name=entity.name,
@@ -46,7 +46,7 @@ class CasesSerializer(BaseModel):
             description=entity.description,
             partner_id=entity.partner_id,
             role=entity.role,
-            status=entity.status)
+            is_available=entity.is_available)
 
 
 class NewsCreateSerializer(BaseModel):
@@ -78,6 +78,13 @@ class NewsSerializer(BaseModel):
             is_available=entity.is_available)
 
 
+class PartnersCreateSerializer(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    image: Optional[str] = None
+    created_at: date = None
+
+
 class PartnersSerializer(BaseModel):
     id: int
     name: Optional[str] = None
@@ -87,7 +94,7 @@ class PartnersSerializer(BaseModel):
     is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Partners) -> "PartnersSerializer":
+    def from_entity(cls, entity: Partner) -> "PartnersSerializer":
         return cls(
             id=entity.id,
             name=entity.name,
@@ -96,6 +103,11 @@ class PartnersSerializer(BaseModel):
             created_at=entity.created_at,
             is_available=entity.is_available)
     
+
+class PhotoAlbumCreateSerializer(BaseModel):
+    image: Optional[str] = None
+    created_at: date = None
+
 
 class PhotoAlbumSerializer(BaseModel):
     id: int
@@ -110,6 +122,12 @@ class PhotoAlbumSerializer(BaseModel):
             image=entity.image,
             created_at=entity.created_at,
             is_available=entity.is_available)
+
+
+class PhotoCreateSerializer(BaseModel):
+    photo_album_id: int
+    path: Optional[str] = None
+    created_at: date = None
 
 
 class PhotoSerializer(BaseModel):
@@ -129,6 +147,13 @@ class PhotoSerializer(BaseModel):
             is_available=entity.is_available)
 
 
+class ReviewsCreateSerializer(BaseModel):
+    name: Optional[str] = None
+    content: Optional[str] = None
+    image: Optional[str] = None
+    created_at: date = None
+
+
 class ReviewsSerializer(BaseModel):
     id: int
     name: Optional[str] = None
@@ -138,7 +163,7 @@ class ReviewsSerializer(BaseModel):
     is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Reviews) -> "ReviewsSerializer":
+    def from_entity(cls, entity: Review) -> "ReviewsSerializer":
         return cls(
             id=entity.id,
             name=entity.name,
@@ -146,6 +171,22 @@ class ReviewsSerializer(BaseModel):
             image=entity.image,
             created_at=entity.created_at,
             is_available=entity.is_available)
+
+
+class RegistrationCreateSerializer(BaseModel):
+    name: str = None
+    institution: str = None
+    amount_participants: int = 0
+    participation_form: str = None
+    level_education: str = None
+    selected_case: int = 0
+    spare_case: int = 0
+    captain_phone: str = None
+    captain_email: str = None
+    curator_data: str = None # jsonb
+    agreement: bool = None
+    acquaintance: bool = None
+    created_at: date = None
 
 
 class RegistrationSerializer(BaseModel):
@@ -163,7 +204,7 @@ class RegistrationSerializer(BaseModel):
     agreement: bool = None
     acquaintance: bool = None
     created_at: date = None
-    status: bool = True
+    is_available: bool = True
 
     @classmethod
     def from_entity(cls, entity: Registration) -> "RegistrationSerializer":
@@ -182,7 +223,15 @@ class RegistrationSerializer(BaseModel):
             agreement=entity.agreement,
             acquaintance=entity.acquaintance,
             created_at=entity.created_at,
-            status=entity.status)
+            is_available=entity.is_available)
+
+
+class ParticipantsCreateSerializer(BaseModel):
+    fio: str = None
+    course: int = 0
+    role: str =None
+    registration_id: int
+    created_at: date = None
 
 
 class ParticipantsSerializer(BaseModel):
@@ -192,10 +241,10 @@ class ParticipantsSerializer(BaseModel):
     role: str =None
     registration_id: int
     created_at: date = None
-    status: bool = True
+    is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Participants) -> "ParticipantsSerializer":
+    def from_entity(cls, entity: Participant) -> "ParticipantsSerializer":
         return cls(
             id=entity.id,
             fio=entity.fio,
@@ -203,4 +252,4 @@ class ParticipantsSerializer(BaseModel):
             role=entity.role,
             registration_id=entity.registration_id,
             created_at=entity.created_at,
-            status=entity.status)
+            is_available=entity.is_available)

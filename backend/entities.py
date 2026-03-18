@@ -15,7 +15,7 @@ class Admin:
     pass
 
 @dataclass
-class Cases:
+class Case:
     id: int
     name: Optional[str] = None
     case_number: Optional[int] = 0
@@ -37,7 +37,7 @@ class News:
     is_available: bool = True
 
 @dataclass
-class Partners:
+class Partner:
     id: int
     name: Optional[str] = None
     description: Optional[str] = None
@@ -61,7 +61,7 @@ class Photo:
     is_available: bool = True
 
 @dataclass
-class Reviews:
+class Review:
     id: int
     name: Optional[str] = None
     content: Optional[str] = None
@@ -88,7 +88,7 @@ class Registration:
     is_available: bool = True
 
 @dataclass
-class Participants:
+class Participant:
     id: int
     fio: str = None
     course: int = 0
