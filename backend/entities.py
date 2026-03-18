@@ -16,7 +16,7 @@ class Admin:
 
 @dataclass
 class Case:
-    id: int
+    id: int = None
     name: Optional[str] = None
     case_number: Optional[int] = 0
     image: Optional[str] = None
@@ -28,7 +28,7 @@ class Case:
 
 @dataclass
 class News:
-    id: int
+    id: int = None
     name: Optional[str] = None
     image: Optional[str] = None
     created_at: date = None
@@ -38,7 +38,7 @@ class News:
 
 @dataclass
 class Partner:
-    id: int
+    id: int = None
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
@@ -47,14 +47,14 @@ class Partner:
 
 @dataclass
 class PhotoAlbum:
-    id: int
+    id: int = None
     image: Optional[str] = None
     created_at: date = None
     is_available: bool = True
 
 @dataclass
 class Photo:
-    id: int
+    id: int = None
     photo_album_id: int
     path: Optional[str] = None
     created_at: date = None
@@ -62,7 +62,7 @@ class Photo:
 
 @dataclass
 class Review:
-    id: int
+    id: int = None
     name: Optional[str] = None
     content: Optional[str] = None
     image: Optional[str] = None
@@ -71,7 +71,7 @@ class Review:
 
 @dataclass
 class Registration:
-    id: int
+    id: int = None
     name: str = None
     institution: str = None
     amount_participants: int = 0
@@ -89,7 +89,7 @@ class Registration:
 
 @dataclass
 class Participant:
-    id: int
+    id: int = None
     fio: str = None
     course: int = 0
     role: str =None
