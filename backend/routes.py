@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-from entities import Cases
+from entities import Case
 from serializers import CasesSerializer, CasesCreateSerializer
 from use_cases import CasesUseCase
 from dependencies import get_cases_usecase
@@ -9,7 +9,7 @@ cases_router = APIRouter(prefix="/cases", tags=["cases"])
 
 @cases_router.post("/", response_model=CasesSerializer)
 def create_case(case_data: CasesCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase)) -> CasesSerializer:
-    case = Cases(
+    case = Case(
         id=0,
         name=case_data.name,
         case_number=case_data.case_number,
@@ -39,7 +39,7 @@ def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)) 
 
 @cases_router.put("/{case_id}", response_model=CasesSerializer)
 def update_case(case_id: int, case_data: CasesCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase)) -> CasesSerializer:
-    case = Cases(
+    case = Case(
         id=case_id,
         name=case_data.name,
         case_number=case_data.case_number,
