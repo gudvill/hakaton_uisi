@@ -7,6 +7,14 @@ from typing import Any
 
 
 @dataclass
+class Main:
+    pass
+
+@dataclass
+class Admin:
+    pass
+
+@dataclass
 class Cases:
     id: int
     name: Optional[str] = None
@@ -14,7 +22,9 @@ class Cases:
     image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
-    partner: Optional[str] = None
+    partner_id: int
+    role: Optional[str] = None
+    is_available: bool = True
 
 @dataclass
 class News:
@@ -24,13 +34,7 @@ class News:
     created_at: date = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
-
-@dataclass
-class Reviews:
-    id: int
-    name: Optional[str] = None
-    content: Optional[str] = None
-    image: Optional[str] = None
+    is_available: bool = True
 
 @dataclass
 class Partners:
@@ -38,6 +42,32 @@ class Partners:
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
+    created_at: date = None
+    is_available: bool = True
+
+@dataclass
+class PhotoAlbum:
+    id: int
+    image: Optional[str] = None
+    created_at: date = None
+    is_available: bool = True
+
+@dataclass
+class Photo:
+    id: int
+    photo_album_id: int
+    path: Optional[str] = None
+    created_at: date = None
+    is_available: bool = True
+
+@dataclass
+class Reviews:
+    id: int
+    name: Optional[str] = None
+    content: Optional[str] = None
+    image: Optional[str] = None
+    created_at: date = None
+    is_available: bool = True
 
 @dataclass
 class Registration:
@@ -46,16 +76,23 @@ class Registration:
     institution: str = None
     amount_participants: int = 0
     participation_form: str = None
-	#participants = ???
+    level_education: str = None
     selected_case: int = 0
+    spare_case: int = 0
     captain_phone: str = None
     captain_email: str = None
-	#team_curator = ???
+    curator_data: str = None # jsonb
     agreement: bool = None
     acquaintance: bool = None
+    created_at: date = None
+    is_available: bool = True
 
 @dataclass
-class PhotoAlbum:
+class Participants:
     id: int
-    image: Optional[str] = None
+    fio: str = None
+    course: int = 0
+    role: str =None
+    registration_id: int
     created_at: date = None
+    is_available: bool = True
