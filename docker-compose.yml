@@ -1,20 +1,6 @@
 version: "3.9"
 
 services:
-  backend:
-    build: ./backend
-    container_name: backend
-    restart: always
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-  
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    restart: always
-
   db:
     image: postgres:15
     container_name: db
@@ -25,6 +11,35 @@ services:
       POSTGRES_PASSWORD: hakaton
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:hakaton@db:5432/hakaton_db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
   nginx:
     image: nginx:alpine
