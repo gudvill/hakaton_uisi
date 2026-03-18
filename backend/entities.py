@@ -93,6 +93,6 @@ class Participant:
     fio: str = None
     course: int = 0
     role: str =None
-    registration_id: int
+    registration_id: int = 0
     created_at: date = None
     is_available: bool = True
