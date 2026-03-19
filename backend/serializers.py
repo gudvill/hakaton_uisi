@@ -14,7 +14,7 @@ class AdminSerializer(BaseModel):
     pass
 
 
-class CasesCreateSerializer(BaseModel):
+class CaseCreateSerializer(BaseModel):
     name: Optional[str] = None
     case_number: Optional[int] = None
     image: Optional[str] = None
@@ -24,7 +24,7 @@ class CasesCreateSerializer(BaseModel):
     role: Optional[str] = None
 
 
-class CasesSerializer(BaseModel):
+class CaseSerializer(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
     case_number: Optional[int] = 0
@@ -36,7 +36,7 @@ class CasesSerializer(BaseModel):
     is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Case) -> "CasesSerializer":
+    def from_entity(cls, entity: Case) -> "CaseSerializer":
         return cls(
             id=entity.id,
             name=entity.name,
@@ -78,14 +78,14 @@ class NewsSerializer(BaseModel):
             is_available=entity.is_available)
 
 
-class PartnersCreateSerializer(BaseModel):
+class PartnerCreateSerializer(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
     created_at: date = None
 
 
-class PartnersSerializer(BaseModel):
+class PartnerSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     description: Optional[str] = None
@@ -94,7 +94,7 @@ class PartnersSerializer(BaseModel):
     is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Partner) -> "PartnersSerializer":
+    def from_entity(cls, entity: Partner) -> "PartnerSerializer":
         return cls(
             id=entity.id,
             name=entity.name,
@@ -147,14 +147,14 @@ class PhotoSerializer(BaseModel):
             is_available=entity.is_available)
 
 
-class ReviewsCreateSerializer(BaseModel):
+class ReviewCreateSerializer(BaseModel):
     name: Optional[str] = None
     content: Optional[str] = None
     image: Optional[str] = None
     created_at: date = None
 
 
-class ReviewsSerializer(BaseModel):
+class ReviewSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     content: Optional[str] = None
@@ -163,7 +163,7 @@ class ReviewsSerializer(BaseModel):
     is_available: bool = True
 
     @classmethod
-    def from_entity(cls, entity: Review) -> "ReviewsSerializer":
+    def from_entity(cls, entity: Review) -> "ReviewSerializer":
         return cls(
             id=entity.id,
             name=entity.name,

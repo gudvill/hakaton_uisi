@@ -1,6 +1,6 @@
 from typing import List, Optional
-from entities import Case
-from repositories import CasesRepository
+from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from repositories import CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
 
 class CasesUseCase:
     def __init__(self, repository: CasesRepository):
@@ -20,3 +20,103 @@ class CasesUseCase:
 
     def disable(self, case_id: int) -> None:
         self.repository.disable(case_id)
+
+
+class NewsUseCase:
+    def __init__(self, repository: NewsRepository):
+        self.repository = repository
+
+    def create(self, news: News) -> int:
+        return self.repository.create(news)
+
+    def get_all(self) -> List[News]:
+        return self.repository.get_all()
+
+    def get_by_id(self, news_id: int) -> Optional[News]:
+        return self.repository.get_by_id(news_id)
+
+    def update(self, news_id: int, news: News) -> None:
+        self.repository.update(news_id, news)
+
+    def disable(self, news_id: int) -> None:
+        self.repository.disable(news_id)
+
+
+class PartnersUseCase:
+    def __init__(self, repository: PartnersRepository):
+        self.repository = repository
+
+    def create(self, partner: Partner) -> int:
+        return self.repository.create(partner)
+
+    def get_all(self) -> List[Partner]:
+        return self.repository.get_all()
+
+    def get_by_id(self, partner_id: int) -> Optional[Partner]:
+        return self.repository.get_by_id(partner_id)
+
+    def update(self, partner_id: int, partner: Partner) -> None:
+        self.repository.update(partner_id, partner)
+
+    def disable(self, partner_id: int) -> None:
+        self.repository.disable(partner_id)
+
+
+class PhotoAlbumsUseCase:
+    def __init__(self, repository: PhotoAlbumsRepository):
+        self.repository = repository
+    
+    def create(self, photoalbum: PhotoAlbum) -> int:
+        return self.repository.create(photoalbum)
+
+    def get_all(self) -> List[PhotoAlbum]:
+        return self.repository.get_all()
+
+    def get_by_id(self, photoalbum_id: int) -> Optional[PhotoAlbum]:
+        return self.repository.get_by_id(photoalbum_id)
+
+    def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
+        self.repository.update(photoalbum_id, photoalbum)
+
+    def disable(self, photoalbum_id: int) -> None:
+        self.repository.disable(photoalbum_id)
+
+
+class PhotosUseCase:
+    def __init__(self, repository: PhotosRepository):
+        self.repository = repository
+    
+    def create(self, photo: Photo) -> int:
+        return self.repository.create(photo)
+
+    def get_all(self) -> List[Photo]:
+        return self.repository.get_all()
+
+    def get_by_id(self, photo_id: int) -> Optional[Photo]:
+        return self.repository.get_by_id(photo_id)
+
+    def update(self, photo_id: int, photo: Photo) -> None:
+        self.repository.update(photo_id, photo)
+
+    def disable(self, photo_id: int) -> None:
+        self.repository.disable(photo_id)
+
+
+class ReviewsUseCase:
+    def __init__(self, repository: ReviewsRepository):
+        self.repository = repository
+        
+    def create(self, review: Review) -> int:
+        return self.repository.create(review)
+
+    def get_all(self) -> List[Review]:
+        return self.repository.get_all()
+
+    def get_by_id(self, review_id: int) -> Optional[Review]:
+        return self.repository.get_by_id(review_id)
+
+    def update(self, review_id: int, review: Review) -> None:
+        self.repository.update(review_id, review)
+
+    def disable(self, review_id: int) -> None:
+        self.repository.disable(review_id)

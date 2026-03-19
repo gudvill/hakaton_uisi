@@ -33,8 +33,8 @@ class News:
     image: Optional[str] = None
     created_at: date = None
     brief_description: Optional[str] = None
-    full_description: Optional[str] = None
-    is_available: bool = True
+    : Optional[str] = None
+    isfull_description_available: bool = True
 
 @dataclass
 class Partner:
