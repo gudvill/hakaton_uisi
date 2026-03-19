@@ -21,3 +21,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# docker
+docker-compose.override.yml
+*.log
+
+.env
+
+__pycache__/
+*.pyc
+
+dist/
