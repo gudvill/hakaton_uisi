@@ -1,5 +1,3 @@
-# Основной файл FastAPI
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import cases_router
@@ -16,10 +14,15 @@ app.add_middleware(
 
 app.include_router(cases_router, prefix="/api")
 
-@app.get("/")
-def read_root():
+@app.get("/api")
+@app.get("/api/")
+def api_root():
     return {"message": "Hakaton UISI API is running"}
 
-@app.get("/health")
-def health_check():
+@app.get("/api/health")
+def api_health():
     return {"status": "healthy"}
+
+@app.get("/")
+def read_root():
+    return {"message": "Backend root"}
