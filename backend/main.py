@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes import cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
 
