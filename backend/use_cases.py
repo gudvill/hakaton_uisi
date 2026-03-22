@@ -1,6 +1,6 @@
-from typing import List, Optional
 from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from repositories import CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
+from typing import List, Optional, Dict, Any
 
 class CasesUseCase:
     def __init__(self, repository: CasesRepository):
@@ -9,11 +9,11 @@ class CasesUseCase:
     def create(self, case: Case) -> int:
         return self.repository.create(case)
 
-    def get_all(self) -> List[Case]:
-        return self.repository.get_all()
+    def get_all(self) -> List[Dict[str, Any]]:
+        return self.repository.get_all_with_partner()
 
-    def get_by_id(self, case_id: int) -> Optional[Case]:
-        return self.repository.get_by_id(case_id)
+    def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
+        return self.repository.get_by_id_with_partner(case_id)
 
     def update(self, case_id: int, case: Case) -> None:
         self.repository.update(case_id, case)

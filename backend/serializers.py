@@ -13,7 +13,6 @@ class MainSerializer(BaseModel):
 class AdminSerializer(BaseModel):
     pass
 
-
 class CaseCreateSerializer(BaseModel):
     name: Optional[str] = None
     case_number: Optional[int] = None
@@ -23,7 +22,6 @@ class CaseCreateSerializer(BaseModel):
     partner_id: int
     role: Optional[str] = None
 
-
 class CaseSerializer(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
@@ -32,21 +30,9 @@ class CaseSerializer(BaseModel):
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int
+    partner_name: Optional[str] = None
     role: Optional[str] = None
     is_available: bool = True
-
-    @classmethod
-    def from_entity(cls, entity: Case) -> "CaseSerializer":
-        return cls(
-            id=entity.id,
-            name=entity.name,
-            case_number=entity.case_number,
-            image=entity.image,
-            level=entity.level,
-            description=entity.description,
-            partner_id=entity.partner_id,
-            role=entity.role,
-            is_available=entity.is_available)
 
 
 class NewsCreateSerializer(BaseModel):
@@ -55,7 +41,6 @@ class NewsCreateSerializer(BaseModel):
     created_at: date = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
-
 
 class NewsSerializer(BaseModel):
     id: int
@@ -84,7 +69,6 @@ class PartnerCreateSerializer(BaseModel):
     image: Optional[str] = None
     created_at: date = None
 
-
 class PartnerSerializer(BaseModel):
     id: int
     name: Optional[str] = None
@@ -108,7 +92,6 @@ class PhotoAlbumCreateSerializer(BaseModel):
     image: Optional[str] = None
     created_at: date = None
 
-
 class PhotoAlbumSerializer(BaseModel):
     id: int
     image: Optional[str] = None
@@ -128,7 +111,6 @@ class PhotoCreateSerializer(BaseModel):
     photo_album_id: int
     path: Optional[str] = None
     created_at: date = None
-
 
 class PhotoSerializer(BaseModel):
     id: int
@@ -152,7 +134,6 @@ class ReviewCreateSerializer(BaseModel):
     content: Optional[str] = None
     image: Optional[str] = None
     created_at: date = None
-
 
 class ReviewSerializer(BaseModel):
     id: int
@@ -187,7 +168,6 @@ class RegistrationCreateSerializer(BaseModel):
     agreement: bool = None
     acquaintance: bool = None
     created_at: date = None
-
 
 class RegistrationSerializer(BaseModel):
     id: int

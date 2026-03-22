@@ -32,19 +32,18 @@ def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depend
         role=case_data.role,
         is_available=True)
     case_id = use_case.create(case)
-    case.id = case_id
-    return CaseSerializer.from_entity(case)
+    created = use_case.get_by_id(case_id)
+    return CaseSerializer(**created)
 
 @cases_router.get("/", response_model=List[CaseSerializer])
-def get_cases(use_case: CasesUseCase = Depends(get_cases_usecase)) -> List[CaseSerializer]:
-    cases = use_case.get_all()
-    return [CaseSerializer.from_entity(c) for c in cases]
+def get_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
+    return [CaseSerializer(**row) for row in use_case.get_all()]
 
 @cases_router.get("/{case_id}", response_model=CaseSerializer)
-def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)) -> CaseSerializer:
-    case = use_case.get_by_id(case_id)
-    if not case: raise HTTPException(status_code=404, detail="Кейс не найден")
-    return CaseSerializer.from_entity(case)
+def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
+    row = use_case.get_by_id(case_id)
+    if not row: raise HTTPException(status_code=404, detail="Кейс не найден")
+    return CaseSerializer(**row)
 
 @cases_router.put("/{case_id}", response_model=CaseSerializer)
 def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase)) -> CaseSerializer:
@@ -58,11 +57,11 @@ def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUs
         partner_id=case_data.partner_id,
         role=case_data.role)
     use_case.update(case_id, case)
-    updated_case = use_case.get_by_id(case_id)
-    return CaseSerializer.from_entity(updated_case)
+    updated = use_case.get_by_id(case_id)
+    return CaseSerializer(**updated)
 
 @cases_router.delete("/{case_id}")
-def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)) -> dict:
+def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
     use_case.disable(case_id)
     return {"message": "Кейс отключён"}
 
