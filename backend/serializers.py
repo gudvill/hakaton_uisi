@@ -67,14 +67,14 @@ class PartnerCreateSerializer(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: Optional[date] = None
 
 class PartnerSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: Optional[date] = None
     is_available: bool = True
 
     @classmethod
