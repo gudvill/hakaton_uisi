@@ -19,7 +19,7 @@ export default function Cases() {
       <h2>КЕЙСЫ</h2>
       <div className='cases_container'>
         {casesData.map((caseItem) => (
-          <a className='case_card' key={caseItem.id} href={`/case/${caseItem.id}`}>
+          <a className='case_card' key={caseItem.id} href={`/api/case/${caseItem.id}`}>
             <h3 className='case_header'>{caseItem.name}</h3>
             <span className='level'>{caseItem.level}</span>
             <p className='partner_name'>{caseItem.partner_name || "Без партнёра"}</p>
