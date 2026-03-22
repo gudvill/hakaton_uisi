@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from routes import cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router
 
 app = FastAPI(root_path="/api")
@@ -16,7 +15,7 @@ app.include_router(reviews_router)
 
 @app.get("/")
 def api_root():
-    return {"message": "Hakaton UISI API is running"}
+    return {"message": "Hakaton API работает"}
 
 @app.get("/health")
 def api_health():
