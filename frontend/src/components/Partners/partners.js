@@ -20,7 +20,7 @@ export default function Partners() {
       <div className="partners-grid">
         {partnersData.map((partner) => (
           <div className="partner-card" key={partner.id}>
-            <img src={partner.image} alt={partner.name} />
+            <img src={partner.image || '/images/logo_partner.png'} alt={partner.name} />
             <p className="partner-description">{partner.description}</p>
           </div>
         ))}
