@@ -18,7 +18,7 @@ class Admin:
 class Case:
     id: int = None
     name: Optional[str] = None
-    case_number: Optional[int] = 0
+    case_number: Optional[str] = None
     image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None

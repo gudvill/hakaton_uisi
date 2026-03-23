@@ -13,9 +13,10 @@ class MainSerializer(BaseModel):
 class AdminSerializer(BaseModel):
     pass
 
+
 class CaseCreateSerializer(BaseModel):
     name: Optional[str] = None
-    case_number: Optional[int] = None
+    case_number: Optional[str] = None
     image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
@@ -25,7 +26,7 @@ class CaseCreateSerializer(BaseModel):
 class CaseSerializer(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
-    case_number: Optional[int] = 0
+    case_number: Optional[str] = None
     image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
