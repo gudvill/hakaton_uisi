@@ -19,11 +19,9 @@ class Case:
     id: int = None
     name: Optional[str] = None
     case_number: Optional[str] = None
-    image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int = 0
-    role: Optional[str] = None
     is_available: bool = True
 
 @dataclass

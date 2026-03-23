@@ -17,22 +17,18 @@ class AdminSerializer(BaseModel):
 class CaseCreateSerializer(BaseModel):
     name: Optional[str] = None
     case_number: Optional[str] = None
-    image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int
-    role: Optional[str] = None
 
 class CaseSerializer(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
     case_number: Optional[str] = None
-    image: Optional[str] = None
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int
     partner_name: Optional[str] = None
-    role: Optional[str] = None
     is_available: bool = True
 
 

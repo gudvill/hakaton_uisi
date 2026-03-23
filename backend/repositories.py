@@ -10,7 +10,7 @@ class CasesRepository(BaseRepository):
             connection=connection,
             table_name="cases",
             entity_class=Case,
-            columns=["name", "case_number", "image", "level", "description", "partner_id", "role", "is_available"])
+            columns=["name", "case_number", "level", "description", "partner_id", "is_available"])
 
     def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
         columns = [col[0] for col in cursor.description]
@@ -23,14 +23,14 @@ class CasesRepository(BaseRepository):
         return dict(zip(columns, row))
 
     def update(self, case_id: int, case: Case) -> None:
-        query = """UPDATE cases SET name=%s, case_number=%s, image=%s, level=%s, description=%s, partner_id=%s, role=%s WHERE id=%s"""
-        values = [case.name, case.case_number, case.image, case.level, case.description, case.partner_id, case.role, case_id]
+        query = """UPDATE cases SET name=%s, case_number=%s, level=%s, description=%s, partner_id=%s WHERE id=%s"""
+        values = [case.name, case.case_number, case.level, case.description, case.partner_id, case_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)
 
     def get_all_with_partner(self) -> List[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.image, c.level, c.description, c.partner_id, p.name as partner_name, c.role, c.is_available
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, c.is_available
             FROM cases c LEFT JOIN partners p ON c.partner_id = p.id WHERE c.is_available = TRUE ORDER BY c.id"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -38,7 +38,7 @@ class CasesRepository(BaseRepository):
                 return self._fetch_all_dict(cursor)
 
     def get_by_id_with_partner(self, case_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.image, c.level, c.description, c.partner_id, p.name as partner_name, c.role, c.is_available
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, c.is_available
             FROM cases c LEFT JOIN partners p ON c.partner_id = p.id WHERE c.id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:

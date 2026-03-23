@@ -25,11 +25,9 @@ def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depend
         id=0,
         name=case_data.name,
         case_number=case_data.case_number,
-        image=case_data.image,
         level=case_data.level,
         description=case_data.description,
         partner_id=case_data.partner_id,
-        role=case_data.role,
         is_available=True)
     case_id = use_case.create(case)
     created = use_case.get_by_id(case_id)
@@ -51,11 +49,9 @@ def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUs
         id=case_id,
         name=case_data.name,
         case_number=case_data.case_number,
-        image=case_data.image,
         level=case_data.level,
         description=case_data.description,
-        partner_id=case_data.partner_id,
-        role=case_data.role)
+        partner_id=case_data.partner_id)
     use_case.update(case_id, case)
     updated = use_case.get_by_id(case_id)
     return CaseSerializer(**updated)
