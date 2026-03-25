@@ -1,12 +1,31 @@
-from repositories import CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
-from use_cases import CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
 import psycopg2
 from config import settings
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer
+from jose import jwt, JWTError
+from security import SECRET_KEY, ALGORITHM
+from repositories import AdminRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
+from use_cases import AdminUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
+
+security = HTTPBearer()
+
+def get_current_admin(token=Depends(security)):
+    try:
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id: raise HTTPException(status_code=401)
+        return user_id
+    except JWTError:
+        raise HTTPException(status_code=401)
 
 # connection к postgres
 def get_connection():
     conn = psycopg2.connect(settings.database_connection_string)
     return conn
+
+def get_admin_usecase() -> AdminUseCase:
+    repository = AdminRepository(get_connection)
+    return AdminUseCase(repository)
 
 def get_cases_usecase() -> CasesUseCase:
     repository = CasesRepository(get_connection)

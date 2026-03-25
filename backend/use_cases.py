@@ -1,6 +1,20 @@
 from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
-from repositories import CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
+from repositories import AdminRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
 from typing import List, Optional, Dict, Any
+from security import verify_password
+
+
+class AdminUseCase:
+    def __init__(self, repository: AdminRepository):
+        self.repository = repository
+
+    def login(self, login: str, password: str):
+        user = self.repository.get_by_login(login)
+        if not user: return None
+        user_id, user_login, password_hash = user
+        if not verify_password(password, password_hash): return None
+        return {"id": user_id, "login": user_login}
+    
 
 class CasesUseCase:
     def __init__(self, repository: CasesRepository):

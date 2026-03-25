@@ -4,6 +4,20 @@ from base_repository import BaseRepository
 from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
 
+
+class AdminRepository:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def get_by_login(self, login: str):
+        query = "SELECT id, login, password_hash FROM admins WHERE login = %s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (login,))
+                row = cursor.fetchone()
+        return row
+
+
 class CasesRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
@@ -31,7 +45,7 @@ class CasesRepository(BaseRepository):
 
     def get_all_with_partner(self) -> List[Dict[str, Any]]:
         query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, c.is_available
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id WHERE c.is_available = TRUE ORDER BY c.id"""
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id WHERE c.is_available = TRUE ORDER BY c.case_number"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)

@@ -6,11 +6,15 @@ from datetime import date
 from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 
 
+class LoginRequest(BaseModel):
+    login: str
+    password: str
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
 class MainSerializer(BaseModel):
-    pass
-
-
-class AdminSerializer(BaseModel):
     pass
 
 

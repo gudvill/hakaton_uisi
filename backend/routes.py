@@ -1,15 +1,22 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
+from jose import jwt, JWTError
+from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
 from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
-from serializers import (CaseSerializer, CaseCreateSerializer,
+from serializers import (LoginRequest, RefreshRequest,
+                         CaseSerializer, CaseCreateSerializer,
                          NewsSerializer, NewsCreateSerializer,
                          PartnerSerializer, PartnerCreateSerializer,
                          PhotoAlbumSerializer, PhotoAlbumCreateSerializer,
                          PhotoSerializer, PhotoCreateSerializer,
                          ReviewSerializer, ReviewCreateSerializer)
-from use_cases import CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
-from dependencies import get_cases_usecase, get_news_usecase, get_partners_usecase, get_photoalbums_usecase, get_photos_usecase, get_reviews_usecase
+from use_cases import AdminUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
+from dependencies import (get_current_admin, get_admin_usecase,
+                          get_cases_usecase, get_news_usecase,
+                          get_partners_usecase, get_photoalbums_usecase,
+                          get_photos_usecase, get_reviews_usecase)
 
+admin_router = APIRouter(prefix="/admin", tags=["admin"])
 cases_router = APIRouter(prefix="/cases", tags=["cases"])
 news_router = APIRouter(prefix="/news", tags=["news"])
 partners_router = APIRouter(prefix="/partners", tags=["partners"])
@@ -18,9 +25,32 @@ photos_router = APIRouter(prefix="/photos", tags=["photos"])
 reviews_router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
+# Эндпоинты для Админа
+@admin_router.post("/login")
+def login(admin_data: LoginRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
+    user = use_case.login(admin_data.login, admin_data.password)
+    if not user: raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+    access = create_access_token({"sub": str(user["id"])})
+    refresh = create_refresh_token({"sub": str(user["id"])})
+    return {
+        "access_token": access,
+        "refresh_token": refresh
+    }
+
+@admin_router.post("/refresh")
+def refresh_token(data: RefreshRequest):
+    try:
+        payload = jwt.decode(data.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    new_access = create_access_token({"sub": user_id})
+    return {"access_token": new_access}
+
+
 # Эндпоинты для Кейсов
 @cases_router.post("/", response_model=CaseSerializer)
-def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase)) -> CaseSerializer:
+def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
     case = Case(
         id=0,
         name=case_data.name,
@@ -44,7 +74,7 @@ def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
     return CaseSerializer(**row)
 
 @cases_router.put("/{case_id}", response_model=CaseSerializer)
-def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase)) -> CaseSerializer:
+def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
     case = Case(
         id=case_id,
         name=case_data.name,
@@ -57,14 +87,14 @@ def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUs
     return CaseSerializer(**updated)
 
 @cases_router.delete("/{case_id}")
-def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
+def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
     use_case.disable(case_id)
     return {"message": "Кейс отключён"}
 
 
 # Эндпоинты для Новостей
 @news_router.post("/", response_model=NewsSerializer)
-def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase)) -> NewsSerializer:
+def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
     news = News(
         id=0,
         name=news_data.name,
@@ -89,7 +119,7 @@ def get_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) ->
     return NewsSerializer.from_entity(news)
 
 @news_router.put("/{news_id}", response_model=NewsSerializer)
-def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase)) -> NewsSerializer:
+def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
     news = News(
         id=news_id,
         name=news_data.name,
@@ -102,14 +132,14 @@ def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUse
     return NewsSerializer.from_entity(updated_news)
 
 @news_router.delete("/{news_id}")
-def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> dict:
+def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(news_id)
     return {"message": "Новость отключена"}
 
 
 # Эндпоинты для Партнёров
 @partners_router.post("/", response_model=PartnerSerializer)
-def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase)) -> PartnerSerializer:
+def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
     partner = Partner(
         id=0,
         name=partner_data.name,
@@ -133,7 +163,7 @@ def get_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partner
     return PartnerSerializer.from_entity(partner)
 
 @partners_router.put("/{partner_id}", response_model=PartnerSerializer)
-def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase)) -> PartnerSerializer:
+def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
     partner = Partner(
         id=partner_id,
         name=partner_data.name,
@@ -145,14 +175,14 @@ def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_c
     return PartnerSerializer.from_entity(updated_partner)
 
 @partners_router.delete("/{partner_id}")
-def disable_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partners_usecase)) -> dict:
+def disable_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(partner_id)
     return {"message": "Партнёр отключён"}
 
 
 # Эндпоинты для ФотоАльбомов
 @photoalbums_router.post("/", response_model=PhotoAlbumSerializer)
-def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> PhotoAlbumSerializer:
+def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
     photoalbum = PhotoAlbum(
         id=0,
         image=photoalbum_data.image,
@@ -174,7 +204,7 @@ def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(ge
     return PhotoAlbumSerializer.from_entity(photoalbum)
 
 @photoalbums_router.put("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
-def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> PhotoAlbumSerializer:
+def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
     photoalbum = PhotoAlbum(
         id=photoalbum_id,
         image=photoalbum_data.image,
@@ -184,14 +214,14 @@ def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSeria
     return PhotoAlbumSerializer.from_entity(updated_photoalbum)
 
 @photoalbums_router.delete("/{photoalbum_id}")
-def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> dict:
+def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(photoalbum_id)
     return {"message": "Фотоальбом отключён"}
 
 
 # Эндпоинты для Фото
 @photos_router.post("/", response_model=PhotoSerializer)
-def create_photo(photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase)) -> PhotoSerializer:
+def create_photo(photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> PhotoSerializer:
     photo = Photo(
         id=0,
         photo_album_id=photo_data.photo_album_id,
@@ -214,7 +244,7 @@ def get_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_usecas
     return PhotoSerializer.from_entity(photo)
 
 @photos_router.put("/{photo_id}", response_model=PhotoSerializer)
-def update_photo(photo_id: int, photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase)) -> PhotoSerializer:
+def update_photo(photo_id: int, photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> PhotoSerializer:
     photo = Photo(
         id=photo_id,
         photo_album_id=photo_data.photo_album_id,
@@ -225,14 +255,14 @@ def update_photo(photo_id: int, photo_data: PhotoCreateSerializer, use_case: Pho
     return PhotoSerializer.from_entity(updated_photo)
 
 @photos_router.delete("/{photo_id}")
-def disable_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_usecase)) -> dict:
+def disable_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(photo_id)
     return {"message": "Фото отключено"}
 
 
 # Эндпоинты для Отзывов
 @reviews_router.post("/", response_model=ReviewSerializer)
-def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> ReviewSerializer:
+def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
     review = Review(
         id=0,
         name=review_data.name,
@@ -256,7 +286,7 @@ def get_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_us
     return ReviewSerializer.from_entity(review)
 
 @reviews_router.put("/{review_id}", response_model=ReviewSerializer)
-def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> ReviewSerializer:
+def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
     review = Review(
         id=review_id,
         name=review_data.name,
@@ -268,6 +298,6 @@ def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case:
     return ReviewSerializer.from_entity(updated_review)
 
 @reviews_router.delete("/{review_id}")
-def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> dict:
+def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(review_id)
     return {"message": "Отзыв отключён"}

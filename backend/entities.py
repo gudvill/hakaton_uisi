@@ -12,7 +12,8 @@ class Main:
 
 @dataclass
 class Admin:
-    pass
+    login: str
+    password_hash: str
 
 @dataclass
 class Case:
