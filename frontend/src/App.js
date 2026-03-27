@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Header from './components/Header/header';
 import Hero from './components/Hero/hero';
@@ -13,7 +13,6 @@ import News from './components/News/news';
 import Faq from './components/Faq/faq';
 import Photo from './components/Photo/photo';
 import Footer from './components/Footer/footer';
-
 import Login from './components/Admin/login';
 import Admin from './components/Admin/admin';
 
@@ -40,12 +39,19 @@ function Home() {
 
 export default function App() {
   return (
-    <div className="app-wrapper">
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
-    </div>
+    <BrowserRouter>
+      <div className="app-wrapper">
+        <Routes>
+		      {/* сайт */}
+          <Route path="/" element={<Home />} />
+
+          {/* логин */}
+          <Route path="/admin/login" element={<Login />} />
+
+          {/* админка */}
+          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
