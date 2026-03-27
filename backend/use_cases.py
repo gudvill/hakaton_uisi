@@ -12,7 +12,7 @@ class AdminUseCase:
         user = self.repository.get_by_login(login)
         if not user: return None
         user_id, user_login, password_hash = user
-        if not verify_password(password, password_hash): return {"password" : password, "password_hash" : password_hash, "verify_password" : verify_password(password, password_hash) }
+        if not verify_password(password, password_hash): return None
         return {"id": user_id, "login": user_login}
     
 
