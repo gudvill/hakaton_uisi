@@ -13,6 +13,7 @@ import News from './components/News/news';
 import Faq from './components/Faq/faq';
 import Photo from './components/Photo/photo';
 import Footer from './components/Footer/footer';
+import AdminRoute from './routes/AdminRoute';
 import Login from './components/Admin/login';
 import Admin from './components/Admin/admin';
 
