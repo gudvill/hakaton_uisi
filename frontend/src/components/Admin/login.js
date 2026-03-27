@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../../api/authService";
 
 export default function Login() {
-  const [loginValue, setLoginValue] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -12,7 +12,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      await login(loginValue, password);
+      await login(login, password);
 
       // редирект
       navigate("/admin");
@@ -30,8 +30,8 @@ export default function Login() {
         <input
           type="text"
           placeholder="Логин"
-          value={loginValue}
-          onChange={(e) => setLoginValue(e.target.value)}
+          value={login}
+          onChange={(e) => setLogin(e.target.value)}
         />
 
         <input
