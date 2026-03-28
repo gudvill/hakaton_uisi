@@ -1,7 +1,7 @@
 # Репозиторий для работы с базой данных (SQL запросы к БД)
 
 from base_repository import BaseRepository
-from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
 
 
@@ -9,7 +9,7 @@ class AdminRepository:
     def __init__(self, connection):
         self.connection = connection
 
-    def get_by_login(self, login: str):
+    def get_by_login(self, login: str) -> Optional[tuple]:
         query = "SELECT id, login, password_hash FROM admins WHERE login = %s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -18,12 +18,66 @@ class AdminRepository:
         return row
 
 
+class ProgramRepository(BaseRepository):
+    def __init__(self, connection):
+        super().__init__(
+            connection=connection, table_name="program", entity_class=Program,
+            columns=["date", "text", "order_index"])
+        
+    def get_all_ordered(self) -> List[Program]:
+        query = """SELECT id, date, text, order_index, created_at FROM program ORDER BY order_index"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+        return [Program(*row) for row in rows]
+
+    def update(self, program_id: int, item: Program) -> None:
+        query = """UPDATE program SET date=%s, text=%s, order_index=%s WHERE id=%s"""
+        values = [item.date, item.text, item.order_index, program_id]
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, values)
+
+    def delete(self, program_id: int) -> None:
+        query = "DELETE FROM program WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (program_id,))
+
+
+class AboutRepository(BaseRepository):
+    def __init__(self, connection):
+        super().__init__(
+            connection=connection, table_name="about", entity_class=About,
+            columns=["text", "order_index"])
+        
+    def get_all_ordered(self) -> List[About]:
+        query = """SELECT id, text, order_index, created_at FROM about ORDER BY order_index"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+        return [About(*row) for row in rows]
+
+    def update(self, about_id: int, item: About) -> None:
+        query = """UPDATE about SET text=%s, order_index=%s WHERE id=%s"""
+        values = [item.text, item.order_index, about_id]
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, values)
+
+    def delete(self, about_id: int) -> None:
+        query = "DELETE FROM about WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (about_id,))
+
+
 class CasesRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection,
-            table_name="cases",
-            entity_class=Case,
+            connection=connection, table_name="cases", entity_class=Case,
             columns=["name", "case_number", "level", "description", "partner_id", "is_available"])
 
     def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
@@ -63,9 +117,7 @@ class CasesRepository(BaseRepository):
 class NewsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection,
-            table_name="news",
-            entity_class=News,
+            connection=connection, table_name="news", entity_class=News,
             columns=["name", "image", "created_at", "brief_description", "full_description", "is_available"])
     
     def update(self, news_id: int, news: News) -> None:
@@ -80,9 +132,7 @@ class NewsRepository(BaseRepository):
 class PartnersRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection,
-            table_name="partners",
-            entity_class=Partner,
+            connection=connection, table_name="partners", entity_class=Partner,
             columns=["name", "description", "image", "created_at", "is_available"])
     
     def update(self, partner_id: int, partner: Partner) -> None:
@@ -97,9 +147,7 @@ class PartnersRepository(BaseRepository):
 class PhotoAlbumsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection,
-            table_name="photoalbums",
-            entity_class=PhotoAlbum,
+            connection=connection, table_name="photoalbums", entity_class=PhotoAlbum,
             columns=["image", "created_at", "is_available"])
     
     def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
@@ -114,9 +162,7 @@ class PhotoAlbumsRepository(BaseRepository):
 class PhotosRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection,
-            table_name="photos",
-            entity_class=Photo,
+            connection=connection, table_name="photos", entity_class=Photo,
             columns=["photo_album_id", "path", "created_at", "is_available"])
     
     def update(self, photo_id: int, photo: Photo) -> None:
@@ -131,9 +177,7 @@ class PhotosRepository(BaseRepository):
 class ReviewsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection,
-            table_name="reviews",
-            entity_class=Review,
+            connection=connection, table_name="reviews", entity_class=Review,
             columns=["name", "content", "image", "created_at", "is_available"])
     
     def update(self, review_id: int, review: Review) -> None:

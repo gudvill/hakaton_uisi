@@ -2,13 +2,24 @@
 
 from dataclasses import dataclass
 from typing import Optional, List
-from datetime import date
+from datetime import datetime
 from typing import Any
 
 
 @dataclass
-class Main:
-    pass
+class Program:
+    id: int = None
+    date: Optional[str] = None
+    text: Optional[str] = None
+    order_index: Optional[int] = None
+    created_at: datetime = None
+
+@dataclass
+class About:
+    id: int = None
+    text:  Optional[str] = None
+    order_index: Optional[int] = None
+    created_at: datetime = None
 
 @dataclass
 class Admin:
@@ -19,7 +30,7 @@ class Admin:
 class Case:
     id: int = None
     name: Optional[str] = None
-    case_number: Optional[str] = None
+    case_number: Optional[int] = None
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int = 0
@@ -30,7 +41,7 @@ class News:
     id: int = None
     name: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
     is_available: bool = True
@@ -41,14 +52,14 @@ class Partner:
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    created_at: Optional[date] = None
+    created_at: datetime = None
     is_available: bool = True
 
 @dataclass
 class PhotoAlbum:
     id: int = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
 @dataclass
@@ -56,7 +67,7 @@ class Photo:
     id: int = None
     photo_album_id: int = 0
     path: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
 @dataclass
@@ -65,7 +76,7 @@ class Review:
     name: Optional[str] = None
     content: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
 @dataclass
@@ -83,7 +94,7 @@ class Registration:
     curator_data: str = None # jsonb
     agreement: bool = None
     acquaintance: bool = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
 @dataclass
@@ -93,5 +104,5 @@ class Participant:
     course: int = 0
     role: str =None
     registration_id: int = 0
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True

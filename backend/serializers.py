@@ -2,8 +2,8 @@
 
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date
-from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from datetime import datetime
+from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 
 
 class LoginRequest(BaseModel):
@@ -14,21 +14,61 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
-class MainSerializer(BaseModel):
-    pass
+class ProgramCreateSerializer(BaseModel):
+    date: Optional[str] = None
+    text: Optional[str] = None
+    order_index: Optional[int] = None
+    created_at: datetime = None
+
+class ProgramSerializer(BaseModel):
+    id: int
+    date: Optional[str] = None
+    text: Optional[str] = None
+    order_index: Optional[int] = None
+    created_at: datetime = None
+
+    @classmethod
+    def from_entity(cls, entity: Program):
+        return cls(
+            id=entity.id,
+            date=entity.date,
+            text=entity.text,
+            order_index=entity.order_index,
+            created_at=entity.created_at)
+    
+
+class AboutCreateSerializer(BaseModel):
+    text: Optional[str] = None
+    order_index: Optional[int] = None
+    created_at: datetime = None
+
+class AboutSerializer(BaseModel):
+    id: int
+    text: Optional[str] = None
+    order_index: Optional[int] = None
+    created_at: datetime = None
+
+    @classmethod
+    def from_entity(cls, entity: About):
+        return cls(
+            id=entity.id,
+            text=entity.text,
+            order_index=entity.order_index,
+            created_at=entity.created_at
+        )
 
 
 class CaseCreateSerializer(BaseModel):
     name: Optional[str] = None
-    case_number: Optional[str] = None
+    case_number: Optional[int] = None
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int
 
 class CaseSerializer(BaseModel):
-    id: Optional[int] = None
+    id: int
     name: Optional[str] = None
-    case_number: Optional[str] = None
+    case_number: Optional[int] = None
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int
@@ -39,7 +79,7 @@ class CaseSerializer(BaseModel):
 class NewsCreateSerializer(BaseModel):
     name: Optional[str] = None
     image: Optional[int] = None
-    created_at: date = None
+    created_at: datetime = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
 
@@ -47,7 +87,7 @@ class NewsSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
     is_available: bool = True
@@ -68,14 +108,14 @@ class PartnerCreateSerializer(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    created_at: Optional[date] = None
+    created_at: datetime = None
 
 class PartnerSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    created_at: Optional[date] = None
+    created_at: datetime = None
     is_available: bool = True
 
     @classmethod
@@ -91,12 +131,12 @@ class PartnerSerializer(BaseModel):
 
 class PhotoAlbumCreateSerializer(BaseModel):
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
 
 class PhotoAlbumSerializer(BaseModel):
     id: int
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
     @classmethod
@@ -111,13 +151,13 @@ class PhotoAlbumSerializer(BaseModel):
 class PhotoCreateSerializer(BaseModel):
     photo_album_id: int
     path: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
 
 class PhotoSerializer(BaseModel):
     id: int
     photo_album_id: int
     path: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
     @classmethod
@@ -134,14 +174,14 @@ class ReviewCreateSerializer(BaseModel):
     name: Optional[str] = None
     content: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
 
 class ReviewSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     content: Optional[str] = None
     image: Optional[str] = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
     @classmethod
@@ -168,7 +208,7 @@ class RegistrationCreateSerializer(BaseModel):
     curator_data: str = None # jsonb
     agreement: bool = None
     acquaintance: bool = None
-    created_at: date = None
+    created_at: datetime = None
 
 class RegistrationSerializer(BaseModel):
     id: int
@@ -184,7 +224,7 @@ class RegistrationSerializer(BaseModel):
     curator_data: str = None # jsonb
     agreement: bool = None
     acquaintance: bool = None
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
     @classmethod
@@ -212,7 +252,7 @@ class ParticipantsCreateSerializer(BaseModel):
     course: int = 0
     role: str =None
     registration_id: int
-    created_at: date = None
+    created_at: datetime = None
 
 
 class ParticipantsSerializer(BaseModel):
@@ -221,7 +261,7 @@ class ParticipantsSerializer(BaseModel):
     course: int = 0
     role: str =None
     registration_id: int
-    created_at: date = None
+    created_at: datetime = None
     is_available: bool = True
 
     @classmethod

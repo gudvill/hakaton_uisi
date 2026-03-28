@@ -2,21 +2,26 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
-from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from serializers import (LoginRequest, RefreshRequest,
+                         ProgramSerializer, ProgramCreateSerializer,
+                         AboutSerializer, AboutCreateSerializer,
                          CaseSerializer, CaseCreateSerializer,
                          NewsSerializer, NewsCreateSerializer,
                          PartnerSerializer, PartnerCreateSerializer,
                          PhotoAlbumSerializer, PhotoAlbumCreateSerializer,
                          PhotoSerializer, PhotoCreateSerializer,
                          ReviewSerializer, ReviewCreateSerializer)
-from use_cases import AdminUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
+from use_cases import AdminUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
 from dependencies import (get_current_admin, get_admin_usecase,
+                          get_program_usecase, get_about_usecase,
                           get_cases_usecase, get_news_usecase,
                           get_partners_usecase, get_photoalbums_usecase,
                           get_photos_usecase, get_reviews_usecase)
 
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
+program_router = APIRouter(prefix="/program", tags=["program"])
+about_router = APIRouter(prefix="/about", tags=["about"])
 cases_router = APIRouter(prefix="/cases", tags=["cases"])
 news_router = APIRouter(prefix="/news", tags=["news"])
 partners_router = APIRouter(prefix="/partners", tags=["partners"])
@@ -46,6 +51,69 @@ def refresh_token(data: RefreshRequest):
         raise HTTPException(status_code=401, detail="Invalid token")
     new_access = create_access_token({"sub": user_id})
     return {"access_token": new_access}
+
+
+# Эндпоинты для Программы
+@program_router.post("/", response_model=ProgramSerializer)
+def create_program(item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
+    item = Program(id=0, date=item_data.date, text=item_data.text, order_index=item_data.order_index)
+    item_id = use_case.create(item)
+    created = use_case.get_by_id(item_id)
+    return ProgramSerializer.from_entity(created)
+
+@program_router.get("/", response_model=List[ProgramSerializer])
+def get_program(use_case: ProgramUseCase = Depends(get_program_usecase)):
+    return [ProgramSerializer.from_entity(x) for x in use_case.get_all()]
+
+@program_router.get("/{item_id}", response_model=ProgramSerializer)
+def get_program_item(item_id: int, use_case: ProgramUseCase = Depends(get_program_usecase)):
+    item = use_case.get_by_id(item_id)
+    if not item: raise HTTPException(status_code=404, detail="Не найдено")
+    return ProgramSerializer.from_entity(item)
+
+@program_router.put("/{item_id}", response_model=ProgramSerializer)
+def update_program(item_id: int, item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
+    item = Program(id=item_id, date=item_data.date, text=item_data.text, order_index=item_data.order_index)
+    use_case.update(item_id, item)
+    updated = use_case.get_by_id(item_id)
+    return ProgramSerializer.from_entity(updated)
+
+@program_router.delete("/{item_id}")
+def delete_program(item_id: int, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
+    use_case.delete(item_id)
+    return {"message": "Удалено"}
+
+
+# Эндпоинты для Описания
+@about_router.post("/", response_model=AboutSerializer)
+def create_about(item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    item = About(id=0, text=item_data.text, order_index=item_data.order_index)
+    item_id = use_case.create(item)
+    created = use_case.get_by_id(item_id)
+    return AboutSerializer.from_entity(created)
+
+@about_router.get("/", response_model=List[AboutSerializer])
+def get_about(use_case: AboutUseCase = Depends(get_about_usecase)):
+    return [AboutSerializer.from_entity(x) for x in use_case.get_all()]
+
+@about_router.get("/{item_id}", response_model=AboutSerializer)
+def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase)):
+    item = use_case.get_by_id(item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Не найдено")
+    return AboutSerializer.from_entity(item)
+
+@about_router.put("/{item_id}", response_model=AboutSerializer)
+def update_about(item_id: int, item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    item = About(id=item_id, text=item_data.text, order_index=item_data.order_index)
+    use_case.update(item_id, item)
+    updated = use_case.get_by_id(item_id)
+    return AboutSerializer.from_entity(updated)
+
+@about_router.delete("/{item_id}")
+def delete_about(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    use_case.delete(item_id)
+    return {"message": "Удалено"}
 
 
 # Эндпоинты для Кейсов

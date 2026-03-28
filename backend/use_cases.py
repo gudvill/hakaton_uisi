@@ -1,5 +1,5 @@
-from entities import Main, Admin, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
-from repositories import AdminRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
+from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
 from typing import List, Optional, Dict, Any
 from security import verify_password
 
@@ -15,6 +15,46 @@ class AdminUseCase:
         if not verify_password(password, password_hash): return None
         return {"id": user_id, "login": user_login}
     
+
+class ProgramUseCase:
+    def __init__(self, repository: ProgramRepository):
+        self.repository = repository
+
+    def create(self, item: Program) -> int:
+        return self.repository.create(item)
+
+    def get_all(self) -> List[Program]:
+        return self.repository.get_all_ordered()
+
+    def get_by_id(self, item_id: int) -> Optional[Program]:
+        return self.repository.get_by_id(item_id)
+
+    def update(self, item_id: int, item: Program) -> None:
+        self.repository.update(item_id, item)
+
+    def delete(self, item_id: int) -> None:
+        self.repository.delete(item_id)
+
+
+class AboutUseCase:
+    def __init__(self, repository: AboutRepository):
+        self.repository = repository
+
+    def create(self, item: About) -> int:
+        return self.repository.create(item)
+
+    def get_all(self) -> List[About]:
+        return self.repository.get_all_ordered()
+
+    def get_by_id(self, item_id: int) -> Optional[About]:
+        return self.repository.get_by_id(item_id)
+
+    def update(self, item_id: int, item: About) -> None:
+        self.repository.update(item_id, item)
+
+    def delete(self, item_id: int) -> None:
+        self.repository.delete(item_id)
+
 
 class CasesUseCase:
     def __init__(self, repository: CasesRepository):
