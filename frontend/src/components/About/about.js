@@ -1,14 +1,40 @@
 import './about.css';
+import { useState, useEffect } from "react";
+import { getAbout } from "../../api/aboutService";
 
 export default function About() {
+  const [aboutData, setAboutData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAbout = async () => {
+      try {
+        setLoading(true);
+        const data = await getAbout();
+        setAboutData(data);
+      } catch (err) {
+        setError("Ошибка загрузки описания");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAbout();
+  }, []);
+
+  if (loading) return <div className="about container">Загрузка...</div>;
+  if (error) return <div className="about container">{error}</div>;
+
   return (
     <section className="about container">
-        <h2>О ХАКАТОНЕ</h2>
-        <div className='about-div'>
-            <p>Хакатон — это марафон, где технологические энтузиасты за короткий срок превращают идеи в рабочие прототипы. </p>
-            <img src='images/gif.png' alt='gif'></img>
+      <h2>О ХАКАТОНЕ</h2>
+      {aboutData.map((item, index) => (
+        <div key={item.id} className={index === 0 ? 'about-div' : 'about-text'}>
+          <p>{item.text}</p>
+          {index === 0 && <img src='images/gif.png' alt='gif' />}
         </div>
-        <div className='about-text'><p>В состав стандартной команды входят разработчики, дизайнеры и менеджеры. Обычно мероприятие занимает от 24 до 48 часов непрерывной работы.</p></div>
+      ))}
     </section>
   );
 }

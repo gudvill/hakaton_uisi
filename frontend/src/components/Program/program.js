@@ -1,12 +1,30 @@
 import './program.css';
+import { useState, useEffect } from "react";
+import { getProgram } from "../../api/programService";
 
 export default function Program() {
-  const programData = [
-    { id: 1, date: '14 ноября', text: 'С другой стороны постоянный количественный рост и сфера нашей активности требуют от нас анализа системы обучения кадров, соответствует насущным потребностям. ' },
-    { id: 2, date: '14-16 ноября', text: 'С другой стороны постоянный количественный рост и сфера нашей активности требуют от нас анализа системы обучения кадров, соответствует насущным потребностям. ' },
-    { id: 3, date: '16 ноября', text: 'С другой стороны постоянный количественный рост и сфера нашей активности требуют от нас анализа системы обучения кадров, соответствует насущным потребностям. ' },
-    { id: 4, date: '17 ноября', text: 'С другой стороны постоянный количественный рост и сфера нашей активности требуют от нас анализа системы обучения кадров, соответствует насущным потребностям. ' },
-  ];
+  const [programData, setProgramData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProgram = async () => {
+      try {
+        setLoading(true);
+        const data = await getProgram();
+        setProgramData(data);
+      } catch (err) {
+        setError("Ошибка загрузки программы");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgram();
+  }, []);
+
+  if (loading) return <div className='container'>Загрузка...</div>;
+  if (error) return <div className='container'>{error}</div>;
 
   return (
     <section className='program container'>
