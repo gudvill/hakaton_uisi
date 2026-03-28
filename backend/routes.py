@@ -262,14 +262,14 @@ def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: Pho
 
 @photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
 def get_photoalbums(use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> List[PhotoAlbumSerializer]:
-    photoalbums = use_case.get_all()
-    return [PhotoAlbumSerializer.from_entity(c) for c in photoalbums]
+    data = use_case.get_all()
+    return [PhotoAlbumSerializer.from_entity(item.album, item.photos) for item in data]
 
 @photoalbums_router.get("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
 def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> PhotoAlbumSerializer:
-    photoalbum = use_case.get_by_id(photoalbum_id)
-    if not photoalbum: raise HTTPException(status_code=404, detail="Фотоальбом не найден")
-    return PhotoAlbumSerializer.from_entity(photoalbum)
+    item = use_case.get_by_id(photoalbum_id)
+    if not item: raise HTTPException(status_code=404, detail="Фотоальбом не найден")
+    return PhotoAlbumSerializer.from_entity(item.album, item.photos)
 
 @photoalbums_router.put("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
 def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
@@ -279,7 +279,7 @@ def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSeria
         created_at=photoalbum_data.created_at)
     use_case.update(photoalbum_id, photoalbum)
     updated_photoalbum = use_case.get_by_id(photoalbum_id)
-    return PhotoAlbumSerializer.from_entity(updated_photoalbum)
+    return PhotoAlbumSerializer.from_entity(updated_photoalbum.album, updated_photoalbum.photos)
 
 @photoalbums_router.delete("/{photoalbum_id}")
 def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> dict:
@@ -288,6 +288,24 @@ def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depend
 
 
 # Эндпоинты для Фото
+import os
+from fastapi import UploadFile, File
+
+UPLOAD_DIR = "media/albums"
+
+@photos_router.post("/upload/{photo_album_id}")
+async def upload_photo(photo_album_id: int, file: UploadFile = File(...), use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)):
+    album_dir = f"{UPLOAD_DIR}/{photo_album_id}"
+    os.makedirs(album_dir, exist_ok=True)
+    file_path = f"{album_dir}/{file.filename}"
+    with open(file_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+    photo = Photo(id=0, photo_album_id=photo_album_id, path=file_path, created_at=None, is_available=True)
+    photo_id = use_case.create(photo)
+    photo.id = photo_id
+    return PhotoSerializer.from_entity(photo)
+
 @photos_router.post("/", response_model=PhotoSerializer)
 def create_photo(photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> PhotoSerializer:
     photo = Photo(
@@ -301,9 +319,8 @@ def create_photo(photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = De
     return PhotoSerializer.from_entity(photo)
 
 @photos_router.get("/", response_model=List[PhotoSerializer])
-def get_photos(use_case: PhotosUseCase = Depends(get_photos_usecase)) -> List[PhotoSerializer]:
-    photos = use_case.get_all()
-    return [PhotoSerializer.from_entity(c) for c in photos]
+def get_photos(use_case: PhotosUseCase = Depends(get_photos_usecase)):
+    return [PhotoSerializer.from_entity(c) for c in use_case.get_all()]
 
 @photos_router.get("/{photo_id}", response_model=PhotoSerializer)
 def get_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_usecase)) -> PhotoSerializer:

@@ -1,7 +1,7 @@
 # Сериализаторы для преобразования между JSON и сущностями
 
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, List
 from datetime import datetime
 from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 
@@ -129,6 +129,28 @@ class PartnerSerializer(BaseModel):
             is_available=entity.is_available)
     
 
+class PhotoCreateSerializer(BaseModel):
+    photo_album_id: int
+    path: Optional[str] = None
+    created_at: datetime = None
+
+class PhotoSerializer(BaseModel):
+    id: int
+    photoalbum_id: int
+    path: Optional[str] = None
+    created_at: datetime = None
+    is_available: bool = True
+
+    @classmethod
+    def from_entity(cls, entity: Photo) -> "PhotoSerializer":
+        return cls(
+            id=entity.id,
+            photoalbum_id=entity.photoalbum_id,
+            path=entity.path,
+            created_at=entity.created_at,
+            is_available=entity.is_available)
+
+
 class PhotoAlbumCreateSerializer(BaseModel):
     image: Optional[str] = None
     created_at: datetime = None
@@ -138,36 +160,18 @@ class PhotoAlbumSerializer(BaseModel):
     image: Optional[str] = None
     created_at: datetime = None
     is_available: bool = True
+    photos: List["PhotoSerializer"] = Field(default_factory=list)
 
     @classmethod
-    def from_entity(cls, entity: PhotoAlbum) -> "PhotoAlbumSerializer":
+    def from_entity(cls, entity: PhotoAlbum, photos: List["Photo"] | None = None):
         return cls(
             id=entity.id,
             image=entity.image,
             created_at=entity.created_at,
-            is_available=entity.is_available)
+            is_available=entity.is_available,
+            photos=[PhotoSerializer.from_entity(p) for p in (photos or [])])
 
-
-class PhotoCreateSerializer(BaseModel):
-    photo_album_id: int
-    path: Optional[str] = None
-    created_at: datetime = None
-
-class PhotoSerializer(BaseModel):
-    id: int
-    photo_album_id: int
-    path: Optional[str] = None
-    created_at: datetime = None
-    is_available: bool = True
-
-    @classmethod
-    def from_entity(cls, entity: Photo) -> "PhotoSerializer":
-        return cls(
-            id=entity.id,
-            photo_album_id=entity.photo_album_id,
-            path=entity.path,
-            created_at=entity.created_at,
-            is_available=entity.is_available)
+PhotoAlbumSerializer.model_rebuild()
 
 
 class ReviewCreateSerializer(BaseModel):

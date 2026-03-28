@@ -65,10 +65,15 @@ class PhotoAlbum:
 @dataclass
 class Photo:
     id: int = None
-    photo_album_id: int = 0
+    photoalbum_id: int = 0
     path: Optional[str] = None
     created_at: datetime = None
     is_available: bool = True
+
+@dataclass
+class PhotoAlbumWithPhotos:
+    album: PhotoAlbum
+    photos: List[Photo]
 
 @dataclass
 class Review:

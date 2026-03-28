@@ -1,4 +1,4 @@
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
 from typing import List, Optional, Dict, Any
 from security import verify_password
@@ -119,27 +119,27 @@ class PartnersUseCase:
 class PhotoAlbumsUseCase:
     def __init__(self, repository: PhotoAlbumsRepository):
         self.repository = repository
-    
+
     def create(self, photoalbum: PhotoAlbum) -> int:
         return self.repository.create(photoalbum)
 
-    def get_all(self) -> List[PhotoAlbum]:
-        return self.repository.get_all()
+    def get_all(self) -> List[PhotoAlbumWithPhotos]:
+        return self.repository.get_all_with_photos()
 
-    def get_by_id(self, photoalbum_id: int) -> Optional[PhotoAlbum]:
-        return self.repository.get_by_id(photoalbum_id)
+    def get_by_id(self, photoalbum_id: int) -> Optional[PhotoAlbumWithPhotos]:
+        return self.repository.get_by_id_with_photos(photoalbum_id)
 
     def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
         self.repository.update(photoalbum_id, photoalbum)
 
     def disable(self, photoalbum_id: int) -> None:
         self.repository.disable(photoalbum_id)
-
+        
 
 class PhotosUseCase:
     def __init__(self, repository: PhotosRepository):
         self.repository = repository
-    
+
     def create(self, photo: Photo) -> int:
         return self.repository.create(photo)
 

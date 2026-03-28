@@ -1,7 +1,7 @@
 # Репозиторий для работы с базой данных (SQL запросы к БД)
 
 from base_repository import BaseRepository
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
 
 
@@ -149,10 +149,43 @@ class PhotoAlbumsRepository(BaseRepository):
         super().__init__(
             connection=connection, table_name="photoalbums", entity_class=PhotoAlbum,
             columns=["image", "created_at", "is_available"])
+        
+    def get_all_with_photos(self) -> List[Dict[str, Any]]:
+        query = """SELECT pa.id, pa.image, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
+                FROM photoalbums pa LEFT JOIN photos p ON pa.id = p.photoalbum_id WHERE pa.is_available = TRUE ORDER BY pa.id"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+        albums = {}
+        for row in rows:
+            pa_id, image, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
+            if pa_id not in albums:
+                albums[pa_id] = PhotoAlbumWithPhotos(album=PhotoAlbum(pa_id, image, created_at, is_available), photos=[])
+            if p_id:
+                albums[pa_id].photos.append(Photo(p_id, p_album_id, path, p_created_at, p_is_available))
+        return list(albums.values())
     
+    def get_by_id_with_photos(self, photoalbum_id: int) -> Optional[Dict[str, Any]]:
+        query = """SELECT pa.id, pa.image, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
+                FROM photoalbums pa LEFT JOIN photos p ON pa.id = p.photoalbum_id WHERE pa.id = %s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (photoalbum_id,))
+                rows = cursor.fetchall()
+        if not rows: return None
+        album = None
+        photos = []
+        for row in rows:
+            pa_id, image, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
+            if not album:
+                album = PhotoAlbum(pa_id, image, created_at, is_available)
+            if p_id:
+                photos.append(Photo(p_id, p_album_id, path, p_created_at, p_is_available))
+        return PhotoAlbumWithPhotos(album=album, photos=photos)
+
     def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
-        query = """UPDATE photoalbums
-            SET image=%s, created_at=%s WHERE id=%s"""
+        query = """UPDATE photoalbums SET image=%s, created_at=%s WHERE id=%s"""
         values = [photoalbum.image, photoalbum.created_at, photoalbum_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -163,11 +196,11 @@ class PhotosRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="photos", entity_class=Photo,
-            columns=["photo_album_id", "path", "created_at", "is_available"])
+            columns=["photoalbum_id", "path", "created_at", "is_available"])
     
     def update(self, photo_id: int, photo: Photo) -> None:
         query = """UPDATE photos
-            SET photo_album_id=%s, path=%s, created_at=%s WHERE id=%s"""
+            SET photoalbum_id=%s, path=%s, created_at=%s WHERE id=%s"""
         values = [photo.photo_album_id, photo.path, photo.created_at, photo_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
