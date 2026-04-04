@@ -60,10 +60,6 @@
   margin: 0;
 }
 
-.cases {
-  background-color: white !important;
-}
-
 .registration-form {
   display: flex;
   flex-direction: column;
@@ -147,10 +143,14 @@ label:has(input[type="checkbox"]) {
   width: 100%;            
 }
 
+.case-radio-group {
+  background-color: white !important;
+}
+
 input[type="radio"] {
   accent-color: #2055C7;
-  cursor: pointer; 
-  width: 15px;            
+  cursor: pointer;
+  width: 15px;
   height: 15px;
 }
 

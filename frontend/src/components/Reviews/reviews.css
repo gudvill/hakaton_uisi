@@ -1,10 +1,10 @@
-.faq {
+.reviews {
   padding-top: 4rem;
   padding-bottom: 4rem;
 }
 
 @media (max-width: 768px) {
-  .faq {
+  .reviews {
     padding-top: 2rem;
     padding-bottom: 2rem;
   }

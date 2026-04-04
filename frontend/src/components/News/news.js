@@ -2,7 +2,7 @@ import './news.css';
 
 export default function News() {
   return (
-    <section className="news">
+    <section className="news container">
         <h2>НОВОСТИ</h2>
     </section>
   );

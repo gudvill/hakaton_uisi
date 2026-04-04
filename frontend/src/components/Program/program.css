@@ -30,3 +30,10 @@
     max-width: 850px;
 }
 
+@media (max-width: 768px) {
+  .program {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+

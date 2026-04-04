@@ -4,6 +4,13 @@
   color: white;
 }
 
+@media (max-width: 768px) {
+  .partners {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
 
 .partners-grid {
   display: grid;

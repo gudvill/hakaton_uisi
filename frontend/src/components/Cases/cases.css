@@ -1,6 +1,8 @@
 .cases {
   background-color: #06011F;
   min-height: 100vh;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
 }
 
 .cases_container {
@@ -140,12 +142,12 @@
 
 @media (max-width: 768px) {
   .cases {
-    padding: 2rem 1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
   .cases h2 {
     font-size: 2rem;
-    padding-left: 1rem;
   }
 
   .cases_container {
