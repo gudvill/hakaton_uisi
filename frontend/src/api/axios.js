@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: process.env.REACT_APP_API_URL,
 });
 
 // access токен
@@ -26,7 +26,7 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem("refresh");
 
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/admin/refresh`,
+          `${process.env.REACT_APP_API_URL}/admin/refresh`,
           {
             refresh_token: refresh,
           }
