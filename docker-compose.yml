@@ -24,6 +24,7 @@ services:
       - DATABASE_URL=postgresql://postgres:hakaton@db:5432/hakaton_db
     volumes:
       - ./backend:/app
+      - ./backend/media:/app/media
     ports:
       - "8000:8000"
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -48,6 +49,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./backend/media:/app/media
 
 volumes:
   pgdata:

@@ -1,15 +1,12 @@
 import './partners.css';
 import { useEffect, useState } from 'react';
+import { getPartners } from '../../api/partnersService';
 
 export default function Partners() {
   const [partnersData, setPartnersData] = useState([]);
 
   useEffect(() => {
-    fetch("/api/partners/")
-      .then(res => {
-        if (!res.ok) throw new Error("Ошибка API");
-        return res.json();
-      })
+    getPartners()
       .then(data => setPartnersData(data))
       .catch(err => console.error("Ошибка загрузки партнёров:", err));
   }, []);
