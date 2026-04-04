@@ -12,6 +12,7 @@ import Contacts from './components/Contacts/contacts';
 import News from './components/News/news';
 import Faq from './components/Faq/faq';
 import Photo from './components/Photo/photo';
+import Reviews from './components/Reviews/reviews';
 import Footer from './components/Footer/footer';
 import AdminRoute from "./routes/AdminRoute";
 import Login from './components/Admin/login';
@@ -32,6 +33,7 @@ function Home() {
       </div>
       <News />
       <Faq />
+      <Reviews />
       <Photo />
       <Footer />
     </>

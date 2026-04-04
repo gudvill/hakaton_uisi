@@ -180,7 +180,7 @@ export default function Registration({ isOpen, onClose }) {
 
           {/* Кейсы */}
           <p className='form-subtitle'>Выбранный кейс</p>
-          <label className='cases'>
+          <label className='case-radio-group'>
             {[1,2,3,4,5,6].map(num => (
               <label key={num} className="radio-item">
                 <input
@@ -196,7 +196,7 @@ export default function Registration({ isOpen, onClose }) {
           </label>
 
           <p className='form-subtitle'>Запасной кейс</p>
-          <label className='cases'>
+          <label className='case-radio-group'>
             {[1,2,3,4,5,6].map(num => (
               <label key={`spare-${num}`} className="radio-item">
                 <input
