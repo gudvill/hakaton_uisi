@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes import admin_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router
@@ -6,6 +7,10 @@ from routes import admin_router, program_router, about_router, cases_router, new
 app = FastAPI(root_path="/api")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
+
+if not os.path.exists("media"):
+    os.makedirs("media")
+
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(admin_router)
