@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAbout } from '../../services/aboutService';
+import { getAbout } from '../../api/aboutService';
 import './about.css';
 
 export default function About() {
