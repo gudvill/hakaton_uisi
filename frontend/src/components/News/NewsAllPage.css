@@ -1,0 +1,23 @@
+.news-all {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  color: white;
+  min-height: 80vh;
+}
+
+.news-all__loading {
+  color: #aaa;
+  font-size: 1.1rem;
+}
+
+.news-all__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 320px));
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .news-all__grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -15,7 +15,9 @@ export default function About() {
   return (
     <section className="about container">
       <h2>О ХАКАТОНЕ</h2>
-
+      <div className='text-about'>
+        <p>Это короткое командное мероприятие, в ходе которого за ограниченное время участники создают или улучшают проекты, разрабатывают идеи и представляют готовые решения.</p>
+      </div>
       <div className="roadmap">
 
         {/* Градиентная линия-змейка
