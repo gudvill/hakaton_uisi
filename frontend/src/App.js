@@ -17,6 +17,8 @@ import Footer from './components/Footer/footer';
 import AdminRoute from "./routes/AdminRoute";
 import Login from './components/Admin/login';
 import Admin from './components/Admin/admin';
+import NewsAllPage from './components/News/NewsAllPage';
+import NewsDetailPage from './components/News/NewsDetailPage';
 
 function Home() {
   return (
@@ -46,6 +48,10 @@ export default function App() {
       <Routes>
 		      {/* сайт */}
           <Route path="/" element={<Home />} />
+
+          {/* новости */}
+          <Route path="/news" element={<NewsAllPage />} />
+          <Route path="/news/:id" element={<NewsDetailPage />} />
 
           {/* логин */}
           <Route path="/admin/login" element={<Login />} />

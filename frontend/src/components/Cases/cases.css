@@ -24,6 +24,7 @@
   aspect-ratio: 1 / 1;
   cursor: pointer;
   text-decoration: none;
+  overflow: hidden;
 }
 
 .case_card::before {
@@ -152,5 +153,25 @@
 
   .cases_container {
     grid-template-columns: 1fr;
+  }
+
+  .info-baner {
+    grid-column: 1;
+  }
+
+  .info-text p {
+    font-size: 1.2rem;
+  }
+
+  .info-image img {
+    max-height: 160px;
+  }
+
+  .partner_name {
+    font-size: 1.3rem;
+  }
+
+  .case_number {
+    font-size: 3rem;
   }
 }
