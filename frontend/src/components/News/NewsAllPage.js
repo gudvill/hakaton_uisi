@@ -16,6 +16,19 @@ export default function NewsAllPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Функция форматирования даты
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const monthNames = [
+      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   return (
     <>
       <Header />
@@ -28,12 +41,12 @@ export default function NewsAllPage() {
             {news.map((item) => (
               <Link key={item.id} className="news-card" to={`/news/${item.id}`}>
                 <div className="news-card__img-wrap">
-                  <img className="news-card__img" src={item.image} alt={item.title} />
+                  <img className="news-card__img" src={item.image} alt={item.name} />
                 </div>
                 <div className="news-card__body">
                   <p className="news-card__date">{item.date}</p>
-                  <p className="news-card__title">{item.title}</p>
-                  <p className="news-card__text">{item.preview}</p>
+                  <p className="news-card__title">{formatDate(item.created_at)}</p>
+                  <p className="news-card__text">{item.brief_description}</p>
                   <span className="news-card__link">перейти →</span>
                 </div>
               </Link>
