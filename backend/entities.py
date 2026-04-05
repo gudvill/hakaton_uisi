@@ -9,9 +9,11 @@ from typing import Any
 @dataclass
 class Program:
     id: int = None
-    date: Optional[str] = None
+    row: Optional[int] = None
+    col: Optional[int] = None
+    title: Optional[str] = None
     text: Optional[str] = None
-    order_index: Optional[int] = None
+    icon: Optional[str] = None
     created_at: datetime = None
 
 @dataclass

@@ -50,10 +50,10 @@ class AboutRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="about", entity_class=About,
-            columns=["text", "order_index"])
+            columns=["row", "col", "title", "text", "icon", "created_at"])
         
     def get_all_ordered(self) -> List[About]:
-        query = """SELECT id, text, order_index, created_at FROM about ORDER BY order_index"""
+        query = """SELECT id, row, col, title, text, icon, created_at FROM about"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
@@ -61,8 +61,8 @@ class AboutRepository(BaseRepository):
         return [About(*row) for row in rows]
 
     def update(self, about_id: int, item: About) -> None:
-        query = """UPDATE about SET text=%s, order_index=%s WHERE id=%s"""
-        values = [item.text, item.order_index, about_id]
+        query = """UPDATE about SET row=%s, col=%s, title=%s, text=%s, icon=%s, created_at=%s WHERE id=%s"""
+        values = [item.row, item.col, item.title, item.text, item.icon, item.created_at, about_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)
