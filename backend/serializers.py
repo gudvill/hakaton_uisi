@@ -38,24 +38,32 @@ class ProgramSerializer(BaseModel):
     
 
 class AboutCreateSerializer(BaseModel):
+    row: Optional[int] = None
+    col: Optional[int] = None
+    title: Optional[str] = None
     text: Optional[str] = None
-    order_index: Optional[int] = None
+    icon: Optional[str] = None
     created_at: datetime = None
 
 class AboutSerializer(BaseModel):
     id: int
+    row: Optional[int] = None
+    col: Optional[int] = None
+    title: Optional[str] = None
     text: Optional[str] = None
-    order_index: Optional[int] = None
+    icon: Optional[str] = None
     created_at: datetime = None
 
     @classmethod
     def from_entity(cls, entity: About):
         return cls(
             id=entity.id,
+            row=entity.row,
+            col=entity.col,
+            title=entity.title,
             text=entity.text,
-            order_index=entity.order_index,
-            created_at=entity.created_at
-        )
+            icon=entity.icon,
+            created_at=entity.created_at)
 
 
 class CaseCreateSerializer(BaseModel):

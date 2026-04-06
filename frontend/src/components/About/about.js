@@ -1,18 +1,17 @@
+import { useState, useEffect } from 'react';
+import { getAbout } from '../../api/aboutService';
 import './about.css';
 
-// row: 1-3, col: 1-3
-const steps = [
-  { row: 1, col: 1, title: 'Регистрация',           text: 'Зарегистрируй команду на платформе и заполни все необходимые данные для участия.',          icon: <img src='images/registr.svg' alt='' /> },
-  { row: 1, col: 2, title: 'Старт хакатона',         text: 'Официальное открытие, брифинг по кейсам и знакомство с командами и менторами.',             icon: <img src='images/rocket.svg' alt='' /> },
-  { row: 1, col: 3, title: 'Формирование команд',    text: 'Окончательный состав команд, распределение ролей и выбор кейса для работы.',               icon: <img src='images/people.svg' alt='' /> },
-  { row: 2, col: 1, title: 'Начало разработки',      text: 'Команды приступают к работе над кейсами, консультируются с менторами.',                     icon: <img src='images/code.svg' alt='' /> },
-  { row: 2, col: 2, title: 'Подготовка презентации', text: 'Оформление результатов, подготовка презентации и финальной защиты проекта.',                icon: <img src='images/presentation.svg' alt='' /> },
-  { row: 2, col: 3, title: 'Защита проекта',         text: 'Презентация решения перед жюри. Каждая команда представляет свой проект.',                  icon: <img src='images/protect.svg' alt='' /> },
-  { row: 3, col: 1, title: 'Подведение итогов',      text: 'Объявление победителей, награждение и обратная связь от экспертов.',                        icon: <img src='images/medal.svg' alt='' /> },
-  { row: 3, col: 2, title: 'Нетворкинг',             text: 'Общение с партнёрами, экспертами и участниками, знакомство с возможностями.',               icon: <img src='images/networking.svg' alt='' /> },
-];
-
 export default function About() {
+  // row: 1-3, col: 1-3
+  const [steps, setSteps] = useState([]);
+
+  useEffect(() => {
+    getAbout()
+      .then(data => setSteps(data))
+      .catch(err => console.error("Ошибка загрузки этапов:", err));
+  }, []);
+
   return (
     <section className="about container">
       <h2>О ХАКАТОНЕ</h2>
@@ -46,13 +45,13 @@ export default function About() {
         </svg>
 
         <div className="roadmap-grid">
-          {steps.map((s, i) => (
+          {steps.map((s) => (
             <div
-              key={i}
+              key={s.id}
               className="roadmap-cell"
               style={{ gridRow: s.row, gridColumn: s.col }}
             >
-              <div className="roadmap-circle">{s.icon}</div>
+              <div className="roadmap-circle"><img src={s.icon} alt={s.title} /></div>
               <div className="roadmap-label">
                 <h3>{s.title}</h3>
                 <p>{s.text}</p>

@@ -1,39 +1,29 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getNews } from '../../api/newsService'; 
 import './news.css';
 
-const MOCK_NEWS = [
-  {
-    id: 1,
-    date: '26 ноября',
-    title: 'Интервью с командой Кот будущего',
-    preview: 'Команда кот будущего на Всероссийском хакатоне — яркий пример того, как студенты решают реальные задачи отрасли.',
-    image: 'images/news1.jpg',
-  },
-  {
-    id: 2,
-    date: '18 ноября',
-    title: 'Подведение итогов хакатона 2025',
-    preview: 'Объявлены победители Всероссийского хакатона связи. Узнайте, какие команды получили призы и признание экспертов.',
-    image: 'images/news2.jpg',
-  },
-  {
-    id: 3,
-    date: '14 ноября',
-    title: 'Открытие хакатона связи 2025',
-    preview: 'Более 200 участников со всей страны собрались на торжественном открытии хакатона. Старт дан!',
-    image: 'images/news3.jpg',
-  },
-  {
-    id: 4,
-    date: '6 ноября',
-    title: 'Завершён приём заявок',
-    preview: 'Приём заявок на участие в хакатоне завершён. Зарегистрировано рекордное количество команд — более 60.',
-    image: 'images/news4.jpg',
-  },
-];
-
 export default function News() {
-  const news = MOCK_NEWS;;
+  const [news, setNews] = useState([]);
+
+  useEffect(() => {
+    getNews()
+      .then(data => setNews(data))
+      .catch(err => console.error("Ошибка загрузки новостей:", err));
+  }, []);
+
+  // Функция форматирования даты
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const monthNames = [
+      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
 
   return (
     <section className="news container" id="news">
@@ -46,12 +36,12 @@ export default function News() {
           <div key={item.id} className="news-card-wrapper">
             <Link className="news-card" to={`/news/${item.id}`}>
               <div className="news-card__img-wrap">
-                <img className="news-card__img" src={item.image} alt={item.title} />
+                <img className="news-card__img" src={item.image} alt={item.name} />
               </div>
               <div className="news-card__body">
-                <p className="news-card__date">{item.date}</p>
-                <p className="news-card__title">{item.title}</p>
-                <p className="news-card__text">{item.preview}</p>
+                <p className="news-card__date">{formatDate(item.created_at)}</p>
+                <p className="news-card__title">{item.name}</p>
+                <p className="news-card__text">{item.brief_description}</p>
                 <span className="news-card__link">перейти →</span>
               </div>
             </Link>

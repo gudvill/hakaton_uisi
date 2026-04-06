@@ -17,8 +17,11 @@ class Program:
 @dataclass
 class About:
     id: int = None
-    text:  Optional[str] = None
-    order_index: Optional[int] = None
+    row: Optional[int] = None
+    col: Optional[int] = None
+    title: Optional[str] = None
+    text: Optional[str] = None
+    icon: Optional[str] = None
     created_at: datetime = None
 
 @dataclass

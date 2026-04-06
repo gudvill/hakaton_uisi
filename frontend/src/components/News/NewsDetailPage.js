@@ -18,6 +18,19 @@ export default function NewsDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // Функция форматирования даты
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const monthNames = [
+      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   return (
     <>
       <Header />
@@ -27,13 +40,13 @@ export default function NewsDetailPage() {
         {error && <p className="news-detail__error">Новость не найдена.</p>}
         {item && (
           <article className="news-detail__article">
-            <p className="news-detail__date">{item.date}</p>
-            <h1 className="news-detail__title">{item.title}</h1>
+            <p className="news-detail__date">{formatDate(item.created_at)}</p>
+            <h1 className="news-detail__title">{item.name}</h1>
             {item.image && (
-              <img className="news-detail__img" src={item.image} alt={item.title} />
+              <img className="news-detail__img" src={item.image} alt={item.name} />
             )}
             <div className="news-detail__content">
-              {item.content.split('\n').map((line, i) => (
+              {item.full_description.split('\n').map((line, i) => (
                 <p key={i}>{line}</p>
               ))}
             </div>
