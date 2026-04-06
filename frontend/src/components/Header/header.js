@@ -1,5 +1,6 @@
 import './header.css';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import RegistrationModal from './registration';
 
 export default function Header() {
@@ -10,9 +11,9 @@ export default function Header() {
       <header className="header">
         <nav className="header-nav container">
           <div className="header-container">
-            <div className="header-logo">
-              <img src="images/logo2.svg" alt="HAKATON" />
-            </div>
+            <Link to="/" className="header-logo">
+              <img src="/images/logo2.svg" alt="HAKATON" />
+            </Link>
 
             <div className="header-menu">
               <a href="#hakaton" className="header-link">О хакатоне</a>

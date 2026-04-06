@@ -19,6 +19,9 @@ import Login from './components/Admin/login';
 import Admin from './components/Admin/admin';
 import NewsAllPage from './components/News/NewsAllPage';
 import NewsDetailPage from './components/News/NewsDetailPage';
+import CaseDetailPage from './components/Cases/CaseDetailPage';
+import PrivacyPolicy from './components/Policy/PrivacyPolicy';
+import UserAgreement from './components/Policy/UserAgreement';
 
 function Home() {
   return (
@@ -52,6 +55,13 @@ export default function App() {
           {/* новости */}
           <Route path="/news" element={<NewsAllPage />} />
           <Route path="/news/:id" element={<NewsDetailPage />} />
+
+          {/* кейсы */}
+          <Route path="/case/:id" element={<CaseDetailPage />} />
+
+          {/* политика */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/user-agreement" element={<UserAgreement />} />
 
           {/* логин */}
           <Route path="/admin/login" element={<Login />} />

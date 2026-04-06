@@ -66,7 +66,7 @@ export default function Registration({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}><img src='images/close.svg'></img></button>
+        <button className="modal-close" onClick={onClose}><img src='/images/close.svg'></img></button>
         <h2 className='registration-title'>Регистрация</h2>
         
         <form onSubmit={handleSubmit} className="registration-form">
