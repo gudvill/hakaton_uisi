@@ -411,17 +411,17 @@ def get_one(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration
     return usecase.get_by_id(reg_id)
 
 @registration_router.delete("/{reg_id}")
-def disable_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+def disable_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
     usecase.disable_registration(reg_id)
     return {"message": "Команда отключена"}
 
 @registration_router.delete("/participant/{p_id}")
-def delete_participant(p_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+def delete_participant(p_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
     usecase.delete_participant(p_id)
     return {"message": "Участник удалён"}
 
 @registration_router.put("/{reg_id}")
-def update_registration(reg_id: int, data: dict, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+def update_registration(reg_id: int, data: dict, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
     reg = Registration(**data["team"])
     participants = data["participants"]
     usecase.update(reg_id, reg, participants)

@@ -215,35 +215,35 @@ class ReviewSerializer(BaseModel):
 
 
 class RegistrationCreateSerializer(BaseModel):
-    name: str = None
-    institution: str = None
-    amount_participants: int = 0
-    participation_form: str = None
-    level_education: str = None
-    selected_case: int = 0
-    spare_case: int = 0
-    captain_phone: str = None
-    captain_email: str = None
-    curator_data: dict = None # jsonb
-    agreement: bool = None
-    acquaintance: bool = None
-    created_at: datetime = None
+    name: str
+    institution: str
+    amount_participants: int
+    participation_form: str
+    level_education: str
+    selected_case: int
+    spare_case: int
+    captain_phone: str
+    captain_email: str
+    curator_data: dict # jsonb
+    agreement: bool
+    acquaintance: bool
+    created_at: datetime
 
 class RegistrationSerializer(BaseModel):
     id: int
-    name: str = None
-    institution: str = None
-    amount_participants: int = 0
-    participation_form: str = None
-    level_education: str = None
-    selected_case: int = 0
+    name: str
+    institution: str
+    amount_participants: int
+    participation_form: str
+    level_education: str
+    selected_case: int
     spare_case: int = 0
-    captain_phone: str = None
-    captain_email: str = None
-    curator_data: dict = None # jsonb
-    agreement: bool = None
-    acquaintance: bool = None
-    created_at: datetime = None
+    captain_phone: str
+    captain_email: str
+    curator_data: dict # jsonb
+    agreement: bool
+    acquaintance: bool
+    created_at: datetime
     is_available: bool = True
 
     @classmethod
@@ -267,20 +267,20 @@ class RegistrationSerializer(BaseModel):
 
 
 class ParticipantsCreateSerializer(BaseModel):
-    fio: str = None
-    course: int = 0
-    role: str =None
+    fio: str
+    course: int
+    role: str
     registration_id: int
-    created_at: datetime = None
+    created_at: datetime
 
 
 class ParticipantsSerializer(BaseModel):
     id: int
-    fio: str = None
-    course: int = 0
-    role: str =None
+    fio: str
+    course: int
+    role: str
     registration_id: int
-    created_at: datetime = None
+    created_at: datetime
     is_available: bool = True
 
     @classmethod

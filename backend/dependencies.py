@@ -60,5 +60,6 @@ def get_reviews_usecase() -> ReviewsUseCase:
     return ReviewsUseCase(repository)
 
 def get_registration_usecase() -> RegistrationUseCase:
-    repository = RegistrationRepository(get_connection)
-    return RegistrationUseCase(repository)
+    registration_repo = RegistrationRepository(get_connection)
+    cases_repo = CasesRepository(get_connection)
+    return RegistrationUseCase(registration_repo, cases_repo)
