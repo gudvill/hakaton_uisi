@@ -1,11 +1,12 @@
 import './footer.css';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
     <footer className="footer">
     <div className='footer-container'>
         <div className="logo">
-        <img src='images/logo2.svg'></img>
+        <img src='/images/logo2.svg'></img>
         <p>ВСЕРОССИЙСКИЙ ХАКАТОН СВЯЗИ</p>
         </div>
         <div className='social-icon'>
@@ -19,6 +20,9 @@ export default function Footer() {
             <p>+7 (343) 305-30-66</p>
             <p>г. Екатеринбург, ул. Репина, д. 15</p>
         </div>
+    </div>
+    <div className='politics'>
+      <Link to="/privacy-policy">Политика конфиденциальности</Link>
     </div>
     <p className='copy'>© 2023 - {new Date().getFullYear()} ВСЕРОССИЙСКИЙ ХАКАТОН СВЯЗИ</p>
     </footer>

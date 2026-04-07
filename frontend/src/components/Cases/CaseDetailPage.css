@@ -1,0 +1,181 @@
+.case-detail {
+  padding-top: 3rem;
+  padding-bottom: 6rem;
+  color: white;
+  min-height: 80vh;
+}
+
+.case-detail__loading,
+.case-detail__error {
+  color: #aaa;
+  font-size: 1.1rem;
+}
+
+.case-detail__article {
+  width: 100%;
+}
+
+/* ── Верхний блок ── */
+.case-detail__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.case-detail__top-left {
+  flex: 1;
+}
+
+/* КЕЙС 01 + бейдж */
+.case-detail__heading-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.case-detail__number {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.case-detail__level {
+  background-color: white;
+  color: #2055C7;
+  border-radius: 30px;
+  padding: 0.4rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* Название кейса */
+.case-detail__name {
+  font-size: 35px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #fff;
+  max-width: 800px;
+  margin: 0;
+}
+
+/* Карточка партнёра (справа) */
+.case-detail__partner-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  min-width: 180px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.case-detail__partner-img {
+  width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+}
+
+.case-detail__partner-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.3;
+}
+
+/* Разделитель */
+.case-detail__teams {
+  margin-top: 1.2rem;
+}
+
+.case-detail__teams-badge {
+  display: inline-block;
+  border: 2px solid #2055C7;
+  border-radius: 30px;
+  padding: 0.45rem 1.6rem;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.case-detail__divider {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  margin: 2rem 0;
+}
+
+/* Описание + картинка */
+.case-detail__content {
+  display: flex;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+.case-detail__body {
+  flex: 1;
+}
+
+.case-detail__image-block {
+  flex-shrink: 0;
+  width: 280px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.case-detail__image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Описание */
+.knowledge {
+  font-size: 30px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.case-detail__body p:not(.knowledge) {
+  font-size: 20px;
+  max-width: 70%;
+  margin-top: 25px;
+  line-height: 1.8;
+  color: white;
+}
+
+/* ── Адаптив ── */
+@media (max-width: 768px) {
+  .case-detail__top {
+    flex-direction: column;
+  }
+
+  .case-detail__partner-card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .case-detail__number {
+    font-size: 1.8rem;
+  }
+
+  .case-detail__name {
+    font-size: 1.2rem;
+  }
+}
