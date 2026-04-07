@@ -11,13 +11,16 @@ from serializers import (LoginRequest, RefreshRequest,
                          PartnerSerializer, PartnerCreateSerializer,
                          PhotoAlbumSerializer, PhotoAlbumCreateSerializer,
                          PhotoSerializer, PhotoCreateSerializer,
-                         ReviewSerializer, ReviewCreateSerializer)
-from use_cases import AdminUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase
+                         ReviewSerializer, ReviewCreateSerializer,
+                         RegistrationSerializer, RegistrationCreateSerializer,
+                         ParticipantsSerializer, ParticipantsCreateSerializer)
+from use_cases import AdminUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 from dependencies import (get_current_admin, get_admin_usecase,
                           get_program_usecase, get_about_usecase,
                           get_cases_usecase, get_news_usecase,
                           get_partners_usecase, get_photoalbums_usecase,
-                          get_photos_usecase, get_reviews_usecase)
+                          get_photos_usecase, get_reviews_usecase,
+                          get_registration_usecase)
 
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 program_router = APIRouter(prefix="/program", tags=["program"])
@@ -28,6 +31,7 @@ partners_router = APIRouter(prefix="/partners", tags=["partners"])
 photoalbums_router = APIRouter(prefix="/photoalbums", tags=["photoalbums"])
 photos_router = APIRouter(prefix="/photos", tags=["photos"])
 reviews_router = APIRouter(prefix="/reviews", tags=["reviews"])
+registration_router = APIRouter(prefix="/registration", tags=["registration"])
 
 
 # Эндпоинты для Админа
@@ -389,3 +393,36 @@ def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case:
 def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(review_id)
     return {"message": "Отзыв отключён"}
+
+
+@registration_router.post("/")
+def create_registration(data: dict, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    reg = Registration(**data["team"])
+    participants = data["participants"]
+    reg_id = usecase.create(reg, participants)
+    return {"id": reg_id}
+
+@registration_router.get("/")
+def get_all(usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    return usecase.get_all()
+
+@registration_router.get("/{reg_id}")
+def get_one(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    return usecase.get_by_id(reg_id)
+
+@registration_router.delete("/{reg_id}")
+def disable_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    usecase.disable_registration(reg_id)
+    return {"message": "Команда отключена"}
+
+@registration_router.delete("/participant/{p_id}")
+def delete_participant(p_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    usecase.delete_participant(p_id)
+    return {"message": "Участник удалён"}
+
+@registration_router.put("/{reg_id}")
+def update_registration(reg_id: int, data: dict, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    reg = Registration(**data["team"])
+    participants = data["participants"]
+    usecase.update(reg_id, reg, participants)
+    return {"message": "Обновлено"}

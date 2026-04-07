@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes import admin_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router
+from routes import admin_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router, registration_router
 
 app = FastAPI(root_path="/api")
 
@@ -22,6 +22,7 @@ app.include_router(partners_router)
 app.include_router(photoalbums_router)
 app.include_router(photos_router)
 app.include_router(reviews_router)
+app.include_router(registration_router)
 
 @app.get("/")
 def api_root():

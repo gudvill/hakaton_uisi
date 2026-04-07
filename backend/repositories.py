@@ -3,6 +3,7 @@
 from base_repository import BaseRepository
 from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
+import json
 
 
 class AdminRepository:
@@ -199,8 +200,7 @@ class PhotosRepository(BaseRepository):
             columns=["photoalbum_id", "path", "created_at", "is_available"])
     
     def update(self, photo_id: int, photo: Photo) -> None:
-        query = """UPDATE photos
-            SET photoalbum_id=%s, path=%s, created_at=%s WHERE id=%s"""
+        query = """UPDATE photos SET photoalbum_id=%s, path=%s, created_at=%s WHERE id=%s"""
         values = [photo.photo_album_id, photo.path, photo.created_at, photo_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -220,3 +220,98 @@ class ReviewsRepository(BaseRepository):
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)
+
+
+class RegistrationRepository:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def create_registration(self, reg: Registration, participants: list) -> int:
+        query = """INSERT INTO registration 
+        (name, institution, amount_participants, participation_form, level_education,
+        selected_case, spare_case, captain_phone, captain_email, curator_data, agreement, acquaintance)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id"""
+        values = (reg.name, reg.institution, reg.amount_participants, reg.participation_form, reg.level_education, reg.selected_case, reg.spare_case, reg.captain_phone, reg.captain_email, json.dumps(reg.curator_data), reg.agreement, reg.acquaintance)
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, values)
+                reg_id = cursor.fetchone()[0]
+                for p in participants:
+                    cursor.execute("""INSERT INTO participants (fio, course, role, registration_id)
+                        VALUES (%s,%s,%s,%s)""", (p["fio"], int(p["course"]), p["role"], reg_id))
+                return reg_id
+
+    def _fetch_all_dict(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+    
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row: return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+            
+    def get_all(self):
+        query = """SELECT r.*, 
+        json_agg(json_build_object('id', p.id, 'fio', p.fio, 'course', p.course, 'role', p.role)) as participants
+        FROM registration r
+        LEFT JOIN participants p ON p.registration_id = r.id AND p.is_available = TRUE
+        WHERE r.is_available = TRUE GROUP BY r.id"""
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+
+    def get_by_id(self, reg_id: int):
+        query = """SELECT r.*, 
+        json_agg(json_build_object('id', p.id, 'fio', p.fio, 'course', p.course, 'role', p.role)) as participants
+        FROM registration r
+        LEFT JOIN participants p ON p.registration_id = r.id
+        WHERE r.id = %s GROUP BY r.id"""
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (reg_id,))
+                return self._fetch_one_dict(cursor)
+        
+    def disable_registration(self, reg_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
+                cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
+
+    def delete_participant(self, p_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM participants WHERE id=%s", (p_id,))
+
+    def count_by_case(self, case_id: int, field: str):
+        query = f"SELECT COUNT(*) FROM registration WHERE {field}=%s AND is_available=TRUE"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (case_id,))
+                return cursor.fetchone()[0]
+            
+    def count_by_case_exclude_self(self, case_id: int, field: str, reg_id: int):
+        query = f"""SELECT COUNT(*) FROM registration WHERE {field}=%s AND is_available=TRUE AND id != %s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (case_id, reg_id))
+                return cursor.fetchone()[0]
+
+    def delete_participants_by_registration(self, reg_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
+
+    def update_registration(self, reg_id: int, reg: Registration, participants: list):
+        query = """UPDATE registration SET name=%s, institution=%s, amount_participants=%s, participation_form=%s, level_education=%s, selected_case=%s, spare_case=%s, captain_phone=%s, captain_email=%s, curator_data=%s, agreement=%s, acquaintance=%s WHERE id=%s"""
+        values = (reg.name, reg.institution, reg.amount_participants, reg.participation_form, reg.level_education, reg.selected_case, reg.spare_case, reg.captain_phone, reg.captain_email, json.dumps(reg.curator_data), reg.agreement, reg.acquaintance, reg_id)
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, values)
+                cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
+                for p in participants:
+                    cursor.execute("""INSERT INTO participants (fio, course, role, registration_id)
+                        VALUES (%s,%s,%s,%s)""", (p["fio"], int(p["course"]), p["role"], reg_id))

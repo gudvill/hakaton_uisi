@@ -1,12 +1,13 @@
 import './registration.css';
 import { useState, useEffect } from 'react';
+import { registerTeam } from "../../api/registrationService";
 
 export default function Registration({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     institution: '',
     amount_participants: '',
-    participant_form: '',
+    participation_form: '',
     level_education: '',
     selected_case: '',
     spare_case: '',
@@ -27,7 +28,7 @@ export default function Registration({ isOpen, onClose }) {
       // Обновляем количество участников
       const newParticipants = Array.from({ length: count }, (_, i) => ({
         id: i,
-        name: '',
+        fio: '',
         role: '',
         course: ''
       }));
@@ -55,10 +56,82 @@ export default function Registration({ isOpen, onClose }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const [cases, setCases] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/cases/")
+      .then(res => res.json())
+      .then(data => setCases(data))
+      .catch(() => setCases([]));
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Регистрация:', formData);
-    onClose();
+
+    const participants = formData.participants;
+
+    // 1. количество
+    if (participants.length < 2 || participants.length > 5) {
+      alert("Команда должна быть от 2 до 5 человек");
+      return;
+    }
+
+    // 2. заполненность
+    const isValidParticipants = participants.every(
+      (p) => p.fio && p.role && p.course
+    );
+
+    if (!isValidParticipants) {
+      alert("Заполните всех участников");
+      return;
+    }
+
+    // 3. проверка уровня кейса (НОРМАЛЬНАЯ)
+    const selectedCase = cases.find(
+      c => c.id === Number(formData.selected_case)
+    );
+
+    if (selectedCase) {
+      const courses = participants.map(p => Number(p.course));
+      const caseLevel = selectedCase.level?.toLowerCase();
+      const level = formData.level_education?.toLowerCase();
+
+      if (caseLevel === "стартовый") {
+        if (courses.some(c => c > 2) || level === "магистратура") {
+          alert("Этот кейс только для 1-2 курса");
+          return;
+        }
+      }
+
+      if (caseLevel === "продвинутый") {
+        if (courses.some(c => c < 3)) {
+          alert("Этот кейс только для 3+ курса");
+          return;
+        }
+      }
+    }
+
+    const payload = {
+      team: {
+        ...formData,
+        curator_data: {
+          text: formData.curator_data
+        }
+      },
+      participants: participants.map((p) => ({
+        fio: p.fio,
+        role: p.role,
+        course: Number(p.course)
+      }))
+    };
+
+    try {
+      await registerTeam(payload);
+      alert("Успешно!");
+      onClose();
+    } catch (e) {
+      alert(e.response?.data?.detail || "Ошибка");
+    }
   };
 
   if (!isOpen) return null;
@@ -122,17 +195,17 @@ export default function Registration({ isOpen, onClose }) {
           <label className="radio-group">
             <input
               type="radio"
-              name="participant_form"
+              name="participation_form"
               value="Очная"
-              checked={formData.participant_form === 'Очная'}
+              checked={formData.participation_form === 'Очная'}
               onChange={handleInputChange}
             /> 
             <span>Очная</span>
             <input
               type="radio"
-              name="participant_form"
+              name="participation_form"
               value="Дистанционная"
-              checked={formData.participant_form === 'Дистанционная'}
+              checked={formData.participation_form === 'Дистанционная'}
               onChange={handleInputChange}
             /> 
             <span>Дистанционная</span>
@@ -147,8 +220,8 @@ export default function Registration({ isOpen, onClose }) {
                   <input 
                     type="text" 
                     placeholder={`ФИО участника ${index + 1}`}
-                    value={participant.name}
-                    onChange={(e) => handleParticipantChange(index, 'name', e.target.value)}
+                    value={participant.fio}
+                    onChange={(e) => handleParticipantChange(index, 'fio', e.target.value)}
                   />
                 </label>
                 <label>

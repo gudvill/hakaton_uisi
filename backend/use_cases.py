@@ -1,5 +1,5 @@
 from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
-from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
+from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from typing import List, Optional, Dict, Any
 from security import verify_password
 
@@ -174,3 +174,92 @@ class ReviewsUseCase:
 
     def disable(self, review_id: int) -> None:
         self.repository.disable(review_id)
+
+
+class RegistrationUseCase:
+    def __init__(self, repository: RegistrationRepository, cases_repository: CasesRepository):
+        self.repository = repository
+        self.cases_repository = cases_repository
+
+    def create(self, data, participants):
+        # проверка количества
+        if data.amount_participants != len(participants):
+            raise Exception("Количество участников не совпадает")
+        if len(participants) < 2 or len(participants) > 5:
+            raise Exception("Команда должна быть от 2 до 5 человек")
+        # проверка капитана
+        if not any(p["role"] == "капитан" for p in participants):
+            raise Exception("В команде должен быть капитан")
+        if sum(1 for p in participants if p["role"] == "капитан") > 1:
+            raise Exception("Капитан должен быть только один")
+        # лимит кейсов
+        if self.repository.count_by_case(data.selected_case, "selected_case") >= 10:
+            raise Exception("Этот кейс уже заполнен")
+        if self.repository.count_by_case(data.spare_case, "spare_case") >= 10:
+            raise Exception("Запасной кейс уже заполнен")
+        if data.selected_case == data.spare_case:
+            raise Exception("Основной и запасной кейс не могут совпадать")
+        # проверка уровня
+        case = self.cases_repository.get_by_id(data.selected_case)
+        if not case: raise Exception("Кейс не найден")
+        try:
+            courses = [int(p["course"]) for p in participants]
+        except:
+            raise Exception("Некорректный курс участника")
+        case_level = (case["level"] or "").lower()
+        level = (data.level_education or "").lower()
+        if case_level == "стартовый":
+            if any(c > 2 for c in courses) or level == "магистратура":
+                raise Exception("Этот кейс только для 1-2 курса")
+        if case_level == "продвинутый":
+            if any(c < 3 for c in courses) and level != "магистратура":
+                raise Exception("Этот кейс только для 3+ курса")
+        return self.repository.create_registration(data, participants)
+
+    def get_all(self):
+        return self.repository.get_all()
+
+    def get_by_id(self, reg_id):
+        return self.repository.get_by_id(reg_id)
+
+    def disable_registration(self, reg_id):
+        self.repository.disable_registration(reg_id)
+
+    def delete_participant(self, p_id):
+        self.repository.delete_participant(p_id)
+
+    def update(self, reg_id: int, data, participants):
+        # проверка количества
+        if data.amount_participants != len(participants):
+            raise Exception("Количество участников не совпадает")
+        if len(participants) < 2 or len(participants) > 5:
+            raise Exception("Команда должна быть от 2 до 5 человек")
+        # проверка капитана
+        if not any(p["role"] == "капитан" for p in participants):
+            raise Exception("В команде должен быть капитан")
+        if sum(1 for p in participants if p["role"] == "капитан") > 1:
+            raise Exception("Капитан должен быть только один")
+        # лимит кейсов       
+        if self.repository.count_by_case_exclude_self(data.selected_case, "selected_case", reg_id) >= 10:
+            raise Exception("Этот кейс уже заполнен")
+        if self.repository.count_by_case_exclude_self(data.spare_case, "spare_case", reg_id) >= 10:
+            raise Exception("Запасной кейс уже заполнен")
+        if data.selected_case == data.spare_case:
+            raise Exception("Основной и запасной кейс не могут совпадать")
+        
+        # проверка уровня
+        case = self.cases_repository.get_by_id(data.selected_case)
+        if not case: raise Exception("Кейс не найден")
+        try:
+            courses = [int(p["course"]) for p in participants]
+        except:
+            raise Exception("Некорректный курс участника")
+        case_level = (case["level"] or "").lower()
+        level = (data.level_education or "").lower()
+        if case_level == "стартовый":
+            if any(c > 2 for c in courses) or level == "магистратура":
+                raise Exception("Этот кейс только для 1-2 курса")
+        if case_level == "продвинутый":
+            if any(c < 3 for c in courses) and level != "магистратура":
+                raise Exception("Этот кейс только для 3+ курса и магистрантов")
+        self.repository.update_registration(reg_id, data, participants)

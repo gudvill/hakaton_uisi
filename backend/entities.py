@@ -101,7 +101,7 @@ class Registration:
     spare_case: int = 0
     captain_phone: str = None
     captain_email: str = None
-    curator_data: str = None # jsonb
+    curator_data: dict = None # jsonb
     agreement: bool = None
     acquaintance: bool = None
     created_at: datetime = None
