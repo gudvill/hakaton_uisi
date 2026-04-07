@@ -53,8 +53,10 @@ class News:
 class Partner:
     id: int = None
     name: Optional[str] = None
-    description: Optional[str] = None
     image: Optional[str] = None
+    description: Optional[str] = None
+    full_description: Optional[str] = None
+    site_link: Optional[str] = None
     created_at: datetime = None
     is_available: bool = True
 

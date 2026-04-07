@@ -114,15 +114,19 @@ class NewsSerializer(BaseModel):
 
 class PartnerCreateSerializer(BaseModel):
     name: Optional[str] = None
-    description: Optional[str] = None
     image: Optional[str] = None
+    description: Optional[str] = None
+    full_description: Optional[str] = None
+    site_link: Optional[str] = None
     created_at: datetime = None
 
 class PartnerSerializer(BaseModel):
     id: int
     name: Optional[str] = None
-    description: Optional[str] = None
     image: Optional[str] = None
+    description: Optional[str] = None
+    full_description: Optional[str] = None
+    site_link: Optional[str] = None
     created_at: datetime = None
     is_available: bool = True
 
@@ -131,8 +135,10 @@ class PartnerSerializer(BaseModel):
         return cls(
             id=entity.id,
             name=entity.name,
-            description=entity.description,
             image=entity.image,
+            description=entity.description,
+            full_description=entity.full_description,
+            site_link=entity.site_link,
             created_at=entity.created_at,
             is_available=entity.is_available)
     

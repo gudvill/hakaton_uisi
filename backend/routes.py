@@ -210,8 +210,10 @@ def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseC
     partner = Partner(
         id=0,
         name=partner_data.name,
+        image=partner_data.image,        
         description=partner_data.description,
-        image=partner_data.image,
+        full_description=partner_data.full_description,
+        site_link=partner_data.site_link,
         created_at=partner_data.created_at,
         is_available=True)
     partner_id = use_case.create(partner)
@@ -234,8 +236,10 @@ def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_c
     partner = Partner(
         id=partner_id,
         name=partner_data.name,
-        description=partner_data.description,
         image=partner_data.image,
+        description=partner_data.description,
+        full_description=partner_data.full_description,
+        site_link=partner_data.site_link,
         created_at=partner_data.created_at)
     use_case.update(partner_id, partner)
     updated_partner = use_case.get_by_id(partner_id)

@@ -137,8 +137,8 @@ class PartnersRepository(BaseRepository):
     
     def update(self, partner_id: int, partner: Partner) -> None:
         query = """UPDATE news
-            SET name=%s, description=%s, image=%s, created_at=%s WHERE id=%s"""
-        values = [partner.name, partner.description, partner.image, partner.created_at, partner_id]
+            SET name=%s, image=%s, description=%s, full_description=%s, site_link=%s, created_at=%s WHERE id=%s"""
+        values = [partner.name, partner.image, partner.description, partner.full_description, partner.site_link, partner.created_at, partner_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)
