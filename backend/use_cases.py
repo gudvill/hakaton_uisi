@@ -206,7 +206,7 @@ class RegistrationUseCase:
             courses = [int(p["course"]) for p in participants]
         except:
             raise Exception("Некорректный курс участника")
-        case_level = (case["level"] or "").lower()
+        case_level = (case.level or "").lower()
         level = (data.level_education or "").lower()
         if case_level == "стартовый":
             if any(c > 2 for c in courses) or level == "магистратура":
@@ -254,7 +254,7 @@ class RegistrationUseCase:
             courses = [int(p["course"]) for p in participants]
         except:
             raise Exception("Некорректный курс участника")
-        case_level = (case["level"] or "").lower()
+        case_level = (case.level or "").lower()
         level = (data.level_education or "").lower()
         if case_level == "стартовый":
             if any(c > 2 for c in courses) or level == "магистратура":
