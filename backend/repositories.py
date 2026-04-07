@@ -133,7 +133,7 @@ class PartnersRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="partners", entity_class=Partner,
-            columns=["name", "description", "image", "created_at", "is_available"])
+            columns=["name", "image", "description", "full_description", "site_link", "created_at", "is_available"])
     
     def update(self, partner_id: int, partner: Partner) -> None:
         query = """UPDATE news
