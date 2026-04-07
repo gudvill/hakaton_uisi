@@ -15,7 +15,7 @@ export default function Registration({ isOpen, onClose }) {
     captain_email: '',
     curator_data: '',
     agreement: false,
-    privacy_policy: false,
+    acquaintance: false,
     participants: []
   });
 
@@ -67,16 +67,15 @@ export default function Registration({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { participants, ...teamData } = formData;
 
-    const participants = formData.participants;
-
-    // 1. количество
+    // проверка количества участников
     if (participants.length < 2 || participants.length > 5) {
       alert("Команда должна быть от 2 до 5 человек");
       return;
     }
 
-    // 2. заполненность
+    // проверка заполненности всех полей участников
     const isValidParticipants = participants.every(
       (p) => p.fio && p.role && p.course
     );
@@ -86,36 +85,51 @@ export default function Registration({ isOpen, onClose }) {
       return;
     }
 
-    // 3. проверка уровня кейса (НОРМАЛЬНАЯ)
-    const selectedCase = cases.find(
-      c => c.id === Number(formData.selected_case)
-    );
+    // проверка наличия капитана (один и только один)
+    const captainCount = participants.filter(p => p.role === "капитан").length;
+    if (captainCount === 0) {
+      alert("В команде должен быть капитан");
+      return;
+    }
+    if (captainCount > 1) {
+      alert("Капитан должен быть только один");
+      return;
+    }
 
+    // проверка выбранного кейса и запасного кейса (не совпадают)
+    if (teamData.selected_case && teamData.spare_case && teamData.selected_case === teamData.spare_case) {
+      alert("Основной и запасной кейс не могут совпадать");
+      return;
+    }
+
+    // проверка уровня кейса
+    const selectedCase = cases.find(c => c.id === Number(teamData.selected_case));
     if (selectedCase) {
-      const courses = participants.map(p => Number(p.course));
+      const courseNumbers = participants.map(p => Number(p.course));
       const caseLevel = selectedCase.level?.toLowerCase();
-      const level = formData.level_education?.toLowerCase();
+      const level = teamData.level_education?.toLowerCase();
 
       if (caseLevel === "стартовый") {
-        if (courses.some(c => c > 2) || level === "магистратура") {
+        if (courseNumbers.some(c => c > 2) || level === "магистратура") {
           alert("Этот кейс только для 1-2 курса");
           return;
         }
       }
 
       if (caseLevel === "продвинутый") {
-        if (courses.some(c => c < 3)) {
-          alert("Этот кейс только для 3+ курса");
+        if (courseNumbers.some(c => c < 3) && level !== "магистратура") {
+          alert("Этот кейс только для 3+ курса и магистрантов");
           return;
         }
       }
     }
 
+    // подготовка payload
     const payload = {
       team: {
-        ...formData,
+        ...teamData,
         curator_data: {
-          text: formData.curator_data
+          text: teamData.curator_data
         }
       },
       participants: participants.map((p) => ({
@@ -125,6 +139,7 @@ export default function Registration({ isOpen, onClose }) {
       }))
     };
 
+    // отправка на бек
     try {
       await registerTeam(payload);
       alert("Успешно!");
@@ -327,8 +342,8 @@ export default function Registration({ isOpen, onClose }) {
           <label className="checkbox-group">
             <input
               type="checkbox"
-              name="privacy_policy"
-              checked={formData.privacy_policy}
+              name="acquaintance"
+              checked={formData.acquaintance}
               onChange={handleInputChange}
             />
             <span><a href='#'>Политика конфиденциальности</a></span>

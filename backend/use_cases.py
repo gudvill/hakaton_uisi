@@ -183,7 +183,7 @@ class RegistrationUseCase:
 
     def create(self, data, participants):
         # проверка количества
-        if data.amount_participants != len(participants):
+        if int(data.amount_participants) != len(participants):
             raise Exception("Количество участников не совпадает")
         if len(participants) < 2 or len(participants) > 5:
             raise Exception("Команда должна быть от 2 до 5 человек")
