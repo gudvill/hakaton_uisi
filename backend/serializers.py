@@ -81,6 +81,7 @@ class CaseSerializer(BaseModel):
     description: Optional[str] = None
     partner_id: int
     partner_name: Optional[str] = None
+    partner_image: Optional[str] = None
     is_available: bool = True
 
 
