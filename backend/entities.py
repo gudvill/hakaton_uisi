@@ -7,6 +7,17 @@ from typing import Any
 
 
 @dataclass
+class Admin:
+    login: str
+    password_hash: str
+
+@dataclass
+class Acquaintance:
+    id: int = None
+    title: Optional[str] = None
+    text: Optional[str] = None
+
+@dataclass
 class Program:
     id: int = None
     date: Optional[str] = None
@@ -23,11 +34,6 @@ class About:
     text: Optional[str] = None
     icon: Optional[str] = None
     created_at: datetime = None
-
-@dataclass
-class Admin:
-    login: str
-    password_hash: str
 
 @dataclass
 class Case:

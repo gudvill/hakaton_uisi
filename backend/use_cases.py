@@ -1,5 +1,5 @@
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
-from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
+from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
+from repositories import AdminRepository, AcquaintanceRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from typing import List, Optional, Dict, Any
 from security import verify_password
 
@@ -15,6 +15,23 @@ class AdminUseCase:
         if not verify_password(password, password_hash): return None
         return {"id": user_id, "login": user_login}
     
+
+class AcquaintanceUseCase:
+    def __init__(self, repository: AcquaintanceRepository):
+        self.repository = repository
+
+    def create(self, item: Acquaintance) -> int:
+        return self.repository.create(item)
+
+    def get_all(self) -> List[Acquaintance]:
+        return self.repository.get_all()
+
+    def get_by_id(self, item_id: int) -> Optional[Acquaintance]:
+        return self.repository.get_by_id(item_id)
+
+    def update(self, item_id: int, item: Acquaintance) -> None:
+        self.repository.update(item_id, item)
+
 
 class ProgramUseCase:
     def __init__(self, repository: ProgramRepository):
@@ -123,10 +140,10 @@ class PhotoAlbumsUseCase:
     def create(self, photoalbum: PhotoAlbum) -> int:
         return self.repository.create(photoalbum)
 
-    def get_all(self) -> List[PhotoAlbumWithPhotos]:
+    def get_all(self) -> List[Dict[str, Any]]:
         return self.repository.get_all_with_photos()
 
-    def get_by_id(self, photoalbum_id: int) -> Optional[PhotoAlbumWithPhotos]:
+    def get_by_id(self, photoalbum_id: int) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id_with_photos(photoalbum_id)
 
     def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
@@ -181,7 +198,7 @@ class RegistrationUseCase:
         self.repository = repository
         self.cases_repository = cases_repository
 
-    def create(self, data, participants):
+    def create(self, data, participants) -> int:
         # проверка количества
         if int(data.amount_participants) != len(participants):
             raise Exception("Количество участников не совпадает")
@@ -216,21 +233,21 @@ class RegistrationUseCase:
                 raise Exception("Этот кейс только для 3+ курса")
         return self.repository.create_registration(data, participants)
 
-    def get_all(self):
+    def get_all(self) -> List[Dict[str, Any]]:
         return self.repository.get_all()
 
-    def get_by_id(self, reg_id):
+    def get_by_id(self, reg_id) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id(reg_id)
 
-    def disable_registration(self, reg_id):
+    def disable_registration(self, reg_id) -> None:
         self.repository.disable_registration(reg_id)
 
-    def delete_participant(self, p_id):
+    def delete_participant(self, p_id) -> None:
         self.repository.delete_participant(p_id)
 
-    def update(self, reg_id: int, data, participants):
+    def update(self, reg_id: int, data, participants) -> None:
         # проверка количества
-        if data.amount_participants != len(participants):
+        if int(data.amount_participants) != len(participants):
             raise Exception("Количество участников не совпадает")
         if len(participants) < 2 or len(participants) > 5:
             raise Exception("Команда должна быть от 2 до 5 человек")

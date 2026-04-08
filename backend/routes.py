@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from serializers import (LoginRequest, RefreshRequest,
+                         AcquaintanceSerializer, AcquaintanceCreateSerializer,
                          ProgramSerializer, ProgramCreateSerializer,
                          AboutSerializer, AboutCreateSerializer,
                          CaseSerializer, CaseCreateSerializer,
@@ -12,10 +13,10 @@ from serializers import (LoginRequest, RefreshRequest,
                          PhotoAlbumSerializer, PhotoAlbumCreateSerializer,
                          PhotoSerializer, PhotoCreateSerializer,
                          ReviewSerializer, ReviewCreateSerializer,
-                         RegistrationSerializer, RegistrationCreateSerializer,
-                         ParticipantsSerializer, ParticipantsCreateSerializer)
-from use_cases import AdminUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
+                         RegistrationSerializer, RegistrationRequestSerializer)
+from use_cases import AdminUseCase, AcquaintanceUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 from dependencies import (get_current_admin, get_admin_usecase,
+                          get_acquaintance_usecase,
                           get_program_usecase, get_about_usecase,
                           get_cases_usecase, get_news_usecase,
                           get_partners_usecase, get_photoalbums_usecase,
@@ -23,6 +24,7 @@ from dependencies import (get_current_admin, get_admin_usecase,
                           get_registration_usecase)
 
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
+acquaintance_router = APIRouter(prefix="/acquaintance", tags=["acquaintance"])
 program_router = APIRouter(prefix="/program", tags=["program"])
 about_router = APIRouter(prefix="/about", tags=["about"])
 cases_router = APIRouter(prefix="/cases", tags=["cases"])
@@ -55,6 +57,32 @@ def refresh_token(data: RefreshRequest):
         raise HTTPException(status_code=401, detail="Invalid token")
     new_access = create_access_token({"sub": user_id})
     return {"access_token": new_access}
+
+
+# Эндпоинты для Ознакомлений
+@acquaintance_router.post("/", response_model=AcquaintanceSerializer)
+def create_acquaintance(item_data: AcquaintanceCreateSerializer, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase), admin=Depends(get_current_admin)):
+    item = Acquaintance(id=0, title=item_data.title, text=item_data.text)
+    item_id = use_case.create(item)
+    created = use_case.get_by_id(item_id)
+    return AcquaintanceSerializer.from_entity(created)
+
+@acquaintance_router.get("/", response_model=List[AcquaintanceSerializer])
+def get_acquaintances(use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase)):
+    return [AcquaintanceSerializer.from_entity(x) for x in use_case.get_all()]
+
+@acquaintance_router.get("/{item_id}", response_model=AcquaintanceSerializer)
+def get_acquaintance(item_id: int, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase)):
+    item = use_case.get_by_id(item_id)
+    if not item: raise HTTPException(status_code=404, detail="Не найдено")
+    return AcquaintanceSerializer.from_entity(item)
+
+@acquaintance_router.put("/{item_id}", response_model=AcquaintanceSerializer)
+def update_acquaintance(item_id: int, item_data: AcquaintanceCreateSerializer, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase), admin=Depends(get_current_admin)):
+    item = Acquaintance(id=item_id, title=item_data.title, text=item_data.text)
+    use_case.update(item_id, item)
+    updated = use_case.get_by_id(item_id)
+    return AcquaintanceSerializer.from_entity(updated)
 
 
 # Эндпоинты для Программы
@@ -395,20 +423,24 @@ def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_review
     return {"message": "Отзыв отключён"}
 
 
+# Эндпоинты для Регистрации
 @registration_router.post("/")
-def create_registration(data: dict, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
-    reg = Registration(**data["team"])
-    participants = data["participants"]
+def create_registration(data: RegistrationRequestSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    reg = Registration(**data.team.dict())
+    participants = [p.dict() for p in data.participants]
     reg_id = usecase.create(reg, participants)
     return {"id": reg_id}
 
-@registration_router.get("/")
+
+@registration_router.get("/", response_model=List[RegistrationSerializer])
 def get_all(usecase: RegistrationUseCase = Depends(get_registration_usecase)):
     return usecase.get_all()
 
-@registration_router.get("/{reg_id}")
+@registration_router.get("/{reg_id}", response_model=RegistrationSerializer)
 def get_one(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
-    return usecase.get_by_id(reg_id)
+    reg = usecase.get_by_id(reg_id)
+    if not reg: raise HTTPException(status_code=404, detail="Регистрация не найдена")
+    return reg
 
 @registration_router.delete("/{reg_id}")
 def disable_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
@@ -421,8 +453,8 @@ def delete_participant(p_id: int, usecase: RegistrationUseCase = Depends(get_reg
     return {"message": "Участник удалён"}
 
 @registration_router.put("/{reg_id}")
-def update_registration(reg_id: int, data: dict, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
-    reg = Registration(**data["team"])
-    participants = data["participants"]
+def update_registration(reg_id: int, data: RegistrationRequestSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
+    reg = Registration(**data.team.dict())
+    participants = [p.dict() for p in data.participants]
     usecase.update(reg_id, reg, participants)
-    return {"message": "Обновлено"}
+    return {"message": "Регистрация обновлена"}

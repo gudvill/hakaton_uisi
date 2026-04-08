@@ -1,77 +1,25 @@
-import Header from '../Header/header';
-import Footer from '../Footer/footer';
+import { useEffect, useState } from "react";
+import Header from "../Header/header";
+import Footer from "../Footer/footer";
+import { getAcquaintanceById } from "../../api/acquaintanceService";
 import './policy.css';
 
 export default function UserAgreement() {
+  const [page, setPage] = useState(null);
+
+  useEffect(() => {
+    getAcquaintanceById(2)
+      .then(data => setPage(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  if (!page) return <p>Загрузка...</p>;
   return (
     <>
       <Header />
       <main className="policy container">
-        <h1 className="policy__title">Пользовательское соглашение</h1>
-
-        <section className="policy__section">
-          <h2>1. Предмет соглашения</h2>
-          <p>
-            Настоящее пользовательское соглашение регулирует отношения между Организатором
-            Всероссийского хакатона связи и пользователями сайта. Использование сайта означает
-            полное согласие с условиями данного соглашения.
-          </p>
-        </section>
-
-        <section className="policy__section">
-          <h2>2. Права и обязанности пользователя</h2>
-          <p>Пользователь обязуется:</p>
-          <ul>
-            <li>Предоставлять достоверные данные при регистрации</li>
-            <li>Не использовать сайт в незаконных целях</li>
-            <li>Не нарушать права других участников мероприятия</li>
-            <li>Соблюдать правила проведения хакатона</li>
-          </ul>
-        </section>
-
-        <section className="policy__section">
-          <h2>3. Права организатора</h2>
-          <p>Организатор вправе:</p>
-          <ul>
-            <li>Изменять условия соглашения с уведомлением пользователей</li>
-            <li>Ограничивать доступ к сайту при нарушении условий соглашения</li>
-            <li>Вносить изменения в программу и формат мероприятия</li>
-          </ul>
-        </section>
-
-        <section className="policy__section">
-          <h2>4. Интеллектуальная собственность</h2>
-          <p>
-            Все материалы, размещённые на сайте, являются собственностью Организатора и
-            охраняются законодательством об интеллектуальной собственности. Копирование и
-            распространение материалов без разрешения Организатора запрещено.
-          </p>
-        </section>
-
-        <section className="policy__section">
-          <h2>5. Ограничение ответственности</h2>
-          <p>
-            Организатор не несёт ответственности за убытки, возникшие в результате
-            использования или невозможности использования сайта, а также за действия
-            третьих лиц.
-          </p>
-        </section>
-
-        <section className="policy__section">
-          <h2>6. Применимое право</h2>
-          <p>
-            Настоящее соглашение регулируется законодательством Российской Федерации.
-            Все споры разрешаются в судебном порядке по месту нахождения Организатора.
-          </p>
-        </section>
-
-        <section className="policy__section">
-          <h2>7. Контактная информация</h2>
-          <p>
-            По вопросам, связанным с данным соглашением, обращайтесь:
-            <a href="mailto:laa@urtisi.ru"> laa@urtisi.ru</a>
-          </p>
-        </section>
+        <h1 className="policy__title">{page.title}</h1>
+        <div dangerouslySetInnerHTML={{ __html: page.text }} />
       </main>
       <Footer />
     </>

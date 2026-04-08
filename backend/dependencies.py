@@ -4,8 +4,8 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from jose import jwt, JWTError
 from security import SECRET_KEY, ALGORITHM
-from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
-from use_cases import AdminUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
+from repositories import AdminRepository, AcquaintanceRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
+from use_cases import AdminUseCase, AcquaintanceUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 
 security = HTTPBearer()
 
@@ -26,6 +26,10 @@ def get_connection():
 def get_admin_usecase() -> AdminUseCase:
     repository = AdminRepository(get_connection)
     return AdminUseCase(repository)
+
+def get_acquaintance_usecase() -> AcquaintanceUseCase:
+    repository = AcquaintanceRepository(get_connection)
+    return AcquaintanceUseCase(repository)
 
 def get_program_usecase() -> ProgramUseCase:
     repository = ProgramRepository(get_connection)

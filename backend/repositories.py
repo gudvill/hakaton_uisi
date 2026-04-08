@@ -1,7 +1,7 @@
 # Репозиторий для работы с базой данных (SQL запросы к БД)
 
 from base_repository import BaseRepository
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
+from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
 import json
 
@@ -17,6 +17,20 @@ class AdminRepository:
                 cursor.execute(query, (login,))
                 row = cursor.fetchone()
         return row
+
+
+class AcquaintanceRepository(BaseRepository):
+    def __init__(self, connection):
+        super().__init__(
+            connection=connection, table_name="acquaintance", entity_class=Acquaintance,
+            columns=["title", "text"])
+
+    def update(self, acquaintance_id: int, item: Acquaintance) -> None:
+        query = """UPDATE acquaintance SET title=%s, text=%s WHERE id=%s"""
+        values = [item.title, item.text, acquaintance_id]
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, values)
 
 
 class ProgramRepository(BaseRepository):
@@ -241,17 +255,17 @@ class RegistrationRepository:
                         VALUES (%s,%s,%s,%s)""", (p["fio"], int(p["course"]), p["role"], reg_id))
                 return reg_id
 
-    def _fetch_all_dict(self, cursor):
+    def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
     
-    def _fetch_one_dict(self, cursor):
+    def _fetch_one_dict(self, cursor) -> Optional[Dict[str, Any]]:
         row = cursor.fetchone()
         if not row: return None
         columns = [col[0] for col in cursor.description]
         return dict(zip(columns, row))
             
-    def get_all(self):
+    def get_all(self) -> List[Dict[str, Any]]:
         query = """SELECT r.*, 
         json_agg(json_build_object('id', p.id, 'fio', p.fio, 'course', p.course, 'role', p.role)) as participants
         FROM registration r
@@ -263,7 +277,7 @@ class RegistrationRepository:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
 
-    def get_by_id(self, reg_id: int):
+    def get_by_id(self, reg_id: int) -> Optional[Dict[str, Any]]:
         query = """SELECT r.*, 
         json_agg(json_build_object('id', p.id, 'fio', p.fio, 'course', p.course, 'role', p.role)) as participants
         FROM registration r
@@ -275,37 +289,37 @@ class RegistrationRepository:
                 cursor.execute(query, (reg_id,))
                 return self._fetch_one_dict(cursor)
         
-    def disable_registration(self, reg_id: int):
+    def disable_registration(self, reg_id: int) -> None:
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
                 cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
 
-    def delete_participant(self, p_id: int):
+    def delete_participant(self, p_id: int) -> None:
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("DELETE FROM participants WHERE id=%s", (p_id,))
 
-    def count_by_case(self, case_id: int, field: str):
+    def count_by_case(self, case_id: int, field: str) -> int:
         query = f"SELECT COUNT(*) FROM registration WHERE {field}=%s AND is_available=TRUE"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (case_id,))
                 return cursor.fetchone()[0]
             
-    def count_by_case_exclude_self(self, case_id: int, field: str, reg_id: int):
+    def count_by_case_exclude_self(self, case_id: int, field: str, reg_id: int) -> int:
         query = f"""SELECT COUNT(*) FROM registration WHERE {field}=%s AND is_available=TRUE AND id != %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (case_id, reg_id))
                 return cursor.fetchone()[0]
 
-    def delete_participants_by_registration(self, reg_id: int):
+    def delete_participants_by_registration(self, reg_id: int) -> None:
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
 
-    def update_registration(self, reg_id: int, reg: Registration, participants: list):
+    def update_registration(self, reg_id: int, reg: Registration, participants: list) -> None:
         query = """UPDATE registration SET name=%s, institution=%s, amount_participants=%s, participation_form=%s, level_education=%s, selected_case=%s, spare_case=%s, captain_phone=%s, captain_email=%s, curator_data=%s, agreement=%s, acquaintance=%s WHERE id=%s"""
         values = (reg.name, reg.institution, reg.amount_participants, reg.participation_form, reg.level_education, reg.selected_case, reg.spare_case, reg.captain_phone, reg.captain_email, json.dumps(reg.curator_data), reg.agreement, reg.acquaintance, reg_id)
         with self.connection() as conn:

@@ -35,7 +35,7 @@ export default function Registration({ isOpen, onClose }) {
       
       setFormData(prev => ({
         ...prev,
-        [name]: value,
+        amount_participants: count,
         participants: newParticipants
       }));
       return;

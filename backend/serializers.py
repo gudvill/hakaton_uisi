@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 
 
 class LoginRequest(BaseModel):
@@ -13,6 +13,23 @@ class LoginRequest(BaseModel):
 class RefreshRequest(BaseModel):
     refresh_token: str
 
+
+class AcquaintanceCreateSerializer(BaseModel):
+    title: Optional[str] = None
+    text: Optional[str] = None
+
+class AcquaintanceSerializer(BaseModel):
+    id: int
+    title: Optional[str] = None
+    text: Optional[str] = None
+
+    @classmethod
+    def from_entity(cls, entity: Acquaintance):
+        return cls(
+            id=entity.id,
+            title=entity.title,
+            text=entity.text)
+    
 
 class ProgramCreateSerializer(BaseModel):
     date: Optional[str] = None
@@ -214,65 +231,10 @@ class ReviewSerializer(BaseModel):
             is_available=entity.is_available)
 
 
-class RegistrationCreateSerializer(BaseModel):
-    name: str
-    institution: str
-    amount_participants: int
-    participation_form: str
-    level_education: str
-    selected_case: int
-    spare_case: int
-    captain_phone: str
-    captain_email: str
-    curator_data: dict # jsonb
-    agreement: bool
-    acquaintance: bool
-    created_at: datetime
-
-class RegistrationSerializer(BaseModel):
-    id: int
-    name: str
-    institution: str
-    amount_participants: int
-    participation_form: str
-    level_education: str
-    selected_case: int
-    spare_case: int = 0
-    captain_phone: str
-    captain_email: str
-    curator_data: dict # jsonb
-    agreement: bool
-    acquaintance: bool
-    created_at: datetime
-    is_available: bool = True
-
-    @classmethod
-    def from_entity(cls, entity: Registration) -> "RegistrationSerializer":
-        return cls(
-            id=entity.id,
-            name=entity.name,
-            institution=entity.institution,
-            amount_participants=entity.amount_participants,
-            participation_form=entity.participation_form,
-            level_education=entity.level_education,
-            selected_case=entity.selected_case,
-            spare_case=entity.spare_case,
-            captain_phone=entity.captain_phone,
-            captain_email=entity.captain_email,
-            curator_data=entity.curator_data,
-            agreement=entity.agreement,
-            acquaintance=entity.acquaintance,
-            created_at=entity.created_at,
-            is_available=entity.is_available)
-
-
 class ParticipantsCreateSerializer(BaseModel):
     fio: str
     course: int
     role: str
-    registration_id: int
-    created_at: datetime
-
 
 class ParticipantsSerializer(BaseModel):
     id: int
@@ -293,3 +255,43 @@ class ParticipantsSerializer(BaseModel):
             registration_id=entity.registration_id,
             created_at=entity.created_at,
             is_available=entity.is_available)
+
+
+class RegistrationCreateSerializer(BaseModel):
+    name: str
+    institution: str
+    amount_participants: int
+    participation_form: str
+    level_education: str
+    selected_case: int
+    spare_case: int
+    captain_phone: str
+    captain_email: str
+    curator_data: dict # jsonb
+    agreement: bool
+    acquaintance: bool
+
+class RegistrationSerializer(BaseModel):
+    id: int
+    name: str
+    institution: str
+    amount_participants: int
+    participation_form: str
+    level_education: str
+    selected_case: int
+    spare_case: int = 0
+    captain_phone: str
+    captain_email: str
+    curator_data: dict # jsonb
+    agreement: bool
+    acquaintance: bool
+    created_at: datetime
+    is_available: bool = True
+    participants: list[ParticipantsSerializer]
+
+
+class RegistrationRequestSerializer(BaseModel):
+    team: RegistrationCreateSerializer
+    participants: list[ParticipantsCreateSerializer]
+
+RegistrationSerializer.model_rebuild()
