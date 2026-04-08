@@ -28,6 +28,9 @@ class AcquaintanceUseCase:
 
     def get_by_id(self, item_id: int) -> Optional[Acquaintance]:
         return self.repository.get_by_id(item_id)
+    
+    def get_by_title(self, title: str) -> Optional[Acquaintance]:
+        return self.repository.get_by_title(title)
 
     def update(self, item_id: int, item: Acquaintance) -> None:
         self.repository.update(item_id, item)

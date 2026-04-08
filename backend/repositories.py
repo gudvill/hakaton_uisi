@@ -32,6 +32,15 @@ class AcquaintanceRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query, values)
 
+    def get_by_title(self, title: str) -> Optional[Acquaintance]:
+        query = """SELECT id, title, text FROM acquaintance WHERE title=%s LIMIT 1"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, [title])
+                row = cursor.fetchone()
+                if row: return self.entity_class(id=row[0], title=row[1], text=row[2])
+                return None
+
 
 class ProgramRepository(BaseRepository):
     def __init__(self, connection):

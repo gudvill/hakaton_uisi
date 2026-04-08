@@ -77,6 +77,12 @@ def get_acquaintance(item_id: int, use_case: AcquaintanceUseCase = Depends(get_a
     if not item: raise HTTPException(status_code=404, detail="Не найдено")
     return AcquaintanceSerializer.from_entity(item)
 
+@acquaintance_router.get("/by-title/", response_model=AcquaintanceSerializer)
+def get_acquaintance_by_title(title: str, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase)):
+    item = use_case.get_by_title(title)
+    if not item: raise HTTPException(status_code=404, detail="Не найдено")
+    return AcquaintanceSerializer.from_entity(item)
+
 @acquaintance_router.put("/{item_id}", response_model=AcquaintanceSerializer)
 def update_acquaintance(item_id: int, item_data: AcquaintanceCreateSerializer, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase), admin=Depends(get_current_admin)):
     item = Acquaintance(id=item_id, title=item_data.title, text=item_data.text)
