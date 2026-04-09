@@ -19,8 +19,7 @@ class AdminUseCase:
 
     def request_password_reset(self, email: str) -> str:
         admin = self.repository.get_by_email(email)
-        if not admin:
-            return None  # не раскрываем, что email не найден
+        if not admin: return None
         token = secrets.token_urlsafe(32)
         expires_at = datetime.utcnow() + timedelta(hours=1)
         self.repository.save_password_reset_token(admin_id=admin[0], token=token, expires_at=expires_at)
