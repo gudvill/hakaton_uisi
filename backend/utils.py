@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 import os
 
 
-SMTP_SERVER = "smtp.yandex.ru"
+SMTP_SERVER = "77.88.21.158"
 SMTP_PORT = 465
 SMTP_LOGIN = "agoodwill04@gmail.com"
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
