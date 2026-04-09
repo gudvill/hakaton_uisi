@@ -3,6 +3,8 @@
 from base_repository import BaseRepository
 from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
+import psycopg2
+from datetime import datetime
 import json
 
 
@@ -11,12 +13,43 @@ class AdminRepository:
         self.connection = connection
 
     def get_by_login(self, login: str) -> Optional[tuple]:
-        query = "SELECT id, login, password_hash FROM admins WHERE login = %s"
+        query = "SELECT id, login, password_hash, email FROM admins WHERE login = %s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (login,))
-                row = cursor.fetchone()
-        return row
+                return cursor.fetchone()
+
+    def get_by_email(self, email: str):
+        query = "SELECT id, login, password_hash, email FROM admins WHERE email = %s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (email,))
+                return cursor.fetchone()
+
+    def save_password_reset_token(self, admin_id: int, token: str, expires_at: datetime):
+        query = "INSERT INTO password_reset_tokens (admin_id, token, expires_at, used) VALUES (%s, %s, %s, FALSE)"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (admin_id, token, expires_at))
+
+    def get_reset_token(self, token: str):
+        query = "SELECT id, admin_id, token, expires_at, used FROM password_reset_tokens WHERE token = %s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (token,))
+                return cursor.fetchone()
+
+    def mark_token_used(self, token_id: int):
+        query = "UPDATE password_reset_tokens SET used=TRUE WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (token_id,))
+
+    def update_password(self, admin_id: int, password_hash: str):
+        query = "UPDATE admins SET password_hash=%s WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (password_hash, admin_id))
 
 
 class AcquaintanceRepository(BaseRepository):

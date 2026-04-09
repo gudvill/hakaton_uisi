@@ -8,8 +8,18 @@ from typing import Any
 
 @dataclass
 class Admin:
+    id: int
     login: str
     password_hash: str
+    email: str
+
+@dataclass
+class PasswordResetToken:
+    id: int
+    admin_id: int
+    token: str
+    expires_at: datetime
+    used: bool
 
 @dataclass
 class Acquaintance:

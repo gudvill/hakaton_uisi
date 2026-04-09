@@ -1,7 +1,9 @@
 from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from repositories import AdminRepository, AcquaintanceRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from typing import List, Optional, Dict, Any
-from security import verify_password
+from security import verify_password, hash_password
+import secrets
+from datetime import datetime, timedelta
 
 
 class AdminUseCase:
@@ -11,10 +13,31 @@ class AdminUseCase:
     def login(self, login: str, password: str):
         user = self.repository.get_by_login(login)
         if not user: return None
-        user_id, user_login, password_hash = user
+        user_id, user_login, password_hash, user_email = user
         if not verify_password(password, password_hash): return None
-        return {"id": user_id, "login": user_login}
-    
+        return {"id": user_id, "login": user_login, "email": user_email}
+
+    def request_password_reset(self, email: str) -> str:
+        admin = self.repository.get_by_email(email)
+        if not admin:
+            return None  # не раскрываем, что email не найден
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.utcnow() + timedelta(hours=1)
+        self.repository.save_password_reset_token(admin_id=admin[0], token=token, expires_at=expires_at)
+        return token
+
+    def reset_password(self, token: str, new_password: str):
+        token_data = self.repository.get_reset_token(token)
+        if not token_data:
+            raise ValueError("Неверный токен")
+        token_id, admin_id, _, expires_at, used = token_data
+        if used:
+            raise ValueError("Токен уже использован")
+        if expires_at < datetime.utcnow():
+            raise ValueError("Токен истёк")
+        password_hash = hash_password(new_password)
+        self.repository.update_password(admin_id, password_hash)
+        self.repository.mark_token_used(token_id)
 
 class AcquaintanceUseCase:
     def __init__(self, repository: AcquaintanceRepository):

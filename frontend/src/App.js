@@ -66,6 +66,10 @@ export default function App() {
           {/* логин */}
           <Route path="/admin/login" element={<Login />} />
 
+          {/* восстановление доступа */}
+          <Route path="/request-password-reset" element={<PasswordResetRequestPage />} />
+          <Route path="/reset-password" element={<PasswordResetPage />} />
+
           {/* админка */}
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Routes>

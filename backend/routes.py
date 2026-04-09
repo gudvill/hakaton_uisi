@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
+from utils import send_reset_email
 from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
-from serializers import (LoginRequest, RefreshRequest,
+from serializers import (PasswordResetRequest,ResetPasswordRequest,
+                         LoginRequest, RefreshRequest,
                          AcquaintanceSerializer, AcquaintanceCreateSerializer,
                          ProgramSerializer, ProgramCreateSerializer,
                          AboutSerializer, AboutCreateSerializer,
@@ -58,6 +60,22 @@ def refresh_token(data: RefreshRequest):
     new_access = create_access_token({"sub": user_id})
     return {"access_token": new_access}
 
+@admin_router.post("/request-password-reset")
+def request_password_reset(request: PasswordResetRequest, background_tasks: BackgroundTasks, use_case: AdminUseCase = Depends(get_admin_usecase)):
+    token = use_case.request_password_reset(request.email)
+    if token:
+        reset_link = f"http://localhost:3000/reset-password?token={token}"
+        background_tasks.add_task(send_reset_email, request.email, reset_link)
+    return {"message": "Если такой e-mail существует, ссылка отправлена"}
+
+@admin_router.post("/reset-password")
+def reset_password(request: ResetPasswordRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
+    try:
+        use_case.reset_password(request.token, request.new_password)
+        return {"message": "Пароль успешно изменён"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
 
 # Эндпоинты для Ознакомлений
 @acquaintance_router.post("/", response_model=AcquaintanceSerializer)

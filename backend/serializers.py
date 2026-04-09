@@ -13,6 +13,15 @@ class LoginRequest(BaseModel):
 class RefreshRequest(BaseModel):
     refresh_token: str
 
+# запрос сброса пароля
+class PasswordResetRequest(BaseModel):
+    email: str
+
+# новый пароль
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
 
 class AcquaintanceCreateSerializer(BaseModel):
     title: Optional[str] = None

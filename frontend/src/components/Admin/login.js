@@ -42,6 +42,12 @@ export default function Login() {
         />
 
         <button type="submit">Войти</button>
+        <p
+          style={{ cursor: "pointer", color: "blue", marginTop: "10px" }}
+          onClick={() => navigate("/request-password-reset")}
+        >
+          Забыли пароль?
+        </p>
       </form>
     </section>
   );
