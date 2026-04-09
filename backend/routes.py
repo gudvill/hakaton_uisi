@@ -61,11 +61,11 @@ def refresh_token(data: RefreshRequest):
     return {"access_token": new_access}
 
 @admin_router.post("/request-password-reset")
-def request_password_reset(request: PasswordResetRequest, background_tasks: BackgroundTasks, use_case: AdminUseCase = Depends(get_admin_usecase)):
+def request_password_reset(request: PasswordResetRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     token = use_case.request_password_reset(request.email)
     if token:
         reset_link = f"http://localhost:3000/reset-password?token={token}"
-        background_tasks.add_task(send_reset_email, request.email, reset_link)
+        send_reset_email(request.email, reset_link)
     return {"message": "Если такой e-mail существует, ссылка отправлена"}
 
 @admin_router.post("/reset-password")
