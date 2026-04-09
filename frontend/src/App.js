@@ -22,6 +22,8 @@ import NewsDetailPage from './components/News/NewsDetailPage';
 import CaseDetailPage from './components/Cases/CaseDetailPage';
 import PrivacyPolicy from './components/Policy/PrivacyPolicy';
 import UserAgreement from './components/Policy/UserAgreement';
+import PasswordResetRequestPage from './components/Admin/PasswordResetRequestPage';
+import PasswordResetPage from './components/Admin/PasswordResetPage';
 
 function Home() {
   return (
