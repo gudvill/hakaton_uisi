@@ -2,7 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 import os
 
-SMTP_SERVER = "smtp.yandex.ru"
+SMTP_SERVER = "77.88.21.158"
 SMTP_PORT = 587
 SMTP_LOGIN = "alex.goodwill04@yandex.ru"
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
