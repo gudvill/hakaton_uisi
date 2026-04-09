@@ -17,10 +17,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    network_mode: "host"
     restart: always
     depends_on:
       - db
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
     environment:
       - DATABASE_URL=postgresql://postgres:hakaton@db:5432/hakaton_db
     env_file:
@@ -28,8 +31,8 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/media:/app/media
-    #ports:
-    #  - "8000:8000"
+    ports:
+      - "8000:8000"
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
