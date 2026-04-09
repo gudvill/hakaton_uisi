@@ -3,9 +3,9 @@ from email.mime.text import MIMEText
 import os
 
 
-SMTP_SERVER = "smtp.yandex.ru"
+SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_LOGIN = "alex.goodwill04@yandex.ru"
+SMTP_LOGIN = "agoodwill04@gmail.com"
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
 def send_reset_email(to_email: str, reset_link: str):
