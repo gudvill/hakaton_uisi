@@ -3,39 +3,28 @@ from email.mime.text import MIMEText
 import os
 
 
-SMTP_SERVER = "smtp.yandex.ru"
+SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_LOGIN = "alex.goodwill04@yandex.ru"
-SMTP_PASSWORD = "uhtetyxjrvuihgpo"
+SMTP_LOGIN = "agoodwill04@gmail.com"
+SMTP_PASSWORD = "iqbq qkwc swij xvma"
 
 def send_reset_email(to_email: str, reset_link: str):
-    print(f"[EMAIL] Attempting to send password reset email to: {to_email}")
-    try:
-        # Настройка письма
-        subject = "Восстановление пароля"
-        body = f"""
-        Здравствуйте!
+    print("[EMAIL] Sending reset email...", flush=True)
 
-        Вы запросили сброс пароля.
-        Перейдите по ссылке, чтобы изменить пароль:
+    msg = MIMEText(
+        f"Ссылка для сброса пароля:\n\n{reset_link}",
+        "plain",
+        "utf-8"
+    )
 
-        {reset_link}
+    msg["Subject"] = "Восстановление пароля"
+    msg["From"] = SMTP_LOGIN
+    msg["To"] = to_email
 
-        Если вы этого не делали — просто проигнорируйте это письмо.
-        """
-        msg = MIMEText(body, "plain", "utf-8")
-        msg['Subject'] = subject
-        msg['From'] = SMTP_LOGIN
-        msg['To'] = to_email
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.set_debuglevel(1)
+        server.starttls()
+        server.login(SMTP_LOGIN, SMTP_PASSWORD)
+        server.send_message(msg)
 
-        # Подключение к SMTP
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.set_debuglevel(1)
-            server.starttls()
-            server.login(SMTP_LOGIN, SMTP_PASSWORD)
-            server.send_message(msg)
-
-    except smtplib.SMTPException as e:
-        print(f"[EMAIL ERROR] SMTPException: {e}")
-    except Exception as e:
-        print(f"[EMAIL ERROR] Other Exception: {e}")
+    print("[EMAIL] Sent successfully", flush=True)
