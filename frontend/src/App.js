@@ -22,6 +22,7 @@ import NewsDetailPage from './components/News/NewsDetailPage';
 import CaseDetailPage from './components/Cases/CaseDetailPage';
 import PrivacyPolicy from './components/Policy/PrivacyPolicy';
 import UserAgreement from './components/Policy/UserAgreement';
+import NotFound from './components/NotFound/NotFound';
 
 function Home() {
   return (
@@ -62,6 +63,9 @@ export default function App() {
           {/* политика */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/user-agreement" element={<UserAgreement />} />
+
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
 
           {/* логин */}
           <Route path="/admin/login" element={<Login />} />
