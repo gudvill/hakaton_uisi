@@ -17,6 +17,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    network_mode: host
     restart: always
     depends_on:
       - db
