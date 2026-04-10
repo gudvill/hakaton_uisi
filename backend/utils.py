@@ -6,7 +6,7 @@ import os
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SMTP_LOGIN = "agoodwill04@gmail.com"
-SMTP_PASSWORD = "iqbqqkwcswijxvma"
+SMTP_PASSWORD = "iqbq qkwc swij xvma"
 
 def send_reset_email(to_email: str, reset_link: str):
     print("[EMAIL] Sending reset email...", flush=True)
