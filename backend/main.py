@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes import admin_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router
+from routes import admin_router, acquaintance_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router, registration_router
 
 app = FastAPI(root_path="/api")
 
@@ -14,6 +14,7 @@ if not os.path.exists("media"):
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(admin_router)
+app.include_router(acquaintance_router)
 app.include_router(program_router)
 app.include_router(about_router)
 app.include_router(cases_router)
@@ -22,6 +23,7 @@ app.include_router(partners_router)
 app.include_router(photoalbums_router)
 app.include_router(photos_router)
 app.include_router(reviews_router)
+app.include_router(registration_router)
 
 @app.get("/")
 def api_root():

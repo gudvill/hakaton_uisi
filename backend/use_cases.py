@@ -1,7 +1,9 @@
-from entities import Admin, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
-from repositories import AdminRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository
+from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
+from repositories import AdminRepository, AcquaintanceRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from typing import List, Optional, Dict, Any
-from security import verify_password
+from security import verify_password, hash_password
+import secrets
+from datetime import datetime, timedelta
 
 
 class AdminUseCase:
@@ -11,10 +13,50 @@ class AdminUseCase:
     def login(self, login: str, password: str):
         user = self.repository.get_by_login(login)
         if not user: return None
-        user_id, user_login, password_hash = user
+        user_id, user_login, password_hash, user_email = user
         if not verify_password(password, password_hash): return None
-        return {"id": user_id, "login": user_login}
+        return {"id": user_id, "login": user_login, "email": user_email}
+
+    def request_password_reset(self, email: str) -> str:
+        admin = self.repository.get_by_email(email)
+        if not admin: return None
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.utcnow() + timedelta(hours=1)
+        self.repository.save_password_reset_token(admin_id=admin[0], token=token, expires_at=expires_at)
+        return token
+
+    def reset_password(self, token: str, new_password: str):
+        token_data = self.repository.get_reset_token(token)
+        if not token_data:
+            raise ValueError("Неверный токен")
+        token_id, admin_id, _, expires_at, used = token_data
+        if used:
+            raise ValueError("Токен уже использован")
+        if expires_at < datetime.utcnow():
+            raise ValueError("Токен истёк")
+        password_hash = hash_password(new_password)
+        self.repository.update_password(admin_id, password_hash)
+        self.repository.mark_token_used(token_id)
+
+class AcquaintanceUseCase:
+    def __init__(self, repository: AcquaintanceRepository):
+        self.repository = repository
+
+    def create(self, item: Acquaintance) -> int:
+        return self.repository.create(item)
+
+    def get_all(self) -> List[Acquaintance]:
+        return self.repository.get_all()
+
+    def get_by_id(self, item_id: int) -> Optional[Acquaintance]:
+        return self.repository.get_by_id(item_id)
     
+    def get_by_title(self, title: str) -> Optional[Acquaintance]:
+        return self.repository.get_by_title(title)
+
+    def update(self, item_id: int, item: Acquaintance) -> None:
+        self.repository.update(item_id, item)
+
 
 class ProgramUseCase:
     def __init__(self, repository: ProgramRepository):
@@ -123,10 +165,10 @@ class PhotoAlbumsUseCase:
     def create(self, photoalbum: PhotoAlbum) -> int:
         return self.repository.create(photoalbum)
 
-    def get_all(self) -> List[PhotoAlbumWithPhotos]:
+    def get_all(self) -> List[Dict[str, Any]]:
         return self.repository.get_all_with_photos()
 
-    def get_by_id(self, photoalbum_id: int) -> Optional[PhotoAlbumWithPhotos]:
+    def get_by_id(self, photoalbum_id: int) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id_with_photos(photoalbum_id)
 
     def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
@@ -174,3 +216,92 @@ class ReviewsUseCase:
 
     def disable(self, review_id: int) -> None:
         self.repository.disable(review_id)
+
+
+class RegistrationUseCase:
+    def __init__(self, repository: RegistrationRepository, cases_repository: CasesRepository):
+        self.repository = repository
+        self.cases_repository = cases_repository
+
+    def create(self, data, participants) -> int:
+        # проверка количества
+        if int(data.amount_participants) != len(participants):
+            raise Exception("Количество участников не совпадает")
+        if len(participants) < 2 or len(participants) > 5:
+            raise Exception("Команда должна быть от 2 до 5 человек")
+        # проверка капитана
+        if not any(p["role"] == "капитан" for p in participants):
+            raise Exception("В команде должен быть капитан")
+        if sum(1 for p in participants if p["role"] == "капитан") > 1:
+            raise Exception("Капитан должен быть только один")
+        # лимит кейсов
+        if self.repository.count_by_case(data.selected_case, "selected_case") >= 10:
+            raise Exception("Этот кейс уже заполнен")
+        if self.repository.count_by_case(data.spare_case, "spare_case") >= 10:
+            raise Exception("Запасной кейс уже заполнен")
+        if data.selected_case == data.spare_case:
+            raise Exception("Основной и запасной кейс не могут совпадать")
+        # проверка уровня
+        case = self.cases_repository.get_by_id(data.selected_case)
+        if not case: raise Exception("Кейс не найден")
+        try:
+            courses = [int(p["course"]) for p in participants]
+        except:
+            raise Exception("Некорректный курс участника")
+        case_level = (case.level or "").lower()
+        level = (data.level_education or "").lower()
+        if case_level == "стартовый":
+            if any(c > 2 for c in courses) or level == "магистратура":
+                raise Exception("Этот кейс только для 1-2 курса")
+        if case_level == "продвинутый":
+            if any(c < 3 for c in courses) and level != "магистратура":
+                raise Exception("Этот кейс только для 3+ курса")
+        return self.repository.create_registration(data, participants)
+
+    def get_all(self) -> List[Dict[str, Any]]:
+        return self.repository.get_all()
+
+    def get_by_id(self, reg_id) -> Optional[Dict[str, Any]]:
+        return self.repository.get_by_id(reg_id)
+
+    def disable_registration(self, reg_id) -> None:
+        self.repository.disable_registration(reg_id)
+
+    def delete_participant(self, p_id) -> None:
+        self.repository.delete_participant(p_id)
+
+    def update(self, reg_id: int, data, participants) -> None:
+        # проверка количества
+        if int(data.amount_participants) != len(participants):
+            raise Exception("Количество участников не совпадает")
+        if len(participants) < 2 or len(participants) > 5:
+            raise Exception("Команда должна быть от 2 до 5 человек")
+        # проверка капитана
+        if not any(p["role"] == "капитан" for p in participants):
+            raise Exception("В команде должен быть капитан")
+        if sum(1 for p in participants if p["role"] == "капитан") > 1:
+            raise Exception("Капитан должен быть только один")
+        # лимит кейсов       
+        if self.repository.count_by_case_exclude_self(data.selected_case, "selected_case", reg_id) >= 10:
+            raise Exception("Этот кейс уже заполнен")
+        if self.repository.count_by_case_exclude_self(data.spare_case, "spare_case", reg_id) >= 10:
+            raise Exception("Запасной кейс уже заполнен")
+        if data.selected_case == data.spare_case:
+            raise Exception("Основной и запасной кейс не могут совпадать")
+        
+        # проверка уровня
+        case = self.cases_repository.get_by_id(data.selected_case)
+        if not case: raise Exception("Кейс не найден")
+        try:
+            courses = [int(p["course"]) for p in participants]
+        except:
+            raise Exception("Некорректный курс участника")
+        case_level = (case.level or "").lower()
+        level = (data.level_education or "").lower()
+        if case_level == "стартовый":
+            if any(c > 2 for c in courses) or level == "магистратура":
+                raise Exception("Этот кейс только для 1-2 курса")
+        if case_level == "продвинутый":
+            if any(c < 3 for c in courses) and level != "магистратура":
+                raise Exception("Этот кейс только для 3+ курса и магистрантов")
+        self.repository.update_registration(reg_id, data, participants)

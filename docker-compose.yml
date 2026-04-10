@@ -20,8 +20,14 @@ services:
     restart: always
     depends_on:
       - db
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
     environment:
       - DATABASE_URL=postgresql://postgres:hakaton@db:5432/hakaton_db
+    env_file:
+      - .env
     volumes:
       - ./backend:/app
       - ./backend/media:/app/media

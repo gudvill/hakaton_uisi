@@ -1,12 +1,13 @@
 import './registration.css';
 import { useState, useEffect } from 'react';
+import { registerTeam } from "../../api/registrationService";
 
 export default function Registration({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     institution: '',
     amount_participants: '',
-    participant_form: '',
+    participation_form: '',
     level_education: '',
     selected_case: '',
     spare_case: '',
@@ -14,7 +15,7 @@ export default function Registration({ isOpen, onClose }) {
     captain_email: '',
     curator_data: '',
     agreement: false,
-    privacy_policy: false,
+    acquaintance: false,
     participants: []
   });
 
@@ -27,14 +28,14 @@ export default function Registration({ isOpen, onClose }) {
       // Обновляем количество участников
       const newParticipants = Array.from({ length: count }, (_, i) => ({
         id: i,
-        name: '',
+        fio: '',
         role: '',
         course: ''
       }));
       
       setFormData(prev => ({
         ...prev,
-        [name]: value,
+        amount_participants: count,
         participants: newParticipants
       }));
       return;
@@ -55,10 +56,97 @@ export default function Registration({ isOpen, onClose }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const [cases, setCases] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/cases/")
+      .then(res => res.json())
+      .then(data => setCases(data))
+      .catch(() => setCases([]));
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Регистрация:', formData);
-    onClose();
+    const { participants, ...teamData } = formData;
+
+    // проверка количества участников
+    if (participants.length < 2 || participants.length > 5) {
+      alert("Команда должна быть от 2 до 5 человек");
+      return;
+    }
+
+    // проверка заполненности всех полей участников
+    const isValidParticipants = participants.every(
+      (p) => p.fio && p.role && p.course
+    );
+
+    if (!isValidParticipants) {
+      alert("Заполните всех участников");
+      return;
+    }
+
+    // проверка наличия капитана (один и только один)
+    const captainCount = participants.filter(p => p.role === "капитан").length;
+    if (captainCount === 0) {
+      alert("В команде должен быть капитан");
+      return;
+    }
+    if (captainCount > 1) {
+      alert("Капитан должен быть только один");
+      return;
+    }
+
+    // проверка выбранного кейса и запасного кейса (не совпадают)
+    if (teamData.selected_case && teamData.spare_case && teamData.selected_case === teamData.spare_case) {
+      alert("Основной и запасной кейс не могут совпадать");
+      return;
+    }
+
+    // проверка уровня кейса
+    const selectedCase = cases.find(c => c.id === Number(teamData.selected_case));
+    if (selectedCase) {
+      const courseNumbers = participants.map(p => Number(p.course));
+      const caseLevel = selectedCase.level?.toLowerCase();
+      const level = teamData.level_education?.toLowerCase();
+
+      if (caseLevel === "стартовый") {
+        if (courseNumbers.some(c => c > 2) || level === "магистратура") {
+          alert("Этот кейс только для 1-2 курса");
+          return;
+        }
+      }
+
+      if (caseLevel === "продвинутый") {
+        if (courseNumbers.some(c => c < 3) && level !== "магистратура") {
+          alert("Этот кейс только для 3+ курса и магистрантов");
+          return;
+        }
+      }
+    }
+
+    // подготовка payload
+    const payload = {
+      team: {
+        ...teamData,
+        curator_data: {
+          text: teamData.curator_data
+        }
+      },
+      participants: participants.map((p) => ({
+        fio: p.fio,
+        role: p.role,
+        course: Number(p.course)
+      }))
+    };
+
+    // отправка на бек
+    try {
+      await registerTeam(payload);
+      alert("Успешно!");
+      onClose();
+    } catch (e) {
+      alert(e.response?.data?.detail || "Ошибка");
+    }
   };
 
   if (!isOpen) return null;
@@ -122,17 +210,17 @@ export default function Registration({ isOpen, onClose }) {
           <label className="radio-group">
             <input
               type="radio"
-              name="participant_form"
+              name="participation_form"
               value="Очная"
-              checked={formData.participant_form === 'Очная'}
+              checked={formData.participation_form === 'Очная'}
               onChange={handleInputChange}
             /> 
             <span>Очная</span>
             <input
               type="radio"
-              name="participant_form"
+              name="participation_form"
               value="Дистанционная"
-              checked={formData.participant_form === 'Дистанционная'}
+              checked={formData.participation_form === 'Дистанционная'}
               onChange={handleInputChange}
             /> 
             <span>Дистанционная</span>
@@ -147,8 +235,8 @@ export default function Registration({ isOpen, onClose }) {
                   <input 
                     type="text" 
                     placeholder={`ФИО участника ${index + 1}`}
-                    value={participant.name}
-                    onChange={(e) => handleParticipantChange(index, 'name', e.target.value)}
+                    value={participant.fio}
+                    onChange={(e) => handleParticipantChange(index, 'fio', e.target.value)}
                   />
                 </label>
                 <label>
@@ -254,8 +342,8 @@ export default function Registration({ isOpen, onClose }) {
           <label className="checkbox-group">
             <input
               type="checkbox"
-              name="privacy_policy"
-              checked={formData.privacy_policy}
+              name="acquaintance"
+              checked={formData.acquaintance}
               onChange={handleInputChange}
             />
             <span><a href='#'>Политика конфиденциальности</a></span>

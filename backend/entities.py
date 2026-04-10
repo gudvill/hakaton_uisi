@@ -7,6 +7,27 @@ from typing import Any
 
 
 @dataclass
+class Admin:
+    id: int
+    login: str
+    password_hash: str
+    email: str
+
+@dataclass
+class PasswordResetToken:
+    id: int
+    admin_id: int
+    token: str
+    expires_at: datetime
+    used: bool
+
+@dataclass
+class Acquaintance:
+    id: int = None
+    title: Optional[str] = None
+    text: Optional[str] = None
+
+@dataclass
 class Program:
     id: int = None
     date: Optional[str] = None
@@ -23,11 +44,6 @@ class About:
     text: Optional[str] = None
     icon: Optional[str] = None
     created_at: datetime = None
-
-@dataclass
-class Admin:
-    login: str
-    password_hash: str
 
 @dataclass
 class Case:
@@ -53,8 +69,10 @@ class News:
 class Partner:
     id: int = None
     name: Optional[str] = None
-    description: Optional[str] = None
     image: Optional[str] = None
+    description: Optional[str] = None
+    full_description: Optional[str] = None
+    site_link: Optional[str] = None
     created_at: datetime = None
     is_available: bool = True
 
@@ -99,7 +117,7 @@ class Registration:
     spare_case: int = 0
     captain_phone: str = None
     captain_email: str = None
-    curator_data: str = None # jsonb
+    curator_data: dict = None # jsonb
     agreement: bool = None
     acquaintance: bool = None
     created_at: datetime = None

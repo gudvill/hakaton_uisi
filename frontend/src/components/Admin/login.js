@@ -40,6 +40,7 @@ export default function Login() {
             />
           </div>
 
+<<<<<<< HEAD
           <div className="login-field">
             <label className="login-label">Пароль</label>
             <input
@@ -57,5 +58,16 @@ export default function Login() {
         </form>
       </div>
     </div>
+=======
+        <button type="submit">Войти</button>
+        <p
+          style={{ cursor: "pointer", color: "blue", marginTop: "10px" }}
+          onClick={() => navigate("/request-password-reset")}
+        >
+          Забыли пароль?
+        </p>
+      </form>
+    </section>
+>>>>>>> 4bbff6a21da3569917c0c8b7cb8774ffb11d85bf
   );
 }

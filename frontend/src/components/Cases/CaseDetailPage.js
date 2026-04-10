@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCaseById } from '../../api/casesService';
-import { getPartners } from '../../api/partnersService';
 import Header from '../Header/header';
 import Footer from '../Footer/footer';
 import './CaseDetailPage.css';
@@ -9,7 +8,6 @@ import './CaseDetailPage.css';
 export default function CaseDetailPage() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
-  const [partner, setPartner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -17,14 +15,6 @@ export default function CaseDetailPage() {
     getCaseById(id)
       .then(data => {
         setItem(data);
-        if (data.partner_id) {
-          getPartners()
-            .then(list => {
-              const found = list.find(p => p.id === data.partner_id);
-              if (found) setPartner(found);
-            })
-            .catch(() => {});
-        }
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -58,11 +48,9 @@ export default function CaseDetailPage() {
                 </div>
               </div>
 
-              {(item.partner_name || partner) && (
+              {item.partner_name && (
                 <div className="case-detail__partner-card">
-                  {partner?.image && (
-                    <img src={partner.image} alt={item.partner_name} className="case-detail__partner-img" />
-                  )}
+                    <img src={item.partner_image} alt={item.partner_name} className="case-detail__partner-img" />
                   <span className="case-detail__partner-name">{item.partner_name}</span>
                 </div>
               )}

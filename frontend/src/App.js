@@ -22,7 +22,12 @@ import NewsDetailPage from './components/News/NewsDetailPage';
 import CaseDetailPage from './components/Cases/CaseDetailPage';
 import PrivacyPolicy from './components/Policy/PrivacyPolicy';
 import UserAgreement from './components/Policy/UserAgreement';
+<<<<<<< HEAD
 import NotFound from './components/NotFound/NotFound';
+=======
+import PasswordResetRequestPage from './components/Admin/PasswordResetRequestPage';
+import PasswordResetPage from './components/Admin/PasswordResetPage';
+>>>>>>> 4bbff6a21da3569917c0c8b7cb8774ffb11d85bf
 
 function Home() {
   return (
@@ -69,6 +74,10 @@ export default function App() {
 
           {/* логин */}
           <Route path="/admin/login" element={<Login />} />
+
+          {/* восстановление доступа */}
+          <Route path="/request-password-reset" element={<PasswordResetRequestPage />} />
+          <Route path="/reset-password" element={<PasswordResetPage />} />
 
           {/* админка */}
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
