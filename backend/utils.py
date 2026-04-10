@@ -6,7 +6,7 @@ import os
 SMTP_SERVER = "smtp.yandex.ru"
 SMTP_PORT = 587
 SMTP_LOGIN = "alex.goodwill04@yandex.ru"
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+SMTP_PASSWORD = "uhtetyxjrvuihgpo"
 
 def send_reset_email(to_email: str, reset_link: str):
     print(f"[EMAIL] Attempting to send password reset email to: {to_email}")
