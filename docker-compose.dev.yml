@@ -22,8 +22,6 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql://postgres:hakaton@db:5432/hakaton_db
-    env_file:
-      - .env
     volumes:
       - ./backend:/app
     ports:
