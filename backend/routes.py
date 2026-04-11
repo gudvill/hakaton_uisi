@@ -112,7 +112,7 @@ def update_acquaintance(item_id: int, item_data: AcquaintanceCreateSerializer, u
 # Эндпоинты для Программы
 @program_router.post("/", response_model=ProgramSerializer)
 def create_program(item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
-    item = Program(id=0, date=item_data.start_date, date=item_data.end_date, text=item_data.text, order_index=item_data.order_index)
+    item = Program(id=0, start_date=item_data.start_date, end_date=item_data.end_date, text=item_data.text, order_index=item_data.order_index)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
     return ProgramSerializer.from_entity(created)
@@ -134,7 +134,7 @@ def get_event_date(use_case: ProgramUseCase = Depends(get_program_usecase)):
 
 @program_router.put("/{item_id}", response_model=ProgramSerializer)
 def update_program(item_id: int, item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
-    item = Program(id=item_id, date=item_data.start_date, date=item_data.end_date, text=item_data.text, order_index=item_data.order_index)
+    item = Program(id=item_id, start_date=item_data.start_date, end_date=item_data.end_date, text=item_data.text, order_index=item_data.order_index)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
     return ProgramSerializer.from_entity(updated)
