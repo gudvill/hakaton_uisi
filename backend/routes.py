@@ -127,7 +127,7 @@ def get_program_item(item_id: int, use_case: ProgramUseCase = Depends(get_progra
     if not item: raise HTTPException(status_code=404, detail="Не найдено")
     return ProgramSerializer.from_entity(item)
 
-@program_router.get("/event-date")
+@program_router.get("/event-date/")
 def get_event_date(use_case: ProgramUseCase = Depends(get_program_usecase)):
     date = use_case.get_event_date()
     return {"date": date.isoformat()}
