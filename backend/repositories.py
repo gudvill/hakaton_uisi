@@ -155,16 +155,16 @@ class CasesRepository(BaseRepository):
                 cursor.execute(query, values)
 
     def get_all_with_partner(self) -> List[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, p.image as partner_image, c.is_available
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id WHERE c.is_available = TRUE ORDER BY c.case_number"""
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as teams_count
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id WHERE c.is_available = TRUE GROUP BY c.id, p.name, p.image ORDER BY c.case_number"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
 
     def get_by_id_with_partner(self, case_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, p.image as partner_image, c.is_available
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id WHERE c.id = %s"""
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as teams_count
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id WHERE c.id = %s GROUP BY c.id, p.name, p.image"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (case_id,))
