@@ -13,7 +13,7 @@ export default function Time() {
   useEffect(() => {
     getEventDate()
       .then(data => {
-        setEventDate(new Date(data.date + "T00:00:00"));
+        setEventDate(new Date(data.date + "T00:00:00Z"));
       })
       .catch(() => {
         console.error("Ошибка загрузки даты события");

@@ -130,7 +130,7 @@ def get_program_item(item_id: int, use_case: ProgramUseCase = Depends(get_progra
 @program_router.get("/event-date")
 def get_event_date(use_case: ProgramUseCase = Depends(get_program_usecase)):
     date = use_case.get_event_date()
-    return {"date": date}
+    return {"date": date.isoformat()}
 
 @program_router.put("/{item_id}", response_model=ProgramSerializer)
 def update_program(item_id: int, item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
