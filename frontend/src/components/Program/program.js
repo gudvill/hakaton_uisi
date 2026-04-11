@@ -23,6 +23,32 @@ export default function Program() {
     fetchProgram();
   }, []);
 
+  const formatDateRange = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = end ? new Date(end) : null;
+
+    const monthNames = [
+      'января','февраля','марта','апреля','мая','июня',
+      'июля','августа','сентября','октября','ноября','декабря'
+    ];
+
+    const startDay = startDate.getDate();
+    const startMonth = monthNames[startDate.getMonth()];
+
+    if (!endDate) {
+      return `${startDay} ${startMonth}`;
+    }
+
+    const endDay = endDate.getDate();
+    const endMonth = monthNames[endDate.getMonth()];
+
+    if (startMonth === endMonth) {
+      return `${startDay}–${endDay} ${startMonth}`;
+    }
+
+    return `${startDay} ${startMonth} – ${endDay} ${endMonth}`;
+  };
+
   if (loading) return <div className='container'>Загрузка...</div>;
   if (error) return <div className='container'>{error}</div>;
 
@@ -31,7 +57,7 @@ export default function Program() {
       <h2>ПРОГРАММА ХАКАТОНА</h2>
       {programData.map((item) => (
         <div className='program-card' key={item.id}>
-          <p className='date'>{item.date}</p>
+          <p className='date'>{formatDateRange(item.start_date, item.end_date)}</p>
           <p className='program-text'>{item.text}</p>
         </div>
       ))}

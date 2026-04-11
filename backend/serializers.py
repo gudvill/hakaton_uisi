@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 
 
@@ -41,14 +41,15 @@ class AcquaintanceSerializer(BaseModel):
     
 
 class ProgramCreateSerializer(BaseModel):
-    date: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     text: Optional[str] = None
     order_index: Optional[int] = None
-    created_at: datetime = None
 
 class ProgramSerializer(BaseModel):
     id: int
-    date: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     text: Optional[str] = None
     order_index: Optional[int] = None
     created_at: datetime = None
@@ -57,11 +58,11 @@ class ProgramSerializer(BaseModel):
     def from_entity(cls, entity: Program):
         return cls(
             id=entity.id,
-            date=entity.date,
+            start_date=entity.start_date,
+            end_date=entity.end_date,
             text=entity.text,
             order_index=entity.order_index,
             created_at=entity.created_at)
-    
 
 class AboutCreateSerializer(BaseModel):
     row: Optional[int] = None

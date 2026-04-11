@@ -82,15 +82,23 @@ class ProgramRepository(BaseRepository):
             columns=["date", "text", "order_index"])
         
     def get_all_ordered(self) -> List[Program]:
-        query = """SELECT id, date, text, order_index, created_at FROM program ORDER BY order_index"""
+        query = """SELECT id, start_date, end_date, text, order_index, created_at FROM program ORDER BY order_index"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 rows = cursor.fetchall()
         return [Program(*row) for row in rows]
+    
+    def get_event_date(self):
+        query = """SELECT start_date FROM program WHERE order_index = 1 LIMIT 1"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                return row[0] if row else None
 
     def update(self, program_id: int, item: Program) -> None:
-        query = """UPDATE program SET date=%s, text=%s, order_index=%s WHERE id=%s"""
+        query = """UPDATE program SET start_date=%s, end_date=%s, text=%s, order_index=%s WHERE id=%s"""
         values = [item.date, item.text, item.order_index, program_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:

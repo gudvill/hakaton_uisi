@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any
 
 
@@ -30,7 +30,8 @@ class Acquaintance:
 @dataclass
 class Program:
     id: int = None
-    date: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     text: Optional[str] = None
     order_index: Optional[int] = None
     created_at: datetime = None

@@ -70,6 +70,9 @@ class ProgramUseCase:
 
     def get_by_id(self, item_id: int) -> Optional[Program]:
         return self.repository.get_by_id(item_id)
+    
+    def get_event_date(self):
+        return self.repository.get_event_date()
 
     def update(self, item_id: int, item: Program) -> None:
         self.repository.update(item_id, item)

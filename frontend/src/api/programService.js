@@ -12,6 +12,12 @@ export const getProgramById = async (id) => {
   return res.data;
 };
 
+// получить дату начала события
+export const getEventDate= async () => {
+  const res = await api.get("/program/event-date/");
+  return res.data;
+};
+
 // создать запись программы
 export const createProgram = async (data) => {
   const res = await api.post("/program/", data);
