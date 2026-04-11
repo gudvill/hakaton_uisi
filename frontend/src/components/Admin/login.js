@@ -13,34 +13,52 @@ export default function Login() {
 
     try {
       await login(loginValue, password);
-
-      // редирект
       navigate("/admin");
-
     } catch (err) {
       alert("Неверный логин или пароль");
     }
   };
 
   return (
-    <section className='login'>
-      <h2>ВХОД</h2>
+    <div className="login-page">
+      <div className="login-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+          <img src='/images/logo2.svg' alt="logo" />
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Логин"
-          value={loginValue}
-          onChange={(e) => setLoginValue(e.target.value)}
-        />
+      <div className="login-card">
+        <h2 className="login-title">Вход в админ-панель</h2>
 
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="login-field">
+            <label className="login-label">Логин</label>
+            <input
+              className="login-input"
+              type="text"
+              placeholder="admin"
+              value={loginValue}
+              onChange={(e) => setLoginValue(e.target.value)}
+            />
+          </div>
 
+<<<<<<< HEAD
+          <div className="login-field">
+            <label className="login-label">Пароль</label>
+            <input
+              className="login-input"
+              type="password"
+              placeholder="123456"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <button className="login-button" type="submit">ВОЙТИ</button>
+
+          <a href="#" className="login-restore">восстановить пароль</a>
+        </form>
+      </div>
+    </div>
+=======
         <button type="submit">Войти</button>
         <p
           style={{ cursor: "pointer", color: "blue", marginTop: "10px" }}
@@ -50,5 +68,6 @@ export default function Login() {
         </p>
       </form>
     </section>
+>>>>>>> 4bbff6a21da3569917c0c8b7cb8774ffb11d85bf
   );
 }
