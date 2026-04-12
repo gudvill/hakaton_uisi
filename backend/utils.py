@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 import os
 
 
-SMTP_SERVER = "smtp.gmail.com"
+SMTP_SERVER = "108.177.14.109"
 SMTP_PORT = 587
 SMTP_LOGIN = "agoodwill04@gmail.com"
 SMTP_PASSWORD = "iqbqqkwcswijxvma"
