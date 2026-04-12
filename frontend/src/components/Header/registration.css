@@ -97,10 +97,11 @@ label:has(input[type="radio"]) {
   align-items: center;
 }
 
-label:has(input[type="checkbox"]) {
-  display: flex;
+.checkbox-group {
+  display: flex !important;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
 }
 
 .form-subtitle {
@@ -126,7 +127,9 @@ label:has(input[type="checkbox"]) {
   margin: 0 auto;
   margin-top: 15px;
   margin-bottom: 15px;
+  transition: opacity 0.2s, cursor 0.2s;
 }
+
 
 .participant-row {
   display: flex;
@@ -154,12 +157,6 @@ input[type="radio"] {
   height: 15px;
 }
 
-input[type="checkbox"] {
-  accent-color: #2055C7; 
-  width: 18px;            
-  height: 18px;
-  cursor: pointer;
-}
 
 /* Стрелка для select */
 label select {

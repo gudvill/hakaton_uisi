@@ -1,0 +1,112 @@
+.custom-alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.custom-alert-box {
+  background: white;
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  max-width: 420px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 40px rgba(32, 85, 199, 0.18);
+}
+
+.custom-alert-box--error {
+  box-shadow: 0 8px 40px rgba(211, 47, 47, 0.18);
+}
+
+.custom-alert-box--success {
+  box-shadow: 0 8px 40px rgba(46, 125, 50, 0.18);
+}
+
+/* Иконка */
+.custom-alert-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(101, 150, 255, 0.2);
+  color: #2055C7;
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.custom-alert-icon--error {
+  background: rgba(211, 47, 47, 0.12);
+  color: #d32f2f;
+}
+
+.custom-alert-icon--success {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+  font-size: 28px;
+}
+
+/* Заголовок */
+.custom-alert-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.custom-alert-title--error {
+  color: #d32f2f;
+}
+
+.custom-alert-title--success {
+  color: #2e7d32;
+}
+
+/* Сообщение */
+.custom-alert-message {
+  color: #111;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: left;
+  white-space: pre-line;
+  width: 100%;
+  margin: 0;
+}
+
+.custom-alert-message--center {
+  text-align: center;
+}
+
+/* Кнопка */
+.custom-alert-btn {
+  background-color: #2055C7;
+  color: white;
+  padding: 10px 36px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.custom-alert-btn--error {
+  background-color: #d32f2f;
+}
+
+.custom-alert-btn--success {
+  background-color: #2e7d32;
+}
+
+.custom-alert-btn:hover {
+  opacity: 0.85;
+}

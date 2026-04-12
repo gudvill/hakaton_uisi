@@ -3,9 +3,88 @@
   padding-bottom: 4rem;
 }
 
-@media (max-width: 768px) {
+.reviews h2 {
+  margin-bottom: 5rem;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Карточка — папка */
+.folder-card {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Задняя часть папки — задаёт размер карточки */
+.folder-back {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Фото — абсолютно, между слоями */
+.folder-photo {
+  position: absolute;
+  left: 8%;
+  width: 84%;
+  top: 10%;
+  z-index: 2;
+  border-radius: 8px;
+  object-fit: cover;
+  aspect-ratio: 16 / 10;
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* При наведении фото выезжает вверх */
+.folder-card:hover .folder-photo {
+  transform: translateY(-65%);
+}
+
+/* Передняя часть папки — перекрывает низ фото */
+.folder-front {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3;
+}
+
+/* Текст поверх передней части */
+.folder-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 4;
+  padding: 20px 20px 24px;
+  color: white;
+  font-size: 14px;
+  line-height: 1.5;
+  max-height: 81%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .reviews-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
   .reviews {
     padding-top: 2rem;
     padding-bottom: 2rem;
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
   }
 }
