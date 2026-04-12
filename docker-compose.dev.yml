@@ -12,8 +12,6 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - backend_net
 
   backend:
     build:
@@ -23,20 +21,13 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://postgres:hakaton@db:5432/hakaton_db
+      - DATABASE_URL=postgresql://postgres:hakaton@localhost:5432/hakaton_db
     volumes:
       - ./backend:/app
-    ports:
-      - "8000:8000"
+    network_mode: "host"
+    #ports:
+    #  - "8000:8000"
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    networks:
-      - backend_net
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
 volumes:
   pgdata:
-
-networks:
-  backend_net:
