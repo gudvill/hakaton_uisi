@@ -19,7 +19,7 @@ export default function Header() {
               <a href="#hakaton" className="header-link">О хакатоне</a>
               <a href="#cases" className="header-link">Кейсы</a>
               <a href="#partners" className="header-link">Партнеры</a>
-              <a href="#news" className="header-link">Новости</a>
+              <a href="/news" className="header-link">Новости</a>
               <a href="#faq" className="header-link">FAQ</a>
             </div>
 

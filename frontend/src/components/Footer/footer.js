@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export default function Footer() {
   return (
     <footer className="footer">
-    <div className='footer-container'>
+    <div className='footer-container container'>
         <div className="logo">
         <img src='/images/logo2.svg'></img>
         <p>ВСЕРОССИЙСКИЙ ХАКАТОН СВЯЗИ</p>
