@@ -17,11 +17,8 @@ def send_reset_email(to_email: str, reset_link: str):
     msg["To"] = to_email
     
     try:
-        import ssl
-        context = ssl.create_default_context()
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
             print(f"[EMAIL] Connected to {SMTP_SERVER}:{SMTP_PORT}", flush=True)
-            server.starttls(context=context)  # Только для 587!
             server.login(SMTP_LOGIN, SMTP_PASSWORD)
             print("[EMAIL] Login OK", flush=True)
             server.send_message(msg)
