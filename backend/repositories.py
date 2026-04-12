@@ -302,7 +302,7 @@ class RegistrationRepository:
                 reg_id = cursor.fetchone()[0]
                 for p in participants:
                     cursor.execute("""INSERT INTO participants (fio, course, role, registration_id)
-                        VALUES (%s,%s,%s,%s)""", (p["fio"], int(p["course"]), p["role"], reg_id))
+                        VALUES (%s,%s,%s,%s)""", (p["fio"].strip(), int(p["course"]), p["role"], reg_id))
                 return reg_id
 
     def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
@@ -378,4 +378,28 @@ class RegistrationRepository:
                 cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
                 for p in participants:
                     cursor.execute("""INSERT INTO participants (fio, course, role, registration_id)
-                        VALUES (%s,%s,%s,%s)""", (p["fio"], int(p["course"]), p["role"], reg_id))
+                        VALUES (%s,%s,%s,%s)""", (p["fio"].strip(), int(p["course"]), p["role"], reg_id))
+                    
+    def exists_team_name(self, name: str, exclude_id: int = None) -> bool:
+        query = "SELECT 1 FROM registration WHERE name = %s"
+        params = [name]
+        if exclude_id is not None:
+            query += " AND id != %s"
+            params.append(exclude_id)
+        query += " LIMIT 1"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return cursor.fetchone() is not None
+
+    def exists_participant(self, fio: str, course: int, exclude_registration_id: int = None) -> bool:
+        query = "SELECT 1 FROM participants WHERE fio = %s AND course = %s"
+        params = [fio, course]
+        if exclude_registration_id is not None:
+            query += " AND registration_id != %s"
+            params.append(exclude_registration_id)
+        query += " LIMIT 1"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return cursor.fetchone() is not None

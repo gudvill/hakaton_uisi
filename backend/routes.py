@@ -351,6 +351,49 @@ def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depend
     return {"message": "Фотоальбом отключён"}
 
 
+# Эндпоинты для Отзывов
+@reviews_router.post("/", response_model=ReviewSerializer)
+def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
+    review = Review(
+        id=0,
+        name=review_data.name,
+        content=review_data.content,
+        image=review_data.image,
+        created_at=review_data.created_at,
+        is_available=True)
+    review_id = use_case.create(review)
+    review.id = review_id
+    return ReviewSerializer.from_entity(review)
+
+@reviews_router.get("/", response_model=List[ReviewSerializer])
+def get_reviews(use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> List[ReviewSerializer]:
+    reviews = use_case.get_all()
+    return [ReviewSerializer.from_entity(c) for c in reviews]
+
+@reviews_router.get("/{review_id}", response_model=ReviewSerializer)
+def get_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> ReviewSerializer:
+    review = use_case.get_by_id(review_id)
+    if not review: raise HTTPException(status_code=404, detail="Отзыв не найден")
+    return ReviewSerializer.from_entity(review)
+
+@reviews_router.put("/{review_id}", response_model=ReviewSerializer)
+def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
+    review = Review(
+        id=review_id,
+        name=review_data.name,
+        content=review_data.content,
+        image=review_data.image,
+        created_at=review_data.created_at)
+    use_case.update(review_id, review)
+    updated_review = use_case.get_by_id(review_id)
+    return ReviewSerializer.from_entity(updated_review)
+
+@reviews_router.delete("/{review_id}")
+def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:
+    use_case.disable(review_id)
+    return {"message": "Отзыв отключён"}
+
+
 # Эндпоинты для Фото
 import os
 from fastapi import UploadFile, File
@@ -409,49 +452,6 @@ def disable_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_us
     return {"message": "Фото отключено"}
 
 
-# Эндпоинты для Отзывов
-@reviews_router.post("/", response_model=ReviewSerializer)
-def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
-    review = Review(
-        id=0,
-        name=review_data.name,
-        content=review_data.content,
-        image=review_data.image,
-        created_at=review_data.created_at,
-        is_available=True)
-    review_id = use_case.create(review)
-    review.id = review_id
-    return ReviewSerializer.from_entity(review)
-
-@reviews_router.get("/", response_model=List[ReviewSerializer])
-def get_reviews(use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> List[ReviewSerializer]:
-    reviews = use_case.get_all()
-    return [ReviewSerializer.from_entity(c) for c in reviews]
-
-@reviews_router.get("/{review_id}", response_model=ReviewSerializer)
-def get_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> ReviewSerializer:
-    review = use_case.get_by_id(review_id)
-    if not review: raise HTTPException(status_code=404, detail="Отзыв не найден")
-    return ReviewSerializer.from_entity(review)
-
-@reviews_router.put("/{review_id}", response_model=ReviewSerializer)
-def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
-    review = Review(
-        id=review_id,
-        name=review_data.name,
-        content=review_data.content,
-        image=review_data.image,
-        created_at=review_data.created_at)
-    use_case.update(review_id, review)
-    updated_review = use_case.get_by_id(review_id)
-    return ReviewSerializer.from_entity(updated_review)
-
-@reviews_router.delete("/{review_id}")
-def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:
-    use_case.disable(review_id)
-    return {"message": "Отзыв отключён"}
-
-
 # Эндпоинты для Регистрации
 @registration_router.post("/")
 def create_registration(data: RegistrationRequestSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase)):
@@ -459,7 +459,6 @@ def create_registration(data: RegistrationRequestSerializer, usecase: Registrati
     participants = [p.dict() for p in data.participants]
     reg_id = usecase.create(reg, participants)
     return {"id": reg_id}
-
 
 @registration_router.get("/", response_model=List[RegistrationSerializer])
 def get_all(usecase: RegistrationUseCase = Depends(get_registration_usecase)):
