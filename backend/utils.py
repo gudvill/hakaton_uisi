@@ -2,7 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 import os
 
-
+ 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 2525
 SMTP_LOGIN = "agoodwill04@gmail.com"
