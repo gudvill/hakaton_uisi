@@ -2,7 +2,7 @@ import requests
 import time
 
 CLIENT_ID = "sp_id_ea20d23ab97db44504db0bc1ffa8577d"
-CLIENT_SECRET = "sp_apikey_e5107e56964ff5b290cf36a64bdb78a655953a5443d42feb9314b56b2407a025"
+CLIENT_SECRET = "sp_sk_85281420cfa09f41de278515dd9687f1"
 
 _token_cache = {
     "access_token": None,
@@ -11,7 +11,6 @@ _token_cache = {
 
 
 def get_token():
-    # если токен ещё жив — используем кеш
     if _token_cache["access_token"] and time.time() < _token_cache["expires_at"]:
         print("[SENDPULSE] using cached token")
         return _token_cache["access_token"]
@@ -41,7 +40,6 @@ def get_token():
     if not token:
         raise Exception(f"SendPulse auth failed: {data}")
 
-    # кешируем токен (обычно 3600 сек)
     _token_cache["access_token"] = token
     _token_cache["expires_at"] = time.time() + 3500
 
