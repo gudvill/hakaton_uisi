@@ -12,12 +12,9 @@ _token_cache = {
 
 def get_token():
     if _token_cache["access_token"] and time.time() < _token_cache["expires_at"]:
-        print("[SENDPULSE] using cached token")
         return _token_cache["access_token"]
 
-    print("[SENDPULSE] requesting new token...")
-
-    url = "https://api.sendpulse.com/oauth/access_token"
+    url = "https://api.sendpulse.com/oauth/token"
 
     data = {
         "grant_type": "client_credentials",
@@ -25,25 +22,23 @@ def get_token():
         "client_secret": CLIENT_SECRET,
     }
 
-    response = requests.post(url, data=data)
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
 
-    print("[SENDPULSE] auth status:", response.status_code)
-    print("[SENDPULSE] auth response:", response.text)
+    response = requests.post(url, data=data, headers=headers)
 
-    try:
-        data = response.json()
-    except Exception:
-        raise Exception(f"Invalid JSON from SendPulse auth: {response.text}")
+    print(response.status_code, response.text)
 
-    token = data.get("access_token")
+    data = response.json()
 
-    if not token:
-        raise Exception(f"SendPulse auth failed: {data}")
+    if "access_token" not in data:
+        raise Exception(f"Auth failed: {data}")
 
-    _token_cache["access_token"] = token
+    _token_cache["access_token"] = data["access_token"]
     _token_cache["expires_at"] = time.time() + 3500
 
-    return token
+    return data["access_token"]
 
 
 def send_reset_email(to_email: str, reset_link: str):
