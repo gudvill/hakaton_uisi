@@ -1,4 +1,4 @@
-import '../cases.css';
+import '../Cases/cases.css';
 import { useEffect, useState } from 'react';
 import { getCases } from '../../api/casesService';
 
