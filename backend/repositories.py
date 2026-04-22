@@ -314,25 +314,59 @@ class RegistrationRepository:
         if not row: return None
         columns = [col[0] for col in cursor.description]
         return dict(zip(columns, row))
-            
+    
     def get_all(self) -> List[Dict[str, Any]]:
-        query = """SELECT r.*, 
-        json_agg(json_build_object('id', p.id, 'fio', p.fio, 'course', p.course, 'role', p.role)) as participants
+        query = """
+        SELECT r.*, 
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'id', p.id,
+                    'fio', p.fio,
+                    'course', p.course,
+                    'role', p.role,
+                    'registration_id', p.registration_id,
+                    'created_at', p.created_at,
+                    'is_available', p.is_available
+                )
+            ) FILTER (WHERE p.id IS NOT NULL),
+            '[]'
+        ) as participants
         FROM registration r
-        LEFT JOIN participants p ON p.registration_id = r.id AND p.is_available = TRUE
-        WHERE r.is_available = TRUE GROUP BY r.id"""
+        LEFT JOIN participants p 
+            ON p.registration_id = r.id AND p.is_available = TRUE
+        WHERE r.is_available = TRUE
+        GROUP BY r.id
+        """
 
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
-
+            
     def get_by_id(self, reg_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT r.*, 
-        json_agg(json_build_object('id', p.id, 'fio', p.fio, 'course', p.course, 'role', p.role)) as participants
+        query = """
+        SELECT r.*, 
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'id', p.id,
+                    'fio', p.fio,
+                    'course', p.course,
+                    'role', p.role,
+                    'registration_id', p.registration_id,
+                    'created_at', p.created_at,
+                    'is_available', p.is_available
+                )
+            ) FILTER (WHERE p.id IS NOT NULL),
+            '[]'
+        ) as participants
         FROM registration r
-        LEFT JOIN participants p ON p.registration_id = r.id
-        WHERE r.id = %s GROUP BY r.id"""
+        LEFT JOIN participants p 
+            ON p.registration_id = r.id
+        WHERE r.id = %s
+        GROUP BY r.id
+        """
 
         with self.connection() as conn:
             with conn.cursor() as cursor:
