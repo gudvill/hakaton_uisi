@@ -6,7 +6,7 @@ export const getCases = async () => {
   return res.data;
 };
 
-// получить конкретный кейс по id
+// получить кейс по id
 export const getCaseById = async (id) => {
   const res = await api.get(`/cases/${id}`);
   return res.data;
@@ -24,8 +24,8 @@ export const updateCase = async (id, data) => {
   return res.data;
 };
 
-// удалить кейс
-export const deleteCase = async (id) => {
+// отключить кейс
+export const disableCase = async (id) => {
   const res = await api.delete(`/cases/${id}`);
   return res.data;
 };

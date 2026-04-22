@@ -24,8 +24,8 @@ export const updatePartner = async (id, data) => {
   return res.data;
 };
 
-// удалить партнёра
-export const deletePartner = async (id) => {
+// отключить партнёра
+export const disablePartner = async (id) => {
   const res = await api.delete(`/partners/${id}`);
   return res.data;
 };

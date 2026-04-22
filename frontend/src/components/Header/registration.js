@@ -37,7 +37,8 @@ export default function Registration({ isOpen, onClose }) {
     spare_case: '',
     captain_phone: '',
     captain_email: '',
-    curator_data: '',
+    curator_fio: '',
+    curator_phone: '',
     agreement: false,
     acquaintance: false,
     participants: []
@@ -116,7 +117,8 @@ export default function Registration({ isOpen, onClose }) {
     if (!formData.selected_case) missing.push('Основной кейс');
     if (!formData.captain_phone.trim()) missing.push('Телефон капитана');
     if (!formData.captain_email.trim()) missing.push('E-mail капитана');
-    if (!formData.curator_data.trim()) missing.push('ФИО и телефон куратора');
+    if (!formData.curator_fio.trim()) missing.push('ФИО куратора');
+    if (!formData.curator_phone.trim()) missing.push('Телефон куратора');
 
     formData.participants.forEach((p, i) => {
       if (!p.fio.trim()) missing.push(`ФИО участника ${i + 1}`);
@@ -173,7 +175,10 @@ export default function Registration({ isOpen, onClose }) {
     const payload = {
       team: {
         ...teamData,
-        curator_data: { text: teamData.curator_data }
+        curator_data: {
+          fio: teamData.curator_fio,
+          phone: teamData.curator_phone
+        }
       },
       participants: participants.map(p => ({
         fio: p.fio,
@@ -343,9 +348,17 @@ export default function Registration({ isOpen, onClose }) {
             <label>
               <input
                 type="text"
-                placeholder="ФИО куратора, телефон"
-                name="curator_data"
-                value={formData.curator_data}
+                placeholder="ФИО куратора"
+                name="curator_fio"
+                value={formData.curator_fio}
+                onChange={handleInputChange}
+              />
+
+              <input
+                type="tel"
+                placeholder="Телефон куратора"
+                name="curator_phone"
+                value={formData.curator_phone}
                 onChange={handleInputChange}
               />
             </label>

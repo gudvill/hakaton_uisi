@@ -1,24 +1,16 @@
 import './reviews.css';
-
-const reviewsData = [
-  {
-    id: 1,
-    photo: '/images/photo_rewie.png',
-    text: 'Команда кот будущего на Всероссийском хакатоне - яркий пример того Команда кот будущего на Всероссийском хакатоне - яркий пример того на',
-  },
-  {
-    id: 2,
-    photo: '/images/photo_rewie.png',
-    text: 'Команда кот будущего на Всероссийском хакатоне - яркий пример того Команда кот будущего на Всероссийском хакатоне - яркий пример того на',
-  },
-  {
-    id: 3,
-    photo: '/images/photo_rewie.png',
-    text: 'Команда кот будущего на Всероссийском хакатоне - яркий пример того Команда кот будущего на Всероссийском хакатоне - яркий пример того на',
-  },
-];
+import { useEffect, useState } from 'react';
+import { getReviews } from '../../api/reviewsService';
 
 export default function Reviews() {
+  const [reviewsData, setReviewsData] = useState([]);
+
+  useEffect(() => {
+    getReviews()
+      .then(data => setReviewsData(data))
+      .catch(err => console.error("Ошибка загрузки отзывов:", err));
+  }, []);
+
   return (
     <section className="reviews container">
       <h2>ОТЗЫВЫ</h2>
@@ -26,9 +18,9 @@ export default function Reviews() {
         {reviewsData.map((review) => (
           <div className="folder-card" key={review.id}>
             <img className="folder-back" src="/images/papka_back.svg" alt="" />
-            <img className="folder-photo" src={review.photo} alt="фото отзыва" />
+            <img className="folder-photo" src={review.image} alt="фото отзыва"/>
             <img className="folder-front" src="/images/papka_front.svg" alt="" />
-            <p className="folder-text">{review.text}</p>
+            <p className="folder-text">{review.content}</p>
           </div>
         ))}
       </div>
