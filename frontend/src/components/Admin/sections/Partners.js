@@ -3,6 +3,15 @@ import { useEffect, useState } from 'react';
 import { getPartners } from '../../../api/partnersService';
 
 export default function Partners() {
+  const [partnersData, setPartnersData] = useState([]);
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    getPartners()
+      .then(data => setPartnersData(data))
+      .catch(err => console.error("Ошибка загрузки партнёров:", err));
+  }, []);
+
   return (
     <div className="admin-card">
       <h3 className="admin-card-title">ПАРТНЕРЫ</h3>
