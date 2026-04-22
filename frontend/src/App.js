@@ -1,4 +1,5 @@
 import './App.css';
+import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import Header from './components/Header/header';
@@ -27,10 +28,12 @@ import PasswordResetRequestPage from './components/Admin/PasswordResetRequestPag
 import PasswordResetPage from './components/Admin/PasswordResetPage';
 
 function Home() {
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+
   return (
     <>
-      <Header />
-      <Hero />
+      <Header onOpenRegistration={() => setIsRegistrationOpen(true)} isRegistrationOpen={isRegistrationOpen} setIsRegistrationOpen={setIsRegistrationOpen} />
+      <Hero onOpenRegistration={() => setIsRegistrationOpen(true)} />
       <Time />
       <Cases />
       <About />

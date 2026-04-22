@@ -13,13 +13,11 @@
   gap: 24px;
 }
 
-/* Карточка — папка */
 .folder-card {
   position: relative;
   cursor: pointer;
 }
 
-/* Задняя часть папки — задаёт размер карточки */
 .folder-back {
   display: block;
   width: 100%;
@@ -28,7 +26,6 @@
   z-index: 1;
 }
 
-/* Фото — абсолютно, между слоями */
 .folder-photo {
   position: absolute;
   left: 8%;
@@ -63,9 +60,9 @@
   left: 0;
   width: 100%;
   z-index: 4;
-  padding: 20px 20px 24px;
+  padding: 30px 30px 30px;
   color: white;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.5;
   max-height: 81%;
   overflow: hidden;

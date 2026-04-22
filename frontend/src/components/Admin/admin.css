@@ -1,0 +1,251 @@
+/* Общий layout — вертикальная колонка */
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3b1fa8 0%, #6a35cc 50%, #9b59d6 100%);
+  position: relative;
+  font-family: 'Montserrat', sans-serif;
+  padding: 16px;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+/* Топ-бар: лого слева, юзер справа */
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.admin-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-logo img {
+  width: 150px;
+  height: auto;
+}
+
+.admin-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-topbar-icon {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+/* Нижняя строка: сайдбар + контент */
+.admin-body {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* Сайдбар */
+.admin-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: white;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+/* Профиль */
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.admin-avatar-icon {
+  width: 40px;
+  height: 40px;
+  color: #6a35cc;
+  flex-shrink: 0;
+}
+
+.admin-profile-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a2e;
+}
+
+.admin-logout-btn {
+  font-size: 12px;
+  color: #999;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-logout-btn:hover {
+  color: #6a35cc;
+}
+
+/* Навигация */
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  background: none;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.admin-nav-item:hover {
+  background: #f3f0ff;
+  color: #6a35cc;
+}
+
+.admin-nav-item--active {
+  background: #ede8ff;
+  color: #6a35cc;
+  font-weight: 700;
+}
+
+.admin-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Контент — белый блок, та же высота что сайдбар */
+.admin-content {
+  flex: 1;
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  overflow-y: auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  min-width: 0;
+}
+
+/* Карточка */
+.admin-card {
+  max-width: 600px;
+}
+
+.admin-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+}
+
+/* Форма */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-field {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-field label {
+  width: 70px;
+  font-size: 13px;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.admin-field input {
+  flex: 1;
+  padding: 8px 14px;
+  background: rgba(101, 150, 255, 0.2);
+  border-radius: 50px;
+  font-size: 13px;
+  color: #1a1a2e;
+}
+
+.admin-password-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgba(101, 150, 255, 0.2);
+  border-radius: 50px;
+  padding-right: 8px;
+}
+
+.admin-password-wrap input {
+  flex: 1;
+  background: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #1a1a2e;
+}
+
+.admin-eye {
+  width: 20px;
+  height: 20px;
+  color: #888;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.admin-save-btn {
+  margin-top: 8px;
+  width: fit-content;
+  padding: 8px 20px;
+  background: #6a35cc;
+  color: white;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.admin-save-btn:hover {
+  opacity: 0.85;
+}
+
+/* Динозавр */
+.admin-dino {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  width: 80px;
+  opacity: 0.9;
+  pointer-events: none;
+}

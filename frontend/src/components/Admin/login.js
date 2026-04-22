@@ -19,11 +19,6 @@ export default function Login() {
     }
   };
 
-  const handleRestoreClick = (e) => {
-    e.preventDefault();
-    navigate("/request-password-reset");
-  };
-
   return (
     <div className="login-page">
       <div className="login-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
@@ -44,6 +39,7 @@ export default function Login() {
               onChange={(e) => setLoginValue(e.target.value)}
             />
           </div>
+
           <div className="login-field">
             <label className="login-label">Пароль</label>
             <input
@@ -57,7 +53,7 @@ export default function Login() {
 
           <button className="login-button" type="submit">ВОЙТИ</button>
 
-          <a href="#" className="login-restore" onClick={handleRestoreClick}>восстановить пароль</a>
+          <a href="#" className="login-restore">восстановить пароль</a>
         </form>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import './hero.css';
 import AnimatedComputer from './AnimatedComputer';
 
-export default function Hero() {
+export default function Hero({ onOpenRegistration }) {
   return (
     <section className="hero">
       <div className="hero-background"></div>
@@ -14,10 +14,10 @@ export default function Hero() {
               ВЗЛАМЫВАЙ ГРАНИЦЫ ВОЗМОЖНОГО
             </h1>
             <div className="hero-buttons">
-              <button className="hero-btn hero-btn-outline">
+              <a href="#hakaton" className="hero-btn hero-btn-outline">
                 подробнее
-              </button>
-              <button className="hero-btn hero-btn-solid">
+              </a>
+              <button className="hero-btn hero-btn-solid" onClick={onOpenRegistration}>
                 участвовать
               </button>
             </div>

@@ -1,11 +1,9 @@
 import './header.css';
-import { useState } from 'react';
+
 import { Link } from 'react-router-dom';
 import RegistrationModal from './registration';
 
-export default function Header() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRegistrationOpen }) {
   return (
     <>
       <header className="header">
@@ -23,14 +21,14 @@ export default function Header() {
               <a href="#faq" className="header-link">FAQ</a>
             </div>
 
-            <button className="header-signin" onClick={() => setIsModalOpen(true)}>
+            <button className="header-signin" onClick={onOpenRegistration}>
               Регистрация
             </button>
           </div>
         </nav>
       </header>
 
-      <RegistrationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <RegistrationModal isOpen={isRegistrationOpen} onClose={() => setIsRegistrationOpen(false)} />
     </>
   );
 }
