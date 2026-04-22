@@ -1,6 +1,6 @@
 import '../../Cases/cases.css'
 import { useEffect, useState } from 'react';
-import { getCases } from '../../api/casesService';
+import { getCases } from '../../../api/casesService';
 
 export default function Cases() {
   const [casesData, setCasesData] = useState([]);
