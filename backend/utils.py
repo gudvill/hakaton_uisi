@@ -19,7 +19,7 @@ def send_reset_email(to_email: str, reset_link: str):
             "subject": "Восстановление пароля",
             "from": {
                 "name": "Hakaton",
-                "email": "agoodwill04@gmail.com"
+                "email": "noreply@sendpulse.com"
             },
             "to": [
                 {"email": to_email}
