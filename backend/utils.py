@@ -27,7 +27,8 @@ def get_token():
     }
 
     response = requests.post(url, data=data, headers=headers)
-
+    print("CLIENT_ID:", CLIENT_ID)
+    print("CLIENT_SECRET:", CLIENT_SECRET)
     print(response.status_code, response.text)
 
     data = response.json()
