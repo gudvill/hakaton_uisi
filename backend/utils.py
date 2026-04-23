@@ -1,7 +1,7 @@
 import requests
 import time
 
-CLIENT_ID = "sp_id_ea20d23ab97db44504db0bc1ffa8577d"
+CLIENT_ID = "sp_id_fddbb63015df10411d09252a9f5065c0"
 CLIENT_SECRET = "sp_sk_85281420cfa09f41de278515dd9687f1"
 
 _token_cache = {
