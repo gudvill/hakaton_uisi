@@ -18,7 +18,7 @@ export default function PasswordResetRequestPage() {
 
   return (
     <div>
-      <h1>Восстановление пароля</h1>
+      <h1 style={"color: white;"}>Восстановление пароля</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -27,9 +27,9 @@ export default function PasswordResetRequestPage() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button type="submit">Отправить ссылку</button>
+        <button type="submit" style={"color: white;"}>Отправить ссылку</button>
       </form>
-      <p>{message}</p>
+      <p style={"color: white;"}>{message}</p>
     </div>
   );
 }

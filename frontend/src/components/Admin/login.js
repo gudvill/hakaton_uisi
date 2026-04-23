@@ -53,7 +53,7 @@ export default function Login() {
 
           <button className="login-button" type="submit">ВОЙТИ</button>
 
-          <a href="#" className="login-restore">восстановить пароль</a>
+          <a href="/request-password-reset" className="login-restore">восстановить пароль</a>
         </form>
       </div>
     </div>
