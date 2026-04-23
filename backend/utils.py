@@ -58,7 +58,7 @@ def send_reset_email(to_email: str, reset_link: str):
             "subject": "Восстановление пароля",
             "from": {
                 "name": "Hakaton",
-                "email": "agoodwill04@hakaton1.bizml.ru"
+                "email": "agoodwill04@gmail.com"
             },
             "to": [
                 {"email": to_email}
@@ -71,7 +71,9 @@ def send_reset_email(to_email: str, reset_link: str):
     print("[SENDPULSE] email status:", response.status_code)
     print("[SENDPULSE] email response:", response.text)
 
-    if response.status_code >= 400:
-        raise Exception(f"SendPulse email failed: {response.text}")
+    data = response.json()
+
+    if not data.get("result"):
+        raise Exception(f"SendPulse error: {data}")
 
     print("[SENDPULSE] email sent successfully")

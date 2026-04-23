@@ -64,7 +64,7 @@ def refresh_token(data: RefreshRequest):
 def request_password_reset(request: PasswordResetRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     token = use_case.request_password_reset(request.email)
     if token:
-        reset_link = f"http://localhost:3000/reset-password?token={token}"
+        reset_link = f"http://hakaton1.bizml.ru/reset-password?token={token}"
         send_reset_email(request.email, reset_link)
     return {"message": "Если такой e-mail существует, ссылка отправлена"}
 
