@@ -55,6 +55,8 @@ class Case:
     description: Optional[str] = None
     partner_id: int = 0
     is_available: bool = True
+    teams_count: int = 0
+    created_at: date = None
 
 @dataclass
 class News:

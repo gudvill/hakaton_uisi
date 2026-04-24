@@ -143,7 +143,7 @@ class CasesRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="cases", entity_class=Case,
-            columns=["name", "case_number", "level", "description", "partner_id", "is_available"])
+            columns=["name", "case_number", "level", "description", "partner_id", "is_available", "teams_count"])
 
     def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
         columns = [col[0] for col in cursor.description]
@@ -156,27 +156,47 @@ class CasesRepository(BaseRepository):
         return dict(zip(columns, row))
 
     def update(self, case_id: int, case: Case) -> None:
-        query = """UPDATE cases SET name=%s, case_number=%s, level=%s, description=%s, partner_id=%s WHERE id=%s"""
-        values = [case.name, case.case_number, case.level, case.description, case.partner_id, case_id]
+        query = """UPDATE cases SET name=%s, case_number=%s, level=%s, description=%s, partner_id=%s, teams_count=%s WHERE id=%s"""
+        values = [case.name, case.case_number, case.level, case.description, case.partner_id, case.teams_count, case_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)
 
     def get_all_with_partner(self) -> List[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as teams_count
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id WHERE c.is_available = TRUE GROUP BY c.id, p.name, p.image ORDER BY c.case_number"""
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
+            WHERE c.is_available = TRUE GROUP BY c.id, p.name, p.image ORDER BY c.case_number"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
 
     def get_by_id_with_partner(self, case_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as teams_count
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id WHERE c.id = %s GROUP BY c.id, p.name, p.image"""
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
+            WHERE c.id = %s GROUP BY c.id, p.name, p.image"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (case_id,))
                 return self._fetch_one_dict(cursor)
+            
+    def get_unavailable(self) -> List[Dict[str, Any]]:
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
+            WHERE c.is_available = FALSE GROUP BY c.id, p.name, p.image ORDER BY c.created_at DESC"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+    
+    def get_by_year(self, year: int) -> List[Dict[str, Any]]:
+        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
+            WHERE EXTRACT(YEAR FROM c.created_at) = %s GROUP BY c.id, p.name, p.image ORDER BY c.case_number"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (year,))
+                return self._fetch_all_dict(cursor)
 
 
 class NewsRepository(BaseRepository):

@@ -186,7 +186,8 @@ def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depend
         level=case_data.level,
         description=case_data.description,
         partner_id=case_data.partner_id,
-        is_available=True)
+        is_available=True,
+        teams_count=case_data.teams_count)
     case_id = use_case.create(case)
     created = use_case.get_by_id(case_id)
     return CaseSerializer(**created)
@@ -194,6 +195,14 @@ def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depend
 @cases_router.get("/", response_model=List[CaseSerializer])
 def get_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
     return [CaseSerializer(**row) for row in use_case.get_all()]
+
+@cases_router.get("/archived", response_model=List[CaseSerializer])
+def get_archived_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
+    return [CaseSerializer(**row) for row in use_case.get_unavailable()]
+
+@cases_router.get("/by-year/{year}", response_model=List[CaseSerializer])
+def get_cases_by_year(year: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
+    return [CaseSerializer(**row) for row in use_case.get_by_year(year)]
 
 @cases_router.get("/{case_id}", response_model=CaseSerializer)
 def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
@@ -209,7 +218,8 @@ def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUs
         case_number=case_data.case_number,
         level=case_data.level,
         description=case_data.description,
-        partner_id=case_data.partner_id)
+        partner_id=case_data.partner_id,
+        teams_count=case_data.teams_count)
     use_case.update(case_id, case)
     updated = use_case.get_by_id(case_id)
     return CaseSerializer(**updated)

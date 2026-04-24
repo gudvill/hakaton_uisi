@@ -44,7 +44,7 @@ export default function CaseDetailPage() {
                 <p className="case-detail__name">{item.name}</p>
 
                 <div className="case-detail__teams">
-                  <span className="case-detail__teams-badge">КОМАНД: {item.teams_count} / 10</span>
+                  <span className="case-detail__teams-badge">КОМАНД: {item.registered_teams_count } / {item.teams_count }</span>
                 </div>
               </div>
 

@@ -114,6 +114,12 @@ class CasesUseCase:
 
     def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id_with_partner(case_id)
+    
+    def get_unavailable(self):
+        return self.repository.get_unavailable()
+
+    def get_by_year(self, year: int):
+        return self.repository.get_by_year(year)
 
     def update(self, case_id: int, case: Case) -> None:
         self.repository.update(case_id, case)
@@ -295,9 +301,19 @@ class RegistrationUseCase:
         # кейсы
         if data.selected_case == data.spare_case:
             raise Exception("Основной и запасной кейс не могут совпадать")
-        if self.repository.count_by_case(data.selected_case, "selected_case") >= 10:
+        case = self.cases_repository.get_by_id(data.selected_case)
+        if not case:
+            raise Exception("Кейс не найден")
+        current_count = self.repository.count_by_case(data.selected_case, "selected_case")
+        limit = case.teams_count
+        if limit is not None and current_count >= limit:
             raise Exception("Этот кейс уже заполнен")
-        if self.repository.count_by_case(data.spare_case, "spare_case") >= 10:
+        spare_case = self.cases_repository.get_by_id(data.spare_case)
+        if not spare_case:
+            raise Exception("Запасной кейс не найден")
+        current_count_spare = self.repository.count_by_case(data.spare_case, "spare_case")
+        limit_spare = spare_case.teams_count
+        if limit_spare is not None and current_count_spare >= limit_spare:
             raise Exception("Запасной кейс уже заполнен")
         # проверка уровня
         case = self.cases_repository.get_by_id(data.selected_case)
@@ -372,9 +388,19 @@ class RegistrationUseCase:
         # кейсы
         if data.selected_case == data.spare_case:
             raise Exception("Основной и запасной кейс не могут совпадать")
-        if self.repository.count_by_case_exclude_self(data.selected_case, "selected_case", reg_id) >= 10:
+        case = self.cases_repository.get_by_id(data.selected_case)
+        if not case:
+            raise Exception("Кейс не найден")
+        current_count = self.repository.count_by_case_exclude_self(data.selected_case, "selected_case", reg_id)
+        limit = case.teams_count
+        if limit is not None and current_count >= limit:
             raise Exception("Этот кейс уже заполнен")
-        if self.repository.count_by_case_exclude_self(data.spare_case, "spare_case", reg_id) >= 10:
+        spare_case = self.cases_repository.get_by_id(data.spare_case)
+        if not spare_case:
+            raise Exception("Запасной кейс не найден")
+        current_count_spare = self.repository.count_by_case_exclude_self(data.spare_case, "spare_case", reg_id)
+        limit_spare = spare_case.teams_count
+        if limit_spare is not None and current_count_spare >= limit_spare:
             raise Exception("Запасной кейс уже заполнен")
         # проверка уровня
         case = self.cases_repository.get_by_id(data.selected_case)

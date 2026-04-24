@@ -99,6 +99,7 @@ class CaseCreateSerializer(BaseModel):
     level: Optional[str] = None
     description: Optional[str] = None
     partner_id: int
+    teams_count: int = 0
 
 class CaseSerializer(BaseModel):
     id: int
@@ -111,6 +112,8 @@ class CaseSerializer(BaseModel):
     partner_image: Optional[str] = None
     is_available: bool = True
     teams_count: int = 0
+    registered_teams_count: int = 0
+    created_at: date = None
 
 
 class NewsCreateSerializer(BaseModel):
