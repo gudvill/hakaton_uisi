@@ -237,7 +237,6 @@ def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends
         id=0,
         name=news_data.name,
         image=news_data.image,
-        created_at=news_data.created_at,
         brief_description=news_data.brief_description,
         full_description=news_data.full_description,
         is_available=True)
@@ -249,6 +248,11 @@ def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends
 def get_news(use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
     news = use_case.get_all()
     return [NewsSerializer.from_entity(c) for c in news]
+
+@news_router.get("/by-year/{year}", response_model=List[NewsSerializer])
+def get_news_by_year(year: int, use_case: NewsUseCase = Depends(get_news_usecase)):
+    news = use_case.get_by_year(year)
+    return [NewsSerializer.from_entity(n) for n in news]
 
 @news_router.get("/{news_id}", response_model=NewsSerializer)
 def get_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> NewsSerializer:
@@ -262,7 +266,6 @@ def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUse
         id=news_id,
         name=news_data.name,
         image=news_data.image,
-        created_at=news_data.created_at,
         brief_description=news_data.brief_description,
         full_description=news_data.full_description)
     use_case.update(news_id, news)

@@ -141,6 +141,9 @@ class NewsUseCase:
     def get_by_id(self, news_id: int) -> Optional[News]:
         return self.repository.get_by_id(news_id)
 
+    def get_by_year(self, year: int) -> List[News]:
+        return self.repository.get_by_year(year)
+
     def update(self, news_id: int, news: News) -> None:
         self.repository.update(news_id, news)
 

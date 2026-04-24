@@ -63,7 +63,7 @@ class News:
     id: int = None
     name: Optional[str] = None
     image: Optional[str] = None
-    created_at: datetime = None
+    created_at: date = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
     is_available: bool = True

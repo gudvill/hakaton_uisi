@@ -119,7 +119,6 @@ class CaseSerializer(BaseModel):
 class NewsCreateSerializer(BaseModel):
     name: Optional[str] = None
     image: Optional[int] = None
-    created_at: datetime = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
 
