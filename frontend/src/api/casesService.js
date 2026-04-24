@@ -24,6 +24,7 @@ export const getCasesByYear = async (year) => {
   const res = await api.get(`/cases/by-year/${year}`);
   return res.data;
 };
+
 // создать кейс
 export const createCase = async (data) => {
   const res = await api.post("/cases/", data);
