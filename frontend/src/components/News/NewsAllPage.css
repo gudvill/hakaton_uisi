@@ -1,8 +1,82 @@
 .news-all {
-  padding-top: 2rem;
+  padding-top: calc(120px + 2rem);
   padding-bottom: 4rem;
   color: white;
   min-height: 80vh;
+}
+
+.news-all h2 {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  color: white;
+}
+
+.news-all__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.news-all__years {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.news-all__year-btn {
+  padding: 6px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid #5D44C4;
+  color: white;
+  background: transparent;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.news-all__year-btn:hover {
+  border-color: white;
+  color: white;
+}
+
+.news-all__year-btn--active {
+  background: white;
+  border-color: white;
+  color: #06011F;
+}
+
+@media (max-width: 768px) {
+  .news-all h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.news-all .news-grid {
+  grid-auto-rows: 1fr;
+}
+
+.news-all .news-card__text {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-all .news-card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .news-all__loading {
@@ -10,14 +84,53 @@
   font-size: 1.1rem;
 }
 
-.news-all__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 320px));
-  gap: 1.5rem;
+.news-all__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4rem;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
-  .news-all__grid {
-    grid-template-columns: 1fr;
-  }
+.news-all__page-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid #5D44C4;
+  color: white;
+  background: transparent;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.news-all__page-btn:hover:not(:disabled) {
+  border-color: white;
+  background: rgba(255,255,255,0.1);
+}
+
+.news-all__page-btn--active {
+  background: white;
+  border-color: white;
+  color: #06011F;
+}
+
+.news-all__page-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.news-all__page-arrow {
+  font-size: 18px;
+}
+
+.news-all__page-ellipsis {
+  color: rgba(255,255,255,0.4);
+  font-size: 18px;
+  line-height: 40px;
+  padding: 0 4px;
 }

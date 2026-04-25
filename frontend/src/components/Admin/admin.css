@@ -157,7 +157,7 @@
 
 /* Карточка */
 .admin-card {
-  max-width: 600px;
+  max-width: 100%;
 }
 
 .admin-card-title {
@@ -167,66 +167,20 @@
   margin-bottom: 24px;
 }
 
-/* Форма */
-.admin-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.admin-field {
+/* ── Общие стили секций с редактированием (только внутри .admin-content) ── */
+.admin-content .section-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.admin-field label {
-  width: 70px;
-  font-size: 13px;
-  color: #555;
+  justify-content: space-between;
+  margin-bottom: 20px;
   flex-shrink: 0;
 }
 
-.admin-field input {
-  flex: 1;
-  padding: 8px 14px;
-  background: rgba(101, 150, 255, 0.2);
-  border-radius: 50px;
-  font-size: 13px;
-  color: #1a1a2e;
-}
-
-.admin-password-wrap {
-  flex: 1;
+.admin-content .section-add-btn {
   display: flex;
   align-items: center;
-  background: rgba(101, 150, 255, 0.2);
-  border-radius: 50px;
-  padding-right: 8px;
-}
-
-.admin-password-wrap input {
-  flex: 1;
-  background: none;
-  padding: 8px 14px;
-  font-size: 13px;
-  color: #1a1a2e;
-}
-
-.admin-eye {
-  width: 20px;
-  height: 20px;
-  color: #888;
-  cursor: pointer;
-  background: none;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.admin-save-btn {
-  margin-top: 8px;
-  width: fit-content;
-  padding: 8px 20px;
+  gap: 6px;
+  padding: 7px 16px;
   background: #6a35cc;
   color: white;
   border-radius: 50px;
@@ -234,10 +188,137 @@
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.admin-content .section-add-btn:hover { opacity: 0.85; }
+
+.admin-content .section-table-wrap {
+  border-radius: 12px;
+  border: 1px solid #ede8ff;
+  overflow: hidden;
 }
 
-.admin-save-btn:hover {
-  opacity: 0.85;
+.admin-content .section-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.admin-content .section-table thead tr { background: #f3f0ff; }
+.admin-content .section-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: #6a35cc;
+  border-bottom: 1px solid #ede8ff;
+  white-space: nowrap;
+}
+.admin-content .section-table td {
+  padding: 10px 14px;
+  color: #333;
+  border-bottom: 1px solid #f5f5f5;
+  vertical-align: middle;
+}
+.admin-content .section-table tbody tr:last-child td { border-bottom: none; }
+.admin-content .section-edit-row td { background: #faf8ff; padding: 8px 10px; }
+
+.admin-content .section-row-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.admin-content .section-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  color: #888;
+  flex-shrink: 0;
+}
+.admin-content .section-icon-btn--edit:hover   { background: #ede8ff; color: #6a35cc; }
+.admin-content .section-icon-btn--delete:hover { background: #fee2e2; color: #ef4444; }
+
+.admin-content .section-input {
+  width: 100%;
+  padding: 7px 10px;
+  background: white;
+  border: 1px solid #d4c8ff;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1a1a2e;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.admin-content .section-input:focus { outline: none; border-color: #6a35cc; }
+
+.admin-content .section-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: white;
+  border: 1px solid #d4c8ff;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1a1a2e;
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.admin-content .section-textarea:focus { outline: none; border-color: #6a35cc; }
+
+.admin-content .section-save-btn {
+  padding: 6px 16px;
+  background: #6a35cc;
+  color: white;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.admin-content .section-save-btn:hover { opacity: 0.85; }
+
+.admin-content .section-cancel-btn {
+  padding: 6px 16px;
+  background: #f3f0ff;
+  color: #6a35cc;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-content .section-cancel-btn:hover { background: #ede8ff; }
+
+.admin-content .section-empty {
+  text-align: center;
+  padding: 40px;
+  color: #bbb;
+  font-size: 14px;
+}
+
+.admin-content .section-thumbnail {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.admin-content .section-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #ede8ff;
+  color: #6a35cc;
 }
 
 /* Динозавр */

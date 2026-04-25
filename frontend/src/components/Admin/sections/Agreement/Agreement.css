@@ -1,0 +1,30 @@
+.admin-content .policy-edit-form { display: flex; flex-direction: column; gap: 12px; }
+
+.admin-content .policy-textarea {
+  min-height: 380px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.admin-content .policy-preview-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 16px;
+}
+
+.admin-content .policy-preview-text {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.7;
+}
+
+.admin-content .policy-preview-text h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #6a35cc;
+  margin: 18px 0 8px;
+}
+
+.admin-content .policy-preview-text p { margin-bottom: 8px; }
+.admin-content .policy-preview-text ul { padding-left: 20px; margin-bottom: 8px; }

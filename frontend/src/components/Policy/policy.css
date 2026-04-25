@@ -1,5 +1,5 @@
 .policy {
-  padding: 60px 20px 80px;
+  padding: calc(70px + 60px) 20px 80px;
   max-width: 90%;
   margin: 0 auto;
   color: #fff;

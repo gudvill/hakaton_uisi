@@ -1,0 +1,13 @@
+.admin-content .about-textarea {
+  min-height: 52px;
+  resize: vertical;
+}
+
+.admin-content .about-text-cell {
+  max-width: 260px;
+  font-size: 12px;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,12 +1,21 @@
 import './header.css';
 
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import RegistrationModal from './registration';
 
 export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRegistrationOpen }) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <>
-      <header className="header">
+      <header className={`header${scrolled ? ' header--scrolled' : ''}`}>
         <nav className="header-nav container">
           <div className="header-container">
             <Link to="/" className="header-logo">
@@ -19,6 +28,7 @@ export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRe
               <a href="#partners" className="header-link">Партнеры</a>
               <a href="/news" className="header-link">Новости</a>
               <a href="#faq" className="header-link">FAQ</a>
+              <a href="/photogallery" className='header-link'>Фотогалерея</a>
             </div>
 
             <button className="header-signin" onClick={onOpenRegistration}>

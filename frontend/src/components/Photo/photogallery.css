@@ -1,0 +1,21 @@
+.photogallery {
+  padding-top: calc(70px + 2rem);
+  padding-bottom: 4rem;
+  color: white;
+  min-height: 80vh;
+}
+
+.photogallery h2 {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 4rem;
+  text-transform: uppercase;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .photogallery h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+}
