@@ -26,12 +26,13 @@ import UserAgreement from './components/Policy/UserAgreement';
 import NotFound from './components/NotFound/NotFound';
 import PasswordResetRequestPage from './components/Admin/PasswordResetRequestPage';
 import PasswordResetPage from './components/Admin/PasswordResetPage';
+import PhotoGallery from './components/Photo/photogallery';
 
 function Home() {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
   return (
-    <>
+    <div className="home-page">
       <Header onOpenRegistration={() => setIsRegistrationOpen(true)} isRegistrationOpen={isRegistrationOpen} setIsRegistrationOpen={setIsRegistrationOpen} />
       <Hero onOpenRegistration={() => setIsRegistrationOpen(true)} />
       <Time />
@@ -47,7 +48,7 @@ function Home() {
       <Reviews />
       <Photo />
       <Footer />
-    </>
+    </div>
   );
 }
 
@@ -61,6 +62,9 @@ export default function App() {
           {/* новости */}
           <Route path="/news" element={<NewsAllPage />} />
           <Route path="/news/:id" element={<NewsDetailPage />} />
+
+          {/* фотогалерея */}
+          <Route path='/photogallery' element={<PhotoGallery />} />
 
           {/* кейсы */}
           <Route path="/case/:id" element={<CaseDetailPage />} />

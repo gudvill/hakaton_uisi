@@ -1,0 +1,4 @@
+.admin-content .news-title  { font-weight: 600; color: #1a1a2e; min-width: 140px; }
+.admin-content .news-brief  { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; }
+.admin-content .news-url    { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #aaa; font-size: 11px; }
+.admin-content .news-img-placeholder { width: 44px; height: 44px; background: #f3f0ff; border-radius: 8px; }

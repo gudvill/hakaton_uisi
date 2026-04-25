@@ -1,0 +1,46 @@
+.admin-content .program-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-content .program-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #f9f7ff;
+  border-radius: 12px;
+  border-left: 4px solid #6a35cc;
+}
+
+.admin-content .program-date-badge {
+  min-width: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6a35cc;
+  white-space: nowrap;
+}
+
+.admin-content .program-text {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+.admin-content .program-edit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: #faf8ff;
+  border-radius: 12px;
+  border: 1px solid #ede8ff;
+}
+
+.admin-content .program-edit-dates {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-content .program-edit-dates .section-input { flex: 1; }
