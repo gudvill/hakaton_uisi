@@ -202,21 +202,66 @@ class CasesRepository(BaseRepository):
 class NewsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
-            connection=connection, table_name="news", entity_class=News,
-            columns=["name", "image", "brief_description", "full_description", "is_available"])
-        
+            connection=connection,
+            table_name="news",
+            entity_class=News,
+            columns=["name", "image", "brief_description", "full_description", "is_available"]
+        )
+
+    def _map_rows(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+        return [self.entity_class(**dict(zip(columns, row))) for row in rows]
+
+    def get_all(self) -> List[News]:
+        query = """
+        SELECT id, name, image, created_at, brief_description, full_description, is_available
+        FROM news
+        WHERE is_available = TRUE
+        ORDER BY id
+        """
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._map_rows(cursor)
+
+    def get_by_id(self, news_id: int) -> Optional[News]:
+        query = """
+        SELECT id, name, image, created_at, brief_description, full_description, is_available
+        FROM news
+        WHERE id = %s
+        """
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (news_id,))
+                result = self._map_rows(cursor)
+                return result[0] if result else None
+
     def get_by_year(self, year: int) -> List[News]:
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available
-            FROM news WHERE EXTRACT(YEAR FROM created_at) = %s ORDER BY created_at DESC"""
+        query = """
+        SELECT id, name, image, created_at, brief_description, full_description, is_available
+        FROM news
+        WHERE EXTRACT(YEAR FROM created_at) = %s
+        ORDER BY created_at DESC
+        """
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (year,))
-                rows = cursor.fetchall()
-        return [self.entity_class(*row) for row in rows]
-    
+                return self._map_rows(cursor)
+
     def update(self, news_id: int, news: News) -> None:
-        query = """UPDATE news SET name=%s, image=%s, brief_description=%s, full_description=%s WHERE id=%s"""
-        values = [news.name, news.image, news.brief_description, news.full_description, news_id]
+        query = """
+        UPDATE news
+        SET name=%s, image=%s, brief_description=%s, full_description=%s
+        WHERE id=%s
+        """
+        values = [
+            news.name,
+            news.image,
+            news.brief_description,
+            news.full_description,
+            news_id
+        ]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)

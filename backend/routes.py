@@ -234,15 +234,15 @@ def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecas
 @news_router.post("/", response_model=NewsSerializer)
 def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
     news = News(
-        id=0,
         name=news_data.name,
         image=news_data.image,
         brief_description=news_data.brief_description,
         full_description=news_data.full_description,
-        is_available=True)
+        is_available=True
+    )
     news_id = use_case.create(news)
-    news.id = news_id
-    return NewsSerializer.from_entity(news)
+    created = use_case.get_by_id(news_id)
+    return NewsSerializer.from_entity(created)
 
 @news_router.get("/", response_model=List[NewsSerializer])
 def get_news(use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
