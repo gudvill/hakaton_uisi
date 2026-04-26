@@ -1,6 +1,6 @@
 import './registration.css';
-import { useState, useEffect } from 'react';
-import { registerTeam } from "../../api/registrationService";
+import { useState } from 'react';
+import { registerTeam, getRegistrations } from "../../api/registrationService";
 import CustomAlert from '../CustomAlert/CustomAlert';
 import FormSelect from '../FormSelect/FormSelect';
 import { Checkbox } from '@headlessui/react'
@@ -95,14 +95,6 @@ export default function Registration({ isOpen, onClose }) {
     }));
   };
 
-  const [cases, setCases] = useState([]);
-
-  useEffect(() => {
-    fetch("/api/cases/")
-      .then(res => res.json())
-      .then(data => setCases(data))
-      .catch(() => setCases([]));
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,10 +107,38 @@ export default function Registration({ isOpen, onClose }) {
     if (!formData.participation_form) missing.push('Форма участия');
     if (!formData.level_education) missing.push('Ступень образования');
     if (!formData.selected_case) missing.push('Основной кейс');
-    if (!formData.captain_phone.trim()) missing.push('Телефон капитана');
-    if (!formData.captain_email.trim()) missing.push('E-mail капитана');
+
+    const phoneRe = /^(\+7|8)[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.captain_phone.trim()) {
+      missing.push('Телефон капитана');
+    } else if (!phoneRe.test(formData.captain_phone.trim())) {
+      missing.push('Телефон капитана — неверный формат (пример: +79991234567)');
+    }
+
+    if (!formData.captain_email.trim()) {
+      missing.push('E-mail капитана');
+    } else if (!emailRe.test(formData.captain_email.trim())) {
+      missing.push('E-mail капитана — неверный формат (пример: name@mail.ru)');
+    }
+
     if (!formData.curator_fio.trim()) missing.push('ФИО куратора');
-    if (!formData.curator_phone.trim()) missing.push('Телефон куратора');
+
+    if (!formData.curator_phone.trim()) {
+      missing.push('Телефон куратора');
+    } else if (!phoneRe.test(formData.curator_phone.trim())) {
+      missing.push('Телефон куратора — неверный формат (пример: +79991234567)');
+    }
+
+    if (
+      formData.amount_participants &&
+      formData.participants.length !== Number(formData.amount_participants)
+    ) {
+      missing.push(
+        `Состав команды (${formData.participants.length} чел.) не совпадает с указанным количеством (${formData.amount_participants} чел.)`
+      );
+    }
 
     formData.participants.forEach((p, i) => {
       if (!p.fio.trim()) missing.push(`ФИО участника ${i + 1}`);
@@ -126,8 +146,17 @@ export default function Registration({ isOpen, onClose }) {
       if (!p.course) missing.push(`Курс участника ${i + 1}`);
     });
 
-    if (!formData.agreement) missing.push('Согласие на обработку персональных данных');
-    if (!formData.acquaintance) missing.push('Ознакомление с политикой конфиденциальности');
+    const fioList = formData.participants.map(p => p.fio.trim().toLowerCase()).filter(Boolean);
+    const fioDuplicates = fioList.filter((fio, i) => fioList.indexOf(fio) !== i);
+    if (fioDuplicates.length > 0) {
+      const names = [...new Set(fioDuplicates)].map(f =>
+        formData.participants.find(p => p.fio.trim().toLowerCase() === f)?.fio
+      );
+      missing.push(`Дублирующиеся участники в команде: ${names.join(', ')}`);
+    }
+
+    if (formData.agreement !== true) missing.push('Необходимо дать согласие на обработку персональных данных');
+    if (formData.acquaintance !== true) missing.push('Необходимо ознакомиться с политикой конфиденциальности');
 
     if (missing.length > 0) {
       showAlert('Пожалуйста, заполните следующие поля:\n' + missing.map(m => `• ${m}`).join('\n'));
@@ -151,24 +180,24 @@ export default function Registration({ isOpen, onClose }) {
       return;
     }
 
-    const selectedCase = cases.find(c => c.id === Number(teamData.selected_case));
-    if (selectedCase) {
-      const courseNumbers = participants.map(p => Number(p.course));
-      const caseLevel = selectedCase.level?.toLowerCase();
-      const level = teamData.level_education?.toLowerCase();
+    const caseNum = Number(teamData.selected_case);
+    const isMagistracy = teamData.level_education === 'магистратура';
+    const courseNumbers = participants.map(p => Number(p.course));
 
-      if (caseLevel === 'стартовый') {
-        if (courseNumbers.some(c => c > 2) || level === 'магистратура') {
-          showAlert('Этот кейс только для 1–2 курса');
-          return;
-        }
+    if (caseNum >= 1 && caseNum <= 3) {
+      if (isMagistracy) {
+        showAlert('Кейсы 1–3 (стартовый уровень) недоступны для магистратуры');
+        return;
       }
-
-      if (caseLevel === 'продвинутый') {
-        if (courseNumbers.some(c => c < 3) && level !== 'магистратура') {
-          showAlert('Этот кейс только для 3+ курса и магистрантов');
-          return;
-        }
+      if (courseNumbers.some(c => c > 2)) {
+        showAlert('Кейсы 1–3 (стартовый уровень) доступны только для 1–2 курса');
+        return;
+      }
+    }
+    if (caseNum >= 4 && caseNum <= 6) {
+      if (!isMagistracy && courseNumbers.some(c => c < 3)) {
+        showAlert('Кейсы 4–6 (продвинутый уровень) доступны только для 3+ курса и магистрантов');
+        return;
       }
     }
 
@@ -188,6 +217,36 @@ export default function Registration({ isOpen, onClose }) {
     };
 
     try {
+      const existing = await getRegistrations();
+
+      const nameTaken = existing.some(
+        r => r.name?.trim().toLowerCase() === formData.name.trim().toLowerCase()
+      );
+      if (nameTaken) {
+        showAlert(`Команда с названием «${formData.name}» уже зарегистрирована`, 'error');
+        return;
+      }
+
+      const existingParticipants = existing.flatMap(r => r.participants ?? []);
+      const duplicates = formData.participants
+        .filter(p => p.fio.trim())
+        .filter(p =>
+          existingParticipants.some(
+            ep =>
+              ep.fio?.trim().toLowerCase() === p.fio.trim().toLowerCase() &&
+              String(ep.course) === String(p.course)
+          )
+        )
+        .map(p => `${p.fio} (${p.course} курс)`);
+
+      if (duplicates.length > 0) {
+        showAlert(
+          'Следующие участники уже зарегистрированы:\n' + duplicates.map(d => `• ${d}`).join('\n'),
+          'error'
+        );
+        return;
+      }
+
       await registerTeam(payload);
       showAlert('Вы успешно зарегистрированы!', 'success', onClose);
     } catch (err) {
@@ -204,36 +263,44 @@ export default function Registration({ isOpen, onClose }) {
           <button className="modal-close" onClick={onClose}><img src='/images/close.svg' alt="закрыть" /></button>
           <h2 className='registration-title'>Регистрация</h2>
 
+          {process.env.NODE_ENV === 'development' && (
+            <button type="button" style={{ fontSize: 11, color: '#aaa', background: 'none', cursor: 'pointer', alignSelf: 'flex-start' }}
+              onClick={() => setFormData({
+                name: 'Тест команда',
+                institution: 'УрТИСИ',
+                amount_participants: 2,
+                participation_form: 'Очная',
+                level_education: 'бакалавриат/специалитет',
+                selected_case: '1',
+                spare_case: '2',
+                captain_phone: '+79991234567',
+                captain_email: 'test@mail.ru',
+                curator_fio: 'Иванов Иван Иванович',
+                curator_phone: '+79991234568',
+                agreement: true,
+                acquaintance: true,
+                participants: [
+                  { id: 0, fio: 'Петров Пётр Петрович', role: 'капитан', course: '3' },
+                  { id: 1, fio: 'Сидоров Сидор Сидорович', role: 'участник', course: '2' },
+                ]
+              })}>
+              [dev] заполнить
+            </button>
+          )}
+
           <form onSubmit={handleSubmit} className="registration-form">
             <p className='form-subtitle'>Информация о команде</p>
             <label>
-              <input
-                type="text"
-                placeholder="Название команды"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-              />
+              <input type="text" placeholder="Название команды" name="name"
+                value={formData.name} onChange={handleInputChange} />
             </label>
             <label>
-              <input
-                type="text"
-                placeholder="Учебное заведение"
-                name="institution"
-                value={formData.institution}
-                onChange={handleInputChange}
-              />
+              <input type="text" placeholder="Учебное заведение" name="institution"
+                value={formData.institution} onChange={handleInputChange} />
             </label>
             <label>
-              <input
-                type="number"
-                placeholder="Кол-во участников"
-                name="amount_participants"
-                value={formData.amount_participants}
-                onChange={handleInputChange}
-                min="2"
-                max="5"
-              />
+              <input type="number" placeholder="Кол-во участников" name="amount_participants"
+                value={formData.amount_participants} onChange={handleInputChange} min="2" max="5" />
             </label>
             <FormSelect
               value={formData.level_education}
@@ -244,21 +311,11 @@ export default function Registration({ isOpen, onClose }) {
 
             <p className='form-subtitle'>Форма участия</p>
             <label className="radio-group">
-              <input
-                type="radio"
-                name="participation_form"
-                value="Очная"
-                checked={formData.participation_form === 'Очная'}
-                onChange={handleInputChange}
-              />
+              <input type="radio" name="participation_form" value="Очная"
+                checked={formData.participation_form === 'Очная'} onChange={handleInputChange} />
               <span>Очная</span>
-              <input
-                type="radio"
-                name="participation_form"
-                value="Дистанционная"
-                checked={formData.participation_form === 'Дистанционная'}
-                onChange={handleInputChange}
-              />
+              <input type="radio" name="participation_form" value="Дистанционная"
+                checked={formData.participation_form === 'Дистанционная'} onChange={handleInputChange} />
               <span>Дистанционная</span>
             </label>
 
@@ -267,28 +324,19 @@ export default function Registration({ isOpen, onClose }) {
               {formData.participants.map((participant, index) => (
                 <div key={participant.id} className="participant-row">
                   <label>
-                    <input
-                      type="text"
-                      placeholder={`ФИО участника ${index + 1}`}
+                    <input type="text" placeholder={`ФИО участника ${index + 1}`}
                       value={participant.fio}
-                      onChange={(e) => handleParticipantChange(index, 'fio', e.target.value)}
-                    />
+                      onChange={(e) => handleParticipantChange(index, 'fio', e.target.value)} />
                   </label>
                   <div style={{ flex: 1 }}>
-                    <FormSelect
-                      value={participant.role}
+                    <FormSelect value={participant.role}
                       onChange={(val) => handleParticipantChange(index, 'role', val)}
-                      options={ROLE_OPTIONS}
-                      placeholder="Роль"
-                    />
+                      options={ROLE_OPTIONS} placeholder="Роль" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <FormSelect
-                      value={participant.course}
+                    <FormSelect value={participant.course}
                       onChange={(val) => handleParticipantChange(index, 'course', val)}
-                      options={COURSE_OPTIONS}
-                      placeholder="Курс"
-                    />
+                      options={COURSE_OPTIONS} placeholder="Курс" />
                   </div>
                 </div>
               ))}
@@ -298,13 +346,8 @@ export default function Registration({ isOpen, onClose }) {
             <label className='case-radio-group'>
               {[1,2,3,4,5,6].map(num => (
                 <label key={num} className="radio-item">
-                  <input
-                    type="radio"
-                    name="selected_case"
-                    value={num.toString()}
-                    checked={formData.selected_case === num.toString()}
-                    onChange={handleInputChange}
-                  />
+                  <input type="radio" name="selected_case" value={num.toString()}
+                    checked={formData.selected_case === num.toString()} onChange={handleInputChange} />
                   <span>Кейс {num}</span>
                 </label>
               ))}
@@ -314,13 +357,8 @@ export default function Registration({ isOpen, onClose }) {
             <label className='case-radio-group'>
               {[1,2,3,4,5,6].map(num => (
                 <label key={`spare-${num}`} className="radio-item">
-                  <input
-                    type="radio"
-                    name="spare_case"
-                    value={num.toString()}
-                    checked={formData.spare_case === num.toString()}
-                    onChange={handleInputChange}
-                  />
+                  <input type="radio" name="spare_case" value={num.toString()}
+                    checked={formData.spare_case === num.toString()} onChange={handleInputChange} />
                   <span>Кейс {num}</span>
                 </label>
               ))}
@@ -328,58 +366,31 @@ export default function Registration({ isOpen, onClose }) {
 
             <p className='form-subtitle'>Контакты</p>
             <label>
-              <input
-                type="tel"
-                placeholder="Телефон капитана"
-                name="captain_phone"
-                value={formData.captain_phone}
-                onChange={handleInputChange}
-              />
+              <input type="tel" placeholder="Телефон капитана" name="captain_phone"
+                value={formData.captain_phone} onChange={handleInputChange} />
+              <input type="text" placeholder="E-mail капитана" name="captain_email"
+                value={formData.captain_email} onChange={handleInputChange} />
             </label>
             <label>
-              <input
-                type="email"
-                placeholder="E-mail капитана"
-                name="captain_email"
-                value={formData.captain_email}
-                onChange={handleInputChange}
-              />
-            </label>
-            <label>
-              <input
-                type="text"
-                placeholder="ФИО куратора"
-                name="curator_fio"
-                value={formData.curator_fio}
-                onChange={handleInputChange}
-              />
-
-              <input
-                type="tel"
-                placeholder="Телефон куратора"
-                name="curator_phone"
-                value={formData.curator_phone}
-                onChange={handleInputChange}
-              />
+              <input type="text" placeholder="ФИО куратора" name="curator_fio"
+                value={formData.curator_fio} onChange={handleInputChange} />
+              <input type="tel" placeholder="Телефон куратора" name="curator_phone"
+                value={formData.curator_phone} onChange={handleInputChange} />
             </label>
 
             <label className="checkbox-group">
-              <Checkbox
-                checked={formData.agreement}
+              <Checkbox checked={formData.agreement}
                 onChange={(val) => setFormData(prev => ({ ...prev, agreement: val }))}
-                className="group shrink-0 size-6 rounded-md bg-white p-1 ring-1 ring-[#2055C7] ring-inset data-[checked]:bg-[#2055C7]"
-              >
+                className="group shrink-0 size-6 rounded-md bg-white p-1 ring-1 ring-[#2055C7] ring-inset data-[checked]:bg-[#2055C7]">
                 <CheckIcon className="hidden size-4 fill-white group-data-[checked]:block" />
               </Checkbox>
               <span><a href='#'>Согласие на обработку персональных данных</a></span>
             </label>
 
             <label className="checkbox-group">
-              <Checkbox
-                checked={formData.acquaintance}
+              <Checkbox checked={formData.acquaintance}
                 onChange={(val) => setFormData(prev => ({ ...prev, acquaintance: val }))}
-                className="group shrink-0 size-6 rounded-md bg-white p-1 ring-1 ring-[#2055C7] ring-inset data-[checked]:bg-[#2055C7]"
-              >
+                className="group shrink-0 size-6 rounded-md bg-white p-1 ring-1 ring-[#2055C7] ring-inset data-[checked]:bg-[#2055C7]">
                 <CheckIcon className="hidden size-4 fill-white group-data-[checked]:block" />
               </Checkbox>
               <span><a href='#'>Политика конфиденциальности</a></span>
