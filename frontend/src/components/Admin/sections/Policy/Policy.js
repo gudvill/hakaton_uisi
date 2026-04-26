@@ -1,6 +1,6 @@
 import './Policy.css';
 import { useState, useEffect } from 'react';
-import { getAcquaintanceByTitle } from '../../../../api/acquaintanceService';
+import { getAcquaintanceByTitle, updateAcquaintance } from '../../../../api/acquaintanceService';
 import { PencilIcon } from '@heroicons/react/24/outline';
 
 export default function Policy() {
@@ -14,7 +14,17 @@ export default function Policy() {
       .catch(console.error);
   }, []);
 
-  const save   = () => { setData(form); setEditing(false); };
+  const save = async () => {
+    try {
+      const updated = await updateAcquaintance(data.id, form);
+      setData(updated);
+      setForm(updated);
+      setEditing(false);
+    } catch (e) {
+      console.error(e);
+      alert("Ошибка при сохранении");
+    }
+  };
   const cancel = () => { setForm(data); setEditing(false); };
 
   if (!data) return <p style={{ color: '#999', fontSize: 14 }}>Загрузка...</p>;
