@@ -12,7 +12,7 @@ export default function Cases() {
   }, []);
 
   return (
-    <section className="cases container">
+    <section id="cases" className="cases container">
       <h2>КЕЙСЫ</h2>
       <div className='cases_container'>
         {casesData.map((caseItem) => (

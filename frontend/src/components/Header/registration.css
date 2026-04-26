@@ -54,10 +54,12 @@
   scrollbar-gutter: stable both-edges;
 }
 
-.registration-title{
+.modal-content .registration-title {
   color: black;
   font-size: 40px;
+  font-weight: 700;
   margin: 0;
+  text-transform: none;
 }
 
 .registration-form {
