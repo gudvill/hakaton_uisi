@@ -13,7 +13,7 @@ export default function Partners() {
   }, []);
 
   return (
-    <section className="partners container">
+    <section id="partners" className="partners container">
       <h2>ПАРТНЕРЫ</h2>
       <div className="partners-grid">
         {partnersData.map((partner) => (

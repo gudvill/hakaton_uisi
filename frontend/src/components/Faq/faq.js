@@ -38,7 +38,7 @@ export default function Faq() {
   const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section className="faq container">
+    <section id="faq" className="faq container">
       <h2>FAQ</h2>
       <div className="faq-list">
         {FAQ_ITEMS.map((item, i) => {

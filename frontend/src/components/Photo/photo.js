@@ -93,7 +93,6 @@ export default function Photo() {
           </div>
         ))}
       </div>
-      <a>Все фотографии</a>
     </section>
   );
 }
