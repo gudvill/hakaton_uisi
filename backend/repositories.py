@@ -126,8 +126,8 @@ class AboutRepository(BaseRepository):
         return [About(*row) for row in rows]
 
     def update(self, about_id: int, item: About) -> None:
-        query = """UPDATE about SET row=%s, col=%s, title=%s, text=%s, icon=%s, created_at=%s WHERE id=%s"""
-        values = [item.row, item.col, item.title, item.text, item.icon, item.created_at, about_id]
+        query = """UPDATE about SET row=%s, col=%s, title=%s, text=%s, icon=%s WHERE id=%s"""
+        values = [item.row, item.col, item.title, item.text, item.icon, about_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)

@@ -148,7 +148,7 @@ def delete_program(item_id: int, use_case: ProgramUseCase = Depends(get_program_
 # Эндпоинты для Описания
 @about_router.post("/", response_model=AboutSerializer)
 def create_about(item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    item = About(id=0, row=item_data.row, col=item_data.col, title=item_data.title,text=item_data.text, icon=item_data.icon)
+    item = About(id=0, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
     return AboutSerializer.from_entity(created)
@@ -165,7 +165,7 @@ def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usec
 
 @about_router.put("/{item_id}", response_model=AboutSerializer)
 def update_about(item_id: int, item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    item = About(id=item_id, row=item_data.row, col=item_data.col, title=item_data.title,text=item_data.text, icon=item_data.icon)
+    item = About(id=item_id, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
     return AboutSerializer.from_entity(updated)

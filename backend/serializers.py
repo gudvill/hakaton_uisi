@@ -70,7 +70,6 @@ class AboutCreateSerializer(BaseModel):
     title: Optional[str] = None
     text: Optional[str] = None
     icon: Optional[str] = None
-    created_at: datetime = None
 
 class AboutSerializer(BaseModel):
     id: int
