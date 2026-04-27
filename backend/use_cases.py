@@ -135,8 +135,11 @@ class NewsUseCase:
     def create(self, news: News) -> int:
         return self.repository.create(news)
 
-    def get_all(self) -> List[News]:
-        return self.repository.get_all()
+    def get_all_true(self) -> List[News]:
+        return self.repository.get_all_true()
+    
+    def get_all_false(self) -> List[News]:
+        return self.repository.get_all_false()
 
     def get_by_id(self, news_id: int) -> Optional[News]:
         return self.repository.get_by_id(news_id)

@@ -242,23 +242,25 @@ def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends
     )
     news_id = use_case.create(news)
     created = use_case.get_by_id(news_id)
-    return NewsSerializer.from_entity(created)
+    return NewsSerializer(**created)
 
 @news_router.get("/", response_model=List[NewsSerializer])
 def get_news(use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
-    news = use_case.get_all()
-    return [NewsSerializer.from_entity(c) for c in news]
+    return [NewsSerializer(**row) for row in use_case.get_all_true()]
 
-@news_router.get("/by-year/{year}", response_model=List[NewsSerializer])
-def get_news_by_year(year: int, use_case: NewsUseCase = Depends(get_news_usecase)):
-    news = use_case.get_by_year(year)
-    return [NewsSerializer.from_entity(n) for n in news]
+@news_router.get("/archived/", response_model=List[NewsSerializer])
+def get_archived_news(use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
+    return [NewsSerializer(**row) for row in use_case.get_all_false()]
+
+@news_router.get("/by-year/{year}", response_model=List[NewsSerializer]) # надо будет делать поиск по году среди действующих и среди активных
+def get_news_by_year(year: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
+    return [NewsSerializer(**row) for row in use_case.get_by_year(year)]
 
 @news_router.get("/{news_id}", response_model=NewsSerializer)
 def get_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> NewsSerializer:
-    news = use_case.get_by_id(news_id)
-    if not news: raise HTTPException(status_code=404, detail="Новость не найдена")
-    return NewsSerializer.from_entity(news)
+    row = use_case.get_by_id(news_id)
+    if not row: raise HTTPException(status_code=404, detail="Новость не найдена")
+    return NewsSerializer(**row)
 
 @news_router.put("/{news_id}", response_model=NewsSerializer)
 def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
@@ -269,8 +271,8 @@ def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUse
         brief_description=news_data.brief_description,
         full_description=news_data.full_description)
     use_case.update(news_id, news)
-    updated_news = use_case.get_by_id(news_id)
-    return NewsSerializer.from_entity(updated_news)
+    updated = use_case.get_by_id(news_id)
+    return NewsSerializer(**updated)
 
 @news_router.delete("/{news_id}")
 def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> dict:

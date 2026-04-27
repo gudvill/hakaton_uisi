@@ -1,8 +1,14 @@
 import api from "./axios";
 
-// получить все новости
+// получить все доступные новости
 export const getNews = async () => {
   const res = await api.get("/news/");
+  return res.data;
+};
+
+// получить все архивные новости
+export const getArchivedNews = async () => {
+  const res = await api.get("/news/archived/");
   return res.data;
 };
 

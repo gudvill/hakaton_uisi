@@ -104,21 +104,10 @@ class NewsSerializer(BaseModel):
     id: int
     name: Optional[str] = None
     image: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
     is_available: bool = True
-
-    @classmethod
-    def from_entity(cls, entity: News) -> "NewsSerializer":
-        return cls(
-            id=entity.id,
-            name=entity.name,
-            image=entity.image,
-            created_at=entity.created_at,
-            brief_description=entity.brief_description,
-            full_description=entity.full_description,
-            is_available=entity.is_available)
 
 
 class PartnerCreateSerializer(BaseModel):

@@ -213,34 +213,43 @@ class NewsRepository(BaseRepository):
         super().__init__(connection=connection, table_name="news", entity_class=News,
             columns=["name", "image", "brief_description", "full_description", "is_available"])
 
-    def _map_rows(self, cursor):
+    def _fetch_all_dict(self, cursor):
         columns = [col[0] for col in cursor.description]
-        rows = cursor.fetchall()
-        return [self.entity_class(**dict(zip(columns, row))) for row in rows]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-    def get_all(self) -> List[News]:
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = TRUE ORDER BY id"""
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row: return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
+    def get_all_true(self):
+        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = TRUE ORDER BY id DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
-                return self._map_rows(cursor)
+                return self._fetch_all_dict(cursor)
+            
+    def get_all_false(self):
+        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = FALSE ORDER BY id DESC"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
 
-    def get_by_id(self, news_id: int) -> Optional[News]:
+    def get_by_id(self, news_id: int):
         query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (news_id,))
-                result = self._map_rows(cursor)
-                return result[0] if result else None
+                return self._fetch_one_dict(cursor)
 
-    def get_by_year(self, year: int) -> List[News]:
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available
-                FROM news WHERE EXTRACT(YEAR FROM created_at) = %s ORDER BY created_at DESC"""
+    def get_by_year(self, year: int):
+        query = """ SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE EXTRACT(YEAR FROM created_at) = %s AND is_available = TRUE ORDER BY created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (year,))
-                return self._map_rows(cursor)
-
+                return self._fetch_all_dict(cursor)
 
 class PartnersRepository(BaseRepository):
     def __init__(self, connection):
