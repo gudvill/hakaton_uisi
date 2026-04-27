@@ -34,13 +34,23 @@ export default function Program() {
 
   const cancel = () => { setEditId(null); setForm({}); };
 
+  const normalize = (data) => ({
+    ...data,
+    start_date: data.start_date || null,
+    end_date: data.end_date || null,
+    order_index: data.order_index !== '' ? Number(data.order_index) : null,
+  });
+
   const save = async () => {
     try {
+      const payload = normalize(form);
+
       if (editId === 'new') {
-        await createProgram(form);
+        await createProgram(payload);
       } else {
-        await updateProgram(editId, form);
+        await updateProgram(editId, payload);
       }
+
       await load();
       cancel();
     } catch (e) {

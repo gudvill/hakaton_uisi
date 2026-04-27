@@ -52,7 +52,7 @@ class ProgramSerializer(BaseModel):
     end_date: Optional[date] = None
     text: Optional[str] = None
     order_index: Optional[int] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
 
 class AboutCreateSerializer(BaseModel):
     row: Optional[int] = None
@@ -68,7 +68,7 @@ class AboutSerializer(BaseModel):
     title: Optional[str] = None
     text: Optional[str] = None
     icon: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
 
 
 class CaseCreateSerializer(BaseModel):

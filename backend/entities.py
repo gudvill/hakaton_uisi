@@ -34,7 +34,7 @@ class Program:
     end_date: Optional[date] = None
     text: Optional[str] = None
     order_index: Optional[int] = None
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None
 
 @dataclass
 class About:
