@@ -79,7 +79,7 @@ export default function Program() {
         onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
       />
 
-      <label>Порядок</label>
+      <label>Порядок отображения</label>
       <input
         type="number"
         value={form.order_index ?? 0}
