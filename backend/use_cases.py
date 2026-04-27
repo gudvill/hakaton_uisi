@@ -67,7 +67,7 @@ class ProgramUseCase:
         return self.repository.create(item)
 
     def get_all(self) -> List[Program]:
-        return self.repository.get_all_ordered()
+        return self.repository.get_all()
 
     def get_by_id(self, item_id: int) -> Optional[Program]:
         return self.repository.get_by_id(item_id)

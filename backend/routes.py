@@ -115,29 +115,29 @@ def create_program(item_data: ProgramCreateSerializer, use_case: ProgramUseCase 
     item = Program(id=0, start_date=item_data.start_date, end_date=item_data.end_date, text=item_data.text, order_index=item_data.order_index)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
-    return ProgramSerializer.from_entity(created)
+    return ProgramSerializer(**created)
 
 @program_router.get("/", response_model=List[ProgramSerializer])
 def get_program(use_case: ProgramUseCase = Depends(get_program_usecase)):
-    return [ProgramSerializer.from_entity(x) for x in use_case.get_all()]
+    return [ProgramSerializer(**row) for row in use_case.get_all()]
 
 @program_router.get("/{item_id}", response_model=ProgramSerializer)
 def get_program_item(item_id: int, use_case: ProgramUseCase = Depends(get_program_usecase)):
     item = use_case.get_by_id(item_id)
     if not item: raise HTTPException(status_code=404, detail="Не найдено")
-    return ProgramSerializer.from_entity(item)
+    return ProgramSerializer(**item)
 
 @program_router.get("/event-date/")
 def get_event_date(use_case: ProgramUseCase = Depends(get_program_usecase)):
     date = use_case.get_event_date()
-    return {"date": date.isoformat()}
+    return {"date": date.isoformat() if date else None}
 
 @program_router.put("/{item_id}", response_model=ProgramSerializer)
 def update_program(item_id: int, item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
     item = Program(id=item_id, start_date=item_data.start_date, end_date=item_data.end_date, text=item_data.text, order_index=item_data.order_index)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
-    return ProgramSerializer.from_entity(updated)
+    return ProgramSerializer(**updated)
 
 @program_router.delete("/{item_id}")
 def delete_program(item_id: int, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):

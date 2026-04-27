@@ -20,6 +20,14 @@ class BaseRepository:
                 cursor.execute(query, values)
                 entity_id = cursor.fetchone()[0]
         return entity_id
+    
+    def update(self, entity_id: int, entity: T) -> None:
+        set_clause = ", ".join([f"{col}=%s" for col in self.columns])
+        values = [getattr(entity, col) for col in self.columns] + [entity_id]
+        query = f"""UPDATE {self.table_name} SET {set_clause} WHERE id=%s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, values)
 
     def get_all(self) -> List[T]:
         query = f"""SELECT id,{",".join(self.columns)} FROM {self.table_name} WHERE is_available = TRUE ORDER BY id"""

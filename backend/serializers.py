@@ -54,16 +54,6 @@ class ProgramSerializer(BaseModel):
     order_index: Optional[int] = None
     created_at: datetime = None
 
-    @classmethod
-    def from_entity(cls, entity: Program):
-        return cls(
-            id=entity.id,
-            start_date=entity.start_date,
-            end_date=entity.end_date,
-            text=entity.text,
-            order_index=entity.order_index,
-            created_at=entity.created_at)
-
 class AboutCreateSerializer(BaseModel):
     row: Optional[int] = None
     col: Optional[int] = None
@@ -79,17 +69,6 @@ class AboutSerializer(BaseModel):
     text: Optional[str] = None
     icon: Optional[str] = None
     created_at: datetime = None
-
-    @classmethod
-    def from_entity(cls, entity: About):
-        return cls(
-            id=entity.id,
-            row=entity.row,
-            col=entity.col,
-            title=entity.title,
-            text=entity.text,
-            icon=entity.icon,
-            created_at=entity.created_at)
 
 
 class CaseCreateSerializer(BaseModel):

@@ -79,16 +79,32 @@ class ProgramRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="program", entity_class=Program,
-            columns=["date", "text", "order_index"])
+            columns=["start_date", "end_date", "text", "order_index"])
         
-    def get_all_ordered(self) -> List[Program]:
+    def _fetch_all_dict(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row: return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
+    def get_all(self):
         query = """SELECT id, start_date, end_date, text, order_index, created_at FROM program ORDER BY order_index"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
-                rows = cursor.fetchall()
-        return [Program(*row) for row in rows]
-    
+                return self._fetch_all_dict(cursor)
+
+    def get_by_id(self, program_id: int):
+        query = """SELECT id, start_date, end_date, text, order_index, created_at FROM program WHERE id = %s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (program_id,))
+                return self._fetch_one_dict(cursor)
+
     def get_event_date(self):
         query = """SELECT start_date FROM program WHERE order_index = 1 LIMIT 1"""
         with self.connection() as conn:
@@ -96,13 +112,6 @@ class ProgramRepository(BaseRepository):
                 cursor.execute(query)
                 row = cursor.fetchone()
                 return row[0] if row else None
-
-    def update(self, program_id: int, item: Program) -> None:
-        query = """UPDATE program SET start_date=%s, end_date=%s, text=%s, order_index=%s WHERE id=%s"""
-        values = [item.date, item.text, item.order_index, program_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
 
     def delete(self, program_id: int) -> None:
         query = "DELETE FROM program WHERE id=%s"
@@ -113,21 +122,19 @@ class ProgramRepository(BaseRepository):
 
 class AboutRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="about", entity_class=About,
+        super().__init__(connection=connection, table_name="about", entity_class=About,
             columns=["row", "col", "title", "text", "icon"])
 
-    def _fetch_all_dict(self, cursor):
+    def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-    def _fetch_one_dict(self, cursor):
+    def _fetch_one_dict(self, cursor) -> Optional[Dict[str, Any]]:
         row = cursor.fetchone()
-        if not row:
-            return None
+        if not row: return None
         columns = [col[0] for col in cursor.description]
         return dict(zip(columns, row))
-
+    
     def get_all(self):
         query = """SELECT id, row, col, title, text, icon, created_at FROM about ORDER BY row, col"""
         with self.connection() as conn:
@@ -142,23 +149,16 @@ class AboutRepository(BaseRepository):
                 cursor.execute(query, (item_id,))
                 return self._fetch_one_dict(cursor)
 
-    def update(self, about_id: int, item: About) -> None:
-        query = """UPDATE about SET row=%s, col=%s, title=%s, text=%s, icon=%s WHERE id=%s"""
-        values = [item.row, item.col, item.title, item.text, item.icon, about_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
-
     def delete(self, about_id: int) -> None:
         query = "DELETE FROM about WHERE id=%s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (about_id,))
 
+
 class CasesRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="cases", entity_class=Case,
+        super().__init__(connection=connection, table_name="cases", entity_class=Case,
             columns=["name", "case_number", "level", "description", "partner_id", "is_available", "teams_count"])
 
     def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
@@ -170,13 +170,6 @@ class CasesRepository(BaseRepository):
         if not row: return None
         columns = [col[0] for col in cursor.description]
         return dict(zip(columns, row))
-
-    def update(self, case_id: int, case: Case) -> None:
-        query = """UPDATE cases SET name=%s, case_number=%s, level=%s, description=%s, partner_id=%s, teams_count=%s WHERE id=%s"""
-        values = [case.name, case.case_number, case.level, case.description, case.partner_id, case.teams_count, case_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
 
     def get_all_with_partner(self) -> List[Dict[str, Any]]:
         query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
@@ -217,10 +210,7 @@ class CasesRepository(BaseRepository):
 
 class NewsRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection,
-            table_name="news",
-            entity_class=News,
+        super().__init__(connection=connection, table_name="news", entity_class=News,
             columns=["name", "image", "brief_description", "full_description", "is_available"])
 
     def _map_rows(self, cursor):
@@ -251,18 +241,10 @@ class NewsRepository(BaseRepository):
                 cursor.execute(query, (year,))
                 return self._map_rows(cursor)
 
-    def update(self, news_id: int, news: News) -> None:
-        query = """UPDATE news SET name=%s, image=%s, brief_description=%s, full_description=%s WHERE id=%s"""
-        values = [news.name, news.image, news.brief_description, news.full_description, news_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
-
 
 class PartnersRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="partners", entity_class=Partner,
+        super().__init__(connection=connection, table_name="partners", entity_class=Partner,
             columns=["name", "image", "description", "full_description", "site_link", "created_at", "is_available"])
     
     def update(self, partner_id: int, partner: Partner) -> None:
