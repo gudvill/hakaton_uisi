@@ -5,7 +5,7 @@ import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 function formatDateRange(start, end) {
   if (!start) return '—';
-  const months = ['января','февраля','марта','апреля','мая','июня', 'июля','августа','сентября','октября','ноября','декабря'];
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   const s = new Date(start);
   const e = end ? new Date(end) : null;
   const sStr = `${s.getDate()} ${months[s.getMonth()]}`;
@@ -27,7 +27,7 @@ export default function Program() {
   useEffect(() => { load(); }, []);
 
   const startEdit = (item) => { setEditId(item.id); setForm(item); };
-  const startAdd  = () => {
+  const startAdd = () => {
     setEditId('new');
     setForm({ text: '', start_date: '', end_date: '', order_index: 0 });
   };
@@ -65,65 +65,62 @@ export default function Program() {
 
   const EditCard = () => (
     <div className="program-edit-card">
-      <label>Дата начала</label>
-      <input
-        type="date"
-        value={form.start_date || ''}
-        onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))}
-      />
-
-      <label>Дата конца</label>
-      <input
-        type="date"
-        value={form.end_date || ''}
-        onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
-      />
-
+      <div className="program-edit-dates">
+        <div>
+          <label>Дата начала</label>
+          <input className="section-input" type="date" value={form.start_date || ''} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
+        </div>
+        <div>
+          <label>Дата конца</label>
+          <input className="section-input" type="date" value={form.end_date || ''} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
+        </div>
+      </div>
       <label>Порядок отображения</label>
-      <input
-        type="number"
-        value={form.order_index ?? 0}
-        onChange={e => setForm(p => ({ ...p, order_index: Number(e.target.value) }))}
-      />
-
-      <textarea
-        value={form.text || ''}
-        placeholder="Описание события"
-        onChange={e => setForm(p => ({ ...p, text: e.target.value }))}
-      />
-
-      <button onClick={save}>сохранить</button>
-      <button onClick={cancel}>отмена</button>
+      <input className="section-input" type="number" value={form.order_index ?? ''} onChange={e => setForm(p => ({ ...p, order_index: e.target.value }))} />
+      <textarea className="section-textarea" value={form.text || ''} placeholder="Описание события" onChange={e => setForm(p => ({ ...p, text: e.target.value }))} />
+      <div className="section-row-actions" style={{ marginTop: 4 }}>
+        <button className="section-save-btn" onClick={save}>сохранить</button>
+        <button className="section-cancel-btn" onClick={cancel}>отмена</button>
+      </div>
     </div>
   );
 
   return (
     <div className="admin-card">
       <div className="section-header">
-        <h3>ПРОГРАММА</h3>
-        <button onClick={startAdd}>
-          <PlusIcon style={{ width: 16 }} /> добавить
+        <h3 className="admin-card-title" style={{ marginBottom: 0 }}>
+          ПРОГРАММА
+        </h3>
+
+        <button className="section-add-btn" onClick={startAdd}>
+          <PlusIcon style={{ width: 16, height: 16 }} /> добавить
         </button>
       </div>
 
       <div className="program-list">
         {editId === 'new' && <EditCard />}
+        {items.length === 0 && editId !== 'new' && (
+          <p className="section-empty">Нет событий</p>
+        )}
 
         {items.map(item =>
           editId === item.id ? (
             <EditCard key={item.id} />
           ) : (
             <div key={item.id} className="program-card">
-              <span>{formatDateRange(item.start_date, item.end_date)}</span>
-              <span>#{item.order_index}</span>
-              <p>{item.text}</p>
-
-              <button onClick={() => startEdit(item)}>
-                <PencilIcon style={{ width: 15 }} />
-              </button>
-              <button onClick={() => del(item.id)}>
-                <TrashIcon style={{ width: 15 }} />
-              </button>
+              <span className="program-date-badge">
+                {formatDateRange(item.start_date, item.end_date)}
+              </span>
+              <span className="program-order">#{item.order_index}</span>
+              <p className="program-text">{item.text}</p>
+              <div className="section-row-actions">
+                <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
+                  <PencilIcon style={{ width: 15, height: 15 }} />
+                </button>
+                <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
+                  <TrashIcon style={{ width: 15, height: 15 }} />
+                </button>
+              </div>
             </div>
           )
         )}
