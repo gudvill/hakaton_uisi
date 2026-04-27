@@ -44,7 +44,7 @@ class About:
     title: Optional[str] = None
     text: Optional[str] = None
     icon: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
 
 @dataclass
 class Case:

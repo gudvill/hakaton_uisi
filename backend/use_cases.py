@@ -90,7 +90,7 @@ class AboutUseCase:
         return self.repository.create(item)
 
     def get_all(self) -> List[About]:
-        return self.repository.get_all_ordered()
+        return self.repository.get_all()
 
     def get_by_id(self, item_id: int) -> Optional[About]:
         return self.repository.get_by_id(item_id)

@@ -151,24 +151,24 @@ def create_about(item_data: AboutCreateSerializer, use_case: AboutUseCase = Depe
     item = About(id=0, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
-    return AboutSerializer.from_entity(created)
+    return AboutSerializer(**created)
 
 @about_router.get("/", response_model=List[AboutSerializer])
 def get_about(use_case: AboutUseCase = Depends(get_about_usecase)):
-    return [AboutSerializer.from_entity(x) for x in use_case.get_all()]
+    return [AboutSerializer(**row) for row in use_case.get_all()]
 
 @about_router.get("/{item_id}", response_model=AboutSerializer)
 def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase)):
     item = use_case.get_by_id(item_id)
     if not item: raise HTTPException(status_code=404, detail="Не найдено")
-    return AboutSerializer.from_entity(item)
+    return AboutSerializer(**item)
 
 @about_router.put("/{item_id}", response_model=AboutSerializer)
 def update_about(item_id: int, item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
     item = About(id=item_id, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
-    return AboutSerializer.from_entity(updated)
+    return AboutSerializer(**updated)
 
 @about_router.delete("/{item_id}")
 def delete_about(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):

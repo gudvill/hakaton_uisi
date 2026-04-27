@@ -115,15 +115,32 @@ class AboutRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="about", entity_class=About,
-            columns=["row", "col", "title", "text", "icon", "created_at"])
-        
-    def get_all_ordered(self) -> List[About]:
-        query = """SELECT id, row, col, title, text, icon, created_at FROM about"""
+            columns=["row", "col", "title", "text", "icon"])
+
+    def _fetch_all_dict(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row:
+            return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
+    def get_all(self):
+        query = """SELECT id, row, col, title, text, icon, created_at FROM about ORDER BY row, col"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
-                rows = cursor.fetchall()
-        return [About(*row) for row in rows]
+                return self._fetch_all_dict(cursor)
+
+    def get_by_id(self, item_id: int):
+        query = """SELECT id, row, col, title, text, icon, created_at FROM about WHERE id = %s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (item_id,))
+                return self._fetch_one_dict(cursor)
 
     def update(self, about_id: int, item: About) -> None:
         query = """UPDATE about SET row=%s, col=%s, title=%s, text=%s, icon=%s WHERE id=%s"""
@@ -137,7 +154,6 @@ class AboutRepository(BaseRepository):
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (about_id,))
-
 
 class CasesRepository(BaseRepository):
     def __init__(self, connection):
