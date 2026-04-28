@@ -355,8 +355,8 @@ class RegistrationUseCase:
     def delete_participant(self, p_id: int) -> None:
         participant = self.repository.get_participant_by_id(p_id)
         if not participant: raise Exception("Участник не найден")
-        if participant.role == "капитан": raise Exception("Нельзя удалить капитана команды")
-        team_id = participant.registration_id
+        if participant["role"] == "капитан": raise Exception("Нельзя удалить капитана команды")
+        team_id = participant["registration_id"]
         current_participants = self.repository.get_participants_by_registration(team_id)
         if len(current_participants) <= 2: raise Exception("В команде должно оставаться не менее 2 участников")
         self.repository.delete_participant(p_id)
