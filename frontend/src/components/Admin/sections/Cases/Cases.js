@@ -137,7 +137,7 @@ export default function Cases() {
         <table className="section-table">
           <thead>
             <tr>
-              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Разрешено команд</th><th>Описание</th><th>Год</th><th></th>
+              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Команд</th><th>Описание</th><th>Год</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -167,7 +167,7 @@ export default function Cases() {
                 <td style={{ color: '#666' }}>
                   {item.partner_name || '—'}
                 </td>
-                <td>{item.teams_count ?? 0}</td>
+                <td>{item.registered_teams_count ?? 0}/{item.teams_count ?? 0}</td>
                 <td>{item.description || '—'}</td>
                 <td style={{ color: '#999' }}>
                   {formatDate(item.created_at)}
