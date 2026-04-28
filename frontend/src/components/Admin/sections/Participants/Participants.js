@@ -1,6 +1,6 @@
 import './Participants.css';
 import { useEffect, useState, Fragment } from "react";
-import { getRegistrations, disableRegistration } from "../../../../api/registrationService";
+import { getRegistrations, disableRegistration, updateRegistration, deleteParticipant, createParticipant } from "../../../../api/registrationService";
 import { ChevronDownIcon, ChevronUpIcon, TrashIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const ROLE_LABELS = {
@@ -22,12 +22,13 @@ export default function Participants() {
   const [levelFilter, setLevelFilter] = useState('');
   const [caseFilter, setCaseFilter] = useState('');
   const [sort, setSort] = useState({ key: "created_at", dir: "desc" });
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editData, setEditData] = useState(null);
 
   useEffect(() => {
     const delay = setTimeout(() => {
       loadData(true);
     }, 400);
-
     return () => clearTimeout(delay);
   }, [search, levelFilter, caseFilter, sort]);
 
@@ -71,6 +72,41 @@ export default function Participants() {
 
   const toggleExpand = (id) => setExpanded(prev => prev === id ? null : id);
 
+  const startEdit = (team) => {
+    setEditingTeam(team.id);
+    setEditData(JSON.parse(JSON.stringify(team)));
+  };
+
+  const saveEdit = async () => {
+    try {
+      await updateRegistration(editingTeam, {
+        team: editData,
+        participants: editData.participants
+      });
+      setEditingTeam(null);
+      loadData(true);
+    } catch (e) {
+      alert(e.response?.data?.detail || "Ошибка");
+    }
+  };
+
+  const handleDeleteParticipant = async (id) => {
+    if (!window.confirm("Удалить участника?")) return;
+    await deleteParticipant(id);
+    loadData(true);
+  };
+
+  const handleAddParticipant = async () => {
+    const fio = prompt("ФИО");
+    const course = prompt("Курс");
+    const role = prompt("Роль (captain / participant / mentor)");
+
+    if (!fio || !course || !role) return;
+
+    await createParticipant(editingTeam, { fio, course, role });
+    loadData(true);
+  };
+
   if (loading) return <p className="participants-loading">Загрузка...</p>;
 
   return (
@@ -91,14 +127,14 @@ export default function Participants() {
             </button>
           )}
         </div>
-        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)} >
+        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
           <option value="">Все уровни</option>
           <option value="спо 9класс">СПО (9 класс)</option>
           <option value="спо 11класс">СПО (11 класс)</option>
           <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
           <option value="магистратура">Магистратура</option>
         </select>
-        <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)} >
+        <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
           <option value="">Все кейсы</option>
           {[1, 2, 3, 4, 5, 6].map(c => (
             <option key={c} value={c}>{c}</option>
@@ -162,6 +198,7 @@ export default function Participants() {
                           ? <ChevronUpIcon style={{ width: 16 }} />
                           : <ChevronDownIcon style={{ width: 16 }} />}
                       </button>
+                      <button onClick={() => startEdit(team)}>✏️</button>
                       <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
                         <TrashIcon style={{ width: 16 }} />
                       </button>
@@ -172,15 +209,22 @@ export default function Participants() {
                     <tr className="participants-detail-row">
                       <td colSpan={8}>
                         <div className="participants-detail">
+                          {editingTeam === team.id && (
+                            <div style={{ marginBottom: 10 }}>
+                              <button onClick={saveEdit}>💾 Сохранить</button>
+                              <button onClick={() => setEditingTeam(null)}>Отмена</button>
+                              <button onClick={handleAddParticipant}>+ Участник</button>
+                            </div>
+                          )}
                           <div className="participants-detail-cols">
+                            <div className="participants-detail-block">
+                              <p className="participants-detail-label">Запасной кейс</p>
+                              <p>{team.spare_case || "—"}</p>
+                            </div>
                             <div className="participants-detail-block">
                               <p className="participants-detail-label">Контакты капитана</p>
                               <p>{team.captain_phone || "—"}</p>
                               <p>{team.captain_email || "—"}</p>
-                            </div>
-                            <div className="participants-detail-block">
-                              <p className="participants-detail-label">Запасной кейс</p>
-                              <p>{team.spare_case || "—"}</p>
                             </div>
                             {team.curator_data && (
                               <div className="participants-detail-block">
@@ -197,14 +241,47 @@ export default function Participants() {
                                   <th>ФИО</th>
                                   <th>Роль</th>
                                   <th>Курс</th>
+                                  {editingTeam === team.id && <th></th>}
                                 </tr>
                               </thead>
                               <tbody>
-                                {team.participants.map(p => (
+                                {(editingTeam === team.id ? editData.participants : team.participants).map((p, index) => (
                                   <tr key={p.id}>
-                                    <td>{p.fio || "—"}</td>
-                                    <td>{ROLE_LABELS[p.role] || p.role || "—"}</td>
-                                    <td>{p.course || "—"}</td>
+                                    <td>
+                                      {editingTeam === team.id ? (
+                                        <input value={p.fio} onChange={e => {
+                                            const copy = { ...editData };
+                                            copy.participants[index].fio = e.target.value;
+                                            setEditData(copy);
+                                          }}
+                                        />
+                                      ) : p.fio}
+                                    </td>
+                                    <td>
+                                      {editingTeam === team.id ? (
+                                        <input value={p.role} onChange={e => {
+                                            const copy = { ...editData };
+                                            copy.participants[index].role = e.target.value;
+                                            setEditData(copy);
+                                          }}
+                                        />
+                                      ) : (ROLE_LABELS[p.role] || p.role)}
+                                    </td>
+                                    <td>
+                                      {editingTeam === team.id ? (
+                                        <input value={p.course} onChange={e => {
+                                            const copy = { ...editData };
+                                            copy.participants[index].course = e.target.value;
+                                            setEditData(copy);
+                                          }}
+                                        />
+                                      ) : p.course}
+                                    </td>
+                                    {editingTeam === team.id && (
+                                      <td>
+                                        <button onClick={() => handleDeleteParticipant(p.id)}>❌</button>
+                                      </td>
+                                    )}
                                   </tr>
                                 ))}
                               </tbody>

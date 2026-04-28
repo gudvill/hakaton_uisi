@@ -355,6 +355,13 @@ class RegistrationUseCase:
     def delete_participant(self, p_id) -> None:
         self.repository.delete_participant(p_id)
 
+    def create_participant(self, reg_id: int, p: dict):
+        if not p["fio"]:
+            raise Exception("ФИО обязательно")
+        if int(p["course"]) < 1 or int(p["course"]) > 5:
+            raise Exception("Курс 1-5")
+        self.repository.create_participant(reg_id, p)
+
     def update(self, reg_id: int, data, participants) -> None:
         # количество участников
         if int(data.amount_participants) != len(participants):

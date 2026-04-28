@@ -24,6 +24,12 @@ export const disableRegistration = async (id) => {
   return res.data;
 };
 
+// создать участника
+export const createParticipant = async (regId, data) => {
+  const res = await api.post(`/registration/${regId}/participant`, data);
+  return res.data;
+};
+
 // удалить участника
 export const deleteParticipant = async (participantId) => {
   const res = await api.delete(`/registration/participant/${participantId}`);

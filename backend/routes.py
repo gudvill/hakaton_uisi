@@ -15,7 +15,8 @@ from serializers import (PasswordResetRequest,ResetPasswordRequest,
                          PhotoAlbumSerializer, PhotoAlbumCreateSerializer,
                          PhotoSerializer, PhotoCreateSerializer,
                          ReviewSerializer, ReviewCreateSerializer,
-                         RegistrationSerializer, RegistrationRequestSerializer)
+                         RegistrationSerializer, RegistrationRequestSerializer,
+                         ParticipantsCreateSerializer)
 from use_cases import AdminUseCase, AcquaintanceUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 from dependencies import (get_current_admin, get_admin_usecase,
                           get_acquaintance_usecase,
@@ -430,6 +431,11 @@ def get_one(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration
 def disable_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
     usecase.disable_registration(reg_id)
     return {"message": "Команда отключена"}
+
+@registration_router.post("/{reg_id}/participant")
+def create_participant(reg_id: int, p: ParticipantsCreateSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
+    usecase.create_participant(reg_id, p.dict())
+    return {"message": "Участник добавлен"}
 
 @registration_router.delete("/participant/{p_id}")
 def delete_participant(p_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):

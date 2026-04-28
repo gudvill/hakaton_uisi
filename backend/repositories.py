@@ -455,6 +455,11 @@ class RegistrationRepository:
                 cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
                 cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
 
+    def create_participant(self, reg_id: int, p: dict) -> None:
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""INSERT INTO participants (fio, course, role, registration_id) VALUES (%s,%s,%s,%s)""", (p["fio"].strip(), int(p["course"]), p["role"], reg_id))
+
     def delete_participant(self, p_id: int) -> None:
         with self.connection() as conn:
             with conn.cursor() as cursor:
