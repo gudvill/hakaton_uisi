@@ -3,13 +3,6 @@ import { useEffect, useState, Fragment } from "react";
 import { getRegistrations, disableRegistration } from "../../../../api/registrationService";
 import { ChevronDownIcon, ChevronUpIcon, TrashIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const LEVEL_LABELS = {
-  bachelor: "Бакалавриат",
-  master: "Магистратура",
-  specialist: "Специалитет",
-  college: "Колледж",
-};
-
 const ROLE_LABELS = {
   captain: "Капитан",
   participant: "Участник",
@@ -32,15 +25,15 @@ export default function Participants() {
 
   useEffect(() => {
     const delay = setTimeout(() => {
-      loadData();
+      loadData(true);
     }, 400);
 
     return () => clearTimeout(delay);
   }, [search, levelFilter, caseFilter, sort]);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
 
       const data = await getRegistrations({
         search: search || undefined,
@@ -54,7 +47,7 @@ export default function Participants() {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -73,7 +66,7 @@ export default function Participants() {
   const handleDelete = async (id) => {
     if (!window.confirm("Удалить команду?")) return;
     await disableRegistration(id);
-    loadData();
+    loadData(true);
   };
 
   const toggleExpand = (id) => setExpanded(prev => prev === id ? null : id);
@@ -98,17 +91,29 @@ export default function Participants() {
             </button>
           )}
         </div>
-
         <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)} >
           <option value="">Все уровни</option>
-          {Object.entries(LEVEL_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
+          <option value="спо 9класс">СПО (9 класс)</option>
+          <option value="спо 11класс">СПО (11 класс)</option>
+          <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
+          <option value="магистратура">Магистратура</option>
+        </select>
+        <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)} >
+          <option value="">Все кейсы</option>
+          {[1, 2, 3, 4, 5, 6].map(c => (
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
 
-        <input className="participants-filter-select" placeholder="ID кейса" value={caseFilter} onChange={e => setCaseFilter(e.target.value)} />
         {(search || levelFilter || caseFilter) && (
-          <button className="participants-reset-btn" onClick={() => { setSearch(''); setLevelFilter(''); setCaseFilter(''); }}>
+          <button
+            className="participants-reset-btn"
+            onClick={() => {
+              setSearch('');
+              setLevelFilter('');
+              setCaseFilter('');
+            }}
+          >
             <XMarkIcon style={{ width: 14, height: 14 }} /> сбросить
           </button>
         )}
@@ -147,7 +152,7 @@ export default function Participants() {
                     <td>{idx + 1}</td>
                     <td>{team.name}</td>
                     <td>{team.institution}</td>
-                    <td>{LEVEL_LABELS[team.level_education]}</td>
+                    <td>{team.level_education || "—"}</td>
                     <td>{team.selected_case}</td>
                     <td>{team.amount_participants}</td>
                     <td>{formatDate(team.created_at)}</td>
@@ -157,7 +162,6 @@ export default function Participants() {
                           ? <ChevronUpIcon style={{ width: 16 }} />
                           : <ChevronDownIcon style={{ width: 16 }} />}
                       </button>
-
                       <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
                         <TrashIcon style={{ width: 16 }} />
                       </button>
@@ -170,20 +174,20 @@ export default function Participants() {
                         <div className="participants-detail">
                           <div className="participants-detail-cols">
                             <div className="participants-detail-block">
-                              <p className="participants-detail-label">Капитан</p>
-                              <p>{team.captain_phone}</p>
-                              <p>{team.captain_email}</p>
+                              <p className="participants-detail-label">Контакты капитана</p>
+                              <p>{team.captain_phone || "—"}</p>
+                              <p>{team.captain_email || "—"}</p>
                             </div>
                             <div className="participants-detail-block">
                               <p className="participants-detail-label">Запасной кейс</p>
-                              <p>{team.spare_case}</p>
+                              <p>{team.spare_case || "—"}</p>
                             </div>
                             {team.curator_data && (
                               <div className="participants-detail-block">
                                 <p className="participants-detail-label">Куратор</p>
-                                <p>{team.curator_data.fio}</p>
-                                <p>{team.curator_data.phone}</p>
-                                <p>{team.curator_data.email}</p>
+                                <p>{team.curator_data.fio || "—"}</p>
+                                <p>{team.curator_data.phone || "—"}</p>
+                                <p>{team.curator_data.email || "—"}</p>
                               </div>
                             )}
                           </div>
@@ -199,9 +203,9 @@ export default function Participants() {
                               <tbody>
                                 {team.participants.map(p => (
                                   <tr key={p.id}>
-                                    <td>{p.fio}</td>
-                                    <td>{ROLE_LABELS[p.role]}</td>
-                                    <td>{p.course}</td>
+                                    <td>{p.fio || "—"}</td>
+                                    <td>{ROLE_LABELS[p.role] || p.role || "—"}</td>
+                                    <td>{p.course || "—"}</td>
                                   </tr>
                                 ))}
                               </tbody>
