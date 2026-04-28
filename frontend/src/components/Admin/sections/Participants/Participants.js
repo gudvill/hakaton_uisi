@@ -1,7 +1,7 @@
 import './Participants.css';
 import { useEffect, useState, Fragment } from "react";
 import { getRegistrations, disableRegistration, updateRegistration, deleteParticipant, createParticipant } from "../../../../api/registrationService";
-import { ChevronDownIcon, ChevronUpIcon, TrashIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon, TrashIcon, PencilIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const ROLE_LABELS = {
   captain: "Капитан",
