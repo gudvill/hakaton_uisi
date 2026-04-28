@@ -97,6 +97,8 @@ export default function Participants() {
         team: {
           name: editData.name,
           institution: editData.institution,
+          amount_participants: editData.amount_participants,
+          participation_form: editData.participation_form,
           level_education: editData.level_education,
           selected_case: editData.selected_case,
           spare_case: editData.spare_case,
@@ -105,7 +107,6 @@ export default function Participants() {
           curator_data: editData.curator_data,
           agreement: editData.agreement,
           acquaintance: editData.acquaintance,
-          amount_participants: editData.amount_participants,
         },
         participants: editData.participants.map(p => ({
           fio: p.fio,
