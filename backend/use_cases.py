@@ -327,15 +327,15 @@ class RegistrationUseCase:
         limit_spare = spare_case.teams_count
         if limit_spare is not None and current_count_spare >= limit_spare:
             raise Exception("Запасной кейс уже заполнен")
-        # проверка уровня
+        # проверка уровня для основного кейса
         case = self.cases_repository.get_by_id(data.selected_case)
         if not case: raise Exception("Кейс не найден")
         case_level = (case.level or "").lower()
         level = (data.level_education or "").lower()
-        if case_level == "стартовый":
+        if case_level == "standard":
             if any(c > 2 for c in courses) or level == "магистратура":
                 raise Exception("Этот кейс только для 1-2 курса")
-        if case_level == "продвинутый":
+        if case_level == "advanced":
             if any(c < 3 for c in courses) and level != "магистратура":
                 raise Exception("Этот кейс только для 3+ курса и магистрантов")
         return self.repository.create_registration(data, participants)
@@ -454,7 +454,7 @@ class RegistrationUseCase:
         limit_spare = spare_case.teams_count
         if limit_spare is not None and current_count_spare >= limit_spare:
             raise Exception("Запасной кейс уже заполнен")
-        # проверка уровня
+        # проверка уровня для основного кейса
         case = self.cases_repository.get_by_id(data.selected_case)
         if not case: raise Exception("Кейс не найден")
         case_level = (case.level or "").lower()
