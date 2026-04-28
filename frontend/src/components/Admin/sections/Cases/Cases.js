@@ -99,8 +99,8 @@ export default function Cases() {
   const levelLabel = (val) =>
     LEVELS.find(l => l.value === val)?.label || val || '—';
 
-  const getYear = (date) =>
-    date ? new Date(date).getFullYear() : '—';
+  const formatDate = (date) =>
+    date ? new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
 
   const EditRow = () => (
     <tr className="section-edit-row">
@@ -137,7 +137,7 @@ export default function Cases() {
         <table className="section-table">
           <thead>
             <tr>
-              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Команд</th><th>Описание</th><th>Год</th><th></th>
+              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Разрешено команд</th><th>Описание</th><th>Год</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -170,7 +170,7 @@ export default function Cases() {
                 <td>{item.teams_count ?? 0}</td>
                 <td>{item.description || '—'}</td>
                 <td style={{ color: '#999' }}>
-                  {getYear(item.created_at)}
+                  {formatDate(item.created_at)}
                 </td>
                 <td>
                   <div className="section-row-actions">
