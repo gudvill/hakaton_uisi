@@ -103,6 +103,37 @@ def update_acquaintance(item_id: int, item_data: AcquaintanceCreateSerializer, u
     return AcquaintanceSerializer.from_entity(updated)
 
 
+# Эндпоинты для Описания
+@about_router.post("/", response_model=AboutSerializer)
+def create_about(item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    item = About(id=0, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
+    item_id = use_case.create(item)
+    created = use_case.get_by_id(item_id)
+    return AboutSerializer(**created)
+
+@about_router.get("/", response_model=List[AboutSerializer])
+def get_about(use_case: AboutUseCase = Depends(get_about_usecase)):
+    return [AboutSerializer(**row) for row in use_case.get_all()]
+
+@about_router.get("/{item_id}", response_model=AboutSerializer)
+def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase)):
+    item = use_case.get_by_id(item_id)
+    if not item: raise HTTPException(status_code=404, detail="Не найдено")
+    return AboutSerializer(**item)
+
+@about_router.put("/{item_id}", response_model=AboutSerializer)
+def update_about(item_id: int, item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    item = About(id=item_id, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
+    use_case.update(item_id, item)
+    updated = use_case.get_by_id(item_id)
+    return AboutSerializer(**updated)
+
+@about_router.delete("/{item_id}")
+def delete_about(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    use_case.delete(item_id)
+    return {"message": "Удалено"}
+
+
 # Эндпоинты для Программы
 @program_router.post("/", response_model=ProgramSerializer)
 def create_program(item_data: ProgramCreateSerializer, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
@@ -137,76 +168,6 @@ def update_program(item_id: int, item_data: ProgramCreateSerializer, use_case: P
 def delete_program(item_id: int, use_case: ProgramUseCase = Depends(get_program_usecase), admin=Depends(get_current_admin)):
     use_case.delete(item_id)
     return {"message": "Удалено"}
-
-
-# Эндпоинты для Описания
-@about_router.post("/", response_model=AboutSerializer)
-def create_about(item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    item = About(id=0, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
-    item_id = use_case.create(item)
-    created = use_case.get_by_id(item_id)
-    return AboutSerializer(**created)
-
-@about_router.get("/", response_model=List[AboutSerializer])
-def get_about(use_case: AboutUseCase = Depends(get_about_usecase)):
-    return [AboutSerializer(**row) for row in use_case.get_all()]
-
-@about_router.get("/{item_id}", response_model=AboutSerializer)
-def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase)):
-    item = use_case.get_by_id(item_id)
-    if not item: raise HTTPException(status_code=404, detail="Не найдено")
-    return AboutSerializer(**item)
-
-@about_router.put("/{item_id}", response_model=AboutSerializer)
-def update_about(item_id: int, item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    item = About(id=item_id, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
-    use_case.update(item_id, item)
-    updated = use_case.get_by_id(item_id)
-    return AboutSerializer(**updated)
-
-@about_router.delete("/{item_id}")
-def delete_about(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    use_case.delete(item_id)
-    return {"message": "Удалено"}
-
-
-# Эндпоинты для Кейсов
-@cases_router.post("/", response_model=CaseSerializer)
-def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
-    case = Case( id=0, name=case_data.name, case_number=case_data.case_number, level=case_data.level, description=case_data.description, partner_id=case_data.partner_id, is_available=True, teams_count=case_data.teams_count)
-    case_id = use_case.create(case)
-    created = use_case.get_by_id(case_id)
-    return CaseSerializer(**created)
-
-@cases_router.get("/", response_model=List[CaseSerializer])
-def get_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
-    return [CaseSerializer(**row) for row in use_case.get_all()]
-
-@cases_router.get("/archived/", response_model=List[CaseSerializer])
-def get_archived_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
-    return [CaseSerializer(**row) for row in use_case.get_unavailable()]
-
-@cases_router.get("/by-year/{year}", response_model=List[CaseSerializer])
-def get_cases_by_year(year: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
-    return [CaseSerializer(**row) for row in use_case.get_by_year(year)]
-
-@cases_router.get("/{case_id}", response_model=CaseSerializer)
-def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
-    row = use_case.get_by_id(case_id)
-    if not row: raise HTTPException(status_code=404, detail="Кейс не найден")
-    return CaseSerializer(**row)
-
-@cases_router.put("/{case_id}", response_model=CaseSerializer)
-def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
-    case = Case(id=case_id, name=case_data.name, case_number=case_data.case_number, level=case_data.level, description=case_data.description, partner_id=case_data.partner_id, teams_count=case_data.teams_count)
-    use_case.update(case_id, case)
-    updated = use_case.get_by_id(case_id)
-    return CaseSerializer(**updated)
-
-@cases_router.delete("/{case_id}")
-def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
-    use_case.disable(case_id)
-    return {"message": "Кейс отключён"}
 
 
 # Эндпоинты для Новостей
@@ -246,6 +207,45 @@ def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUse
 def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(news_id)
     return {"message": "Новость отключена"}
+
+
+# Эндпоинты для Кейсов
+@cases_router.post("/", response_model=CaseSerializer)
+def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
+    case = Case( id=0, name=case_data.name, case_number=case_data.case_number, level=case_data.level, description=case_data.description, partner_id=case_data.partner_id, is_available=True, teams_count=case_data.teams_count)
+    case_id = use_case.create(case)
+    created = use_case.get_by_id(case_id)
+    return CaseSerializer(**created)
+
+@cases_router.get("/", response_model=List[CaseSerializer])
+def get_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
+    return [CaseSerializer(**row) for row in use_case.get_all()]
+
+@cases_router.get("/archived/", response_model=List[CaseSerializer])
+def get_archived_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
+    return [CaseSerializer(**row) for row in use_case.get_unavailable()]
+
+@cases_router.get("/by-year/{year}", response_model=List[CaseSerializer])
+def get_cases_by_year(year: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
+    return [CaseSerializer(**row) for row in use_case.get_by_year(year)]
+
+@cases_router.get("/{case_id}", response_model=CaseSerializer)
+def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
+    row = use_case.get_by_id(case_id)
+    if not row: raise HTTPException(status_code=404, detail="Кейс не найден")
+    return CaseSerializer(**row)
+
+@cases_router.put("/{case_id}", response_model=CaseSerializer)
+def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
+    case = Case(id=case_id, name=case_data.name, case_number=case_data.case_number, level=case_data.level, description=case_data.description, partner_id=case_data.partner_id, teams_count=case_data.teams_count)
+    use_case.update(case_id, case)
+    updated = use_case.get_by_id(case_id)
+    return CaseSerializer(**updated)
+
+@cases_router.delete("/{case_id}")
+def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
+    use_case.disable(case_id)
+    return {"message": "Кейс отключён"}
 
 
 # Эндпоинты для Партнёров
