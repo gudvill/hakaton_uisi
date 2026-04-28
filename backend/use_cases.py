@@ -381,6 +381,14 @@ class RegistrationUseCase:
             raise Exception("Этот кейс только для 1-2 курса")
         if case_level == "advanced" and course < 3 and level != "магистратура":
             raise Exception("Этот кейс только для 3+ курса и магистрантов")
+        fio = p["fio"].strip().lower()
+        key = (fio, course)
+        participants = self.repository.get_participants_by_registration(reg_id)
+        seen = set()
+        for pt in participants:
+            pt_key = (pt["fio"].strip().lower(), int(pt["course"]))
+            if pt_key == key: raise Exception(f"Участник с таким ФИО и курсом уже есть в команде: {p['fio']}")
+            seen.add(pt_key)
         self.repository.create_participant(reg_id, p)
         self.repository.increment_team_participants(reg_id)
 
