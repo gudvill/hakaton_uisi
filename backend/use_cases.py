@@ -369,14 +369,14 @@ class RegistrationUseCase:
         if course < 1 or course > 5: raise Exception("Курс должен быть от 1 до 5")
         team = self.repository.get_by_id(reg_id)
         if not team: raise Exception("Команда не найдена")
-        if team.amount_participants + 1 > 5: raise Exception("Команда не может быть больше 5 участников")
+        if team["amount_participants"] + 1 > 5: raise Exception("Команда не может быть больше 5 участников")
         if p.get("role") == "капитан":
             current_captain = self.repository.get_captain_by_registration(reg_id)
             if current_captain: raise Exception("Капитан в команде уже есть, нельзя добавить второго")
-        case = self.cases_repository.get_by_id(team.selected_case)
+        case = self.cases_repository.get_by_id(team["selected_case"])
         if not case: raise Exception("Кейс не найден")
         case_level = (case.level or "").lower()
-        level = (team.level_education or "").lower()
+        level = (team["level_education"] or "").lower()
         if case_level == "standard" and (course > 2 or level == "магистратура"):
             raise Exception("Этот кейс только для 1-2 курса")
         if case_level == "advanced" and course < 3 and level != "магистратура":
