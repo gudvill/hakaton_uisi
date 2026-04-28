@@ -491,17 +491,12 @@ class RegistrationRepository:
                 cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
     
     def get_participant_by_id(self, p_id: int) -> Optional[Dict[str, Any]]:
-        query = """
-        SELECT id, fio, course, role, registration_id, created_at, is_available
-        FROM participants
-        WHERE id = %s
-        """
+        query = """ SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (p_id,))
                 row = cursor.fetchone()
-                if not row:
-                    return None
+                if not row: return None
                 columns = [col[0] for col in cursor.description]
                 return dict(zip(columns, row))
 
@@ -540,14 +535,7 @@ class RegistrationRepository:
                 cursor.execute(query, params)
                 return cursor.fetchone() is not None
 
-    def get_filtered(
-        self,
-        search: str = None,
-        level: str = None,
-        case_id: int = None,
-        sort_by: str = "created_at",
-        sort_dir: str = "desc"
-    ) -> List[Dict[str, Any]]:
+    def get_filtered(self, search: str = None, level: str = None, case_id: int = None, sort_by: str = "created_at", sort_dir: str = "desc") -> List[Dict[str, Any]]:
 
         allowed_sort = {
             "name": "r.name",
