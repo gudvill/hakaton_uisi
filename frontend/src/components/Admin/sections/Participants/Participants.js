@@ -1,12 +1,26 @@
 import './Participants.css';
 import { useEffect, useState, Fragment } from "react";
-import { getRegistrations, disableRegistration, updateRegistration, deleteParticipant, createParticipant } from "../../../../api/registrationService";
-import { ChevronDownIcon, ChevronUpIcon, TrashIcon, PencilIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  getRegistrations,
+  disableRegistration,
+  updateRegistration,
+  deleteParticipant,
+  createParticipant
+} from "../../../../api/registrationService";
+
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  TrashIcon,
+  PencilIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon
+} from "@heroicons/react/24/outline";
 
 const ROLE_LABELS = {
-  captain: "Капитан",
-  participant: "Участник",
-  mentor: "Куратор",
+  капитан: "Капитан",
+  участник: "Участник",
+  куратор: "Куратор",
 };
 
 function formatDate(str) {
@@ -18,10 +32,13 @@ export default function Participants() {
   const [registrations, setRegistrations] = useState([]);
   const [expanded, setExpanded] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
   const [caseFilter, setCaseFilter] = useState('');
+
   const [sort, setSort] = useState({ key: "created_at", dir: "desc" });
+
   const [editingTeam, setEditingTeam] = useState(null);
   const [editData, setEditData] = useState(null);
 
@@ -39,7 +56,7 @@ export default function Participants() {
       const data = await getRegistrations({
         search: search || undefined,
         level: levelFilter || undefined,
-        case_id: caseFilter || undefined,
+        case_id: caseFilter ? Number(caseFilter) : undefined,
         sort_by: sort.key,
         sort_dir: sort.dir,
       });
@@ -70,21 +87,55 @@ export default function Participants() {
     loadData(true);
   };
 
-  const toggleExpand = (id) => setExpanded(prev => prev === id ? null : id);
+  const toggleExpand = (id) =>
+    setExpanded(prev => prev === id ? null : id);
 
   const startEdit = (team) => {
     setEditingTeam(team.id);
     setExpanded(team.id);
+
     setEditData({
-      ...JSON.parse(JSON.stringify(team)),
-      participants: team.participants || []
+      name: team.name,
+      institution: team.institution,
+      level_education: team.level_education,
+      selected_case: Number(team.selected_case),
+      spare_case: Number(team.spare_case),
+      captain_phone: team.captain_phone,
+      captain_email: team.captain_email,
+      curator_data: team.curator_data || { fio: '', phone: '' },
+      agreement: team.agreement,
+      acquaintance: team.acquaintance,
+      amount_participants: team.amount_participants,
+      participants: JSON.parse(JSON.stringify(team.participants || [])),
     });
   };
 
   const saveEdit = async () => {
     try {
-      await updateRegistration(editingTeam, editData);
+      const payload = {
+        team: {
+          name: editData.name,
+          institution: editData.institution,
+          level_education: editData.level_education,
+          selected_case: Number(editData.selected_case),
+          spare_case: Number(editData.spare_case),
+          captain_phone: editData.captain_phone,
+          captain_email: editData.captain_email,
+          curator_data: editData.curator_data,
+          agreement: editData.agreement,
+          acquaintance: editData.acquaintance,
+          amount_participants: Number(editData.amount_participants),
+        },
+        participants: editData.participants.map(p => ({
+          ...p,
+          course: Number(p.course)
+        })),
+      };
+
+      await updateRegistration(editingTeam, payload);
+
       setEditingTeam(null);
+      setEditData(null);
       loadData(true);
     } catch (e) {
       alert(e.response?.data?.detail || "Ошибка");
@@ -100,11 +151,16 @@ export default function Participants() {
   const handleAddParticipant = async () => {
     const fio = prompt("ФИО");
     const course = prompt("Курс");
-    const role = prompt("Роль (captain / participant / mentor)");
+    const role = prompt("Роль (капитан/участник/куратор)");
 
     if (!fio || !course || !role) return;
 
-    await createParticipant(editingTeam, { fio, course, role });
+    await createParticipant(editingTeam, {
+      fio,
+      course: Number(course),
+      role
+    });
+
     loadData(true);
   };
 
@@ -112,6 +168,7 @@ export default function Participants() {
 
   return (
     <div className="participants-wrap">
+
       <div className="participants-header">
         <h3 className="admin-card-title">УЧАСТНИКИ</h3>
         <span className="participants-count">{registrations.length} команд</span>
@@ -121,21 +178,39 @@ export default function Participants() {
       <div className="participants-filters">
         <div className="participants-search-wrap">
           <MagnifyingGlassIcon className="participants-search-icon" />
-          <input className="participants-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по команде или учреждению..." />
+          <input
+            className="participants-search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Поиск по команде или учреждению..."
+          />
           {search && (
-            <button className="participants-search-clear" onClick={() => setSearch('')}>
+            <button
+              className="participants-search-clear"
+              onClick={() => setSearch('')}
+            >
               <XMarkIcon style={{ width: 14, height: 14 }} />
             </button>
           )}
         </div>
-        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
+
+        <select
+          className="participants-filter-select"
+          value={levelFilter}
+          onChange={e => setLevelFilter(e.target.value)}
+        >
           <option value="">Все уровни</option>
           <option value="спо 9класс">СПО (9 класс)</option>
           <option value="спо 11класс">СПО (11 класс)</option>
           <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
           <option value="магистратура">Магистратура</option>
         </select>
-        <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
+
+        <select
+          className="participants-filter-select"
+          value={caseFilter}
+          onChange={e => setCaseFilter(e.target.value)}
+        >
           <option value="">Все кейсы</option>
           {[1, 2, 3, 4, 5, 6].map(c => (
             <option key={c} value={c}>{c}</option>
@@ -161,9 +236,11 @@ export default function Participants() {
       ) : (
         <div className="participants-table-wrap">
           <table className="participants-table">
+
             <thead>
               <tr>
                 <th>№</th>
+
                 {[
                   { key: 'name', label: 'Команда' },
                   { key: 'institution', label: 'Учреждение' },
@@ -172,20 +249,30 @@ export default function Participants() {
                   { key: 'amount_participants', label: 'Участников' },
                   { key: 'created_at', label: 'Создана' },
                 ].map(({ key, label }) => (
-                  <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)}>
+                  <th
+                    key={key}
+                    className="participants-th-sort"
+                    onClick={() => toggleSort(key)}
+                  >
                     {label}
-                    <span className="participants-sort-icon">
+                    <span>
                       {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
                     </span>
                   </th>
                 ))}
+
                 <th></th>
               </tr>
             </thead>
+
             <tbody>
               {registrations.map((team, idx) => (
                 <Fragment key={team.id}>
-                  <tr className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`} onClick={() => toggleExpand(team.id)} >
+
+                  <tr
+                    className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`}
+                    onClick={() => toggleExpand(team.id)}
+                  >
                     <td>{idx + 1}</td>
                     <td>{team.name}</td>
                     <td>{team.institution}</td>
@@ -193,133 +280,109 @@ export default function Participants() {
                     <td>{team.selected_case}</td>
                     <td>{team.amount_participants}</td>
                     <td>{formatDate(team.created_at)}</td>
-                    <td className="participants-actions" onClick={e => e.stopPropagation()}>
-                      <button className="participants-expand-btn" onClick={() => toggleExpand(team.id)}>
-                        {expanded === team.id
-                          ? <ChevronUpIcon style={{ width: 16 }} />
-                          : <ChevronDownIcon style={{ width: 16 }} />}
+
+                    <td onClick={e => e.stopPropagation()}>
+                      <button onClick={() => toggleExpand(team.id)}>
+                        {expanded === team.id ? <ChevronUpIcon /> : <ChevronDownIcon />}
                       </button>
-                      <button className="participants-delete-btn" onClick={() => startEdit(team)} >
-                        <PencilIcon style={{ width: 15, height: 15 }} />
+
+                      <button onClick={() => startEdit(team)}>
+                        <PencilIcon />
                       </button>
-                      <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
-                        <TrashIcon style={{ width: 16 }} />
+
+                      <button onClick={() => handleDelete(team.id)}>
+                        <TrashIcon />
                       </button>
                     </td>
                   </tr>
 
                   {expanded === team.id && (
-                    <tr className="participants-detail-row">
+                    <tr>
                       <td colSpan={8}>
-                        <div className="participants-detail">
-                          {editingTeam === team.id && (
-                            <div className="section-row-actions" style={{ marginBottom: 12 }}>
-                              <button className="section-save-btn" onClick={saveEdit}>
-                                сохранить
-                              </button>
+                        <div>
 
-                              <button className="section-cancel-btn" onClick={() => {
+                          {editingTeam === team.id && (
+                            <div>
+                              <button onClick={saveEdit}>сохранить</button>
+                              <button onClick={() => {
                                 setEditingTeam(null);
                                 setEditData(null);
-                              }}>
-                                отмена
-                              </button>
+                              }}>отмена</button>
+                              <button onClick={handleAddParticipant}>+ участник</button>
+                            </div>
+                          )}
 
-                              <button className="section-add-btn" onClick={handleAddParticipant}>
-                                + участник
-                              </button>
+                          {editingTeam === team.id && editData && (
+                            <div>
+                              <input
+                                value={editData.name || ''}
+                                onChange={e =>
+                                  setEditData(p => ({ ...p, name: e.target.value }))
+                                }
+                              />
                             </div>
                           )}
-                          {editingTeam === team.id && (
-                            <div className="participants-edit-form" style={{ marginBottom: 16 }}>
-                              <input className="section-input" value={editData.name || ''} placeholder="Название команды" onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} />
-                              <input className="section-input" value={editData.institution || ''} placeholder="Учреждение" onChange={e => setEditData(p => ({ ...p, institution: e.target.value }))} />
-                              <input className="section-input" value={editData.level_education || ''} placeholder="Уровень образования" onChange={e => setEditData(p => ({ ...p, level_education: e.target.value }))} />
-                              <input className="section-input" value={editData.selected_case || ''} placeholder="Кейс" onChange={e => setEditData(p => ({ ...p, selected_case: e.target.value }))} />
-                              <input className="section-input" value={editData.captain_phone || ''} placeholder="Телефон капитана" onChange={e => setEditData(p => ({ ...p, captain_phone: e.target.value }))} />
-                              <input className="section-input" value={editData.captain_email || ''} placeholder="Email капитана" onChange={e => setEditData(p => ({ ...p, captain_email: e.target.value }))} />
-                            </div>
-                          )}
-                          <div className="participants-detail-cols">
-                            <div className="participants-detail-block">
-                              <p className="participants-detail-label">Запасной кейс</p>
-                              <p>{team.spare_case || "—"}</p>
-                            </div>
-                            <div className="participants-detail-block">
-                              <p className="participants-detail-label">Контакты капитана</p>
-                              <p>{team.captain_phone || "—"}</p>
-                              <p>{team.captain_email || "—"}</p>
-                            </div>
-                            {team.curator_data && (
-                              <div className="participants-detail-block">
-                                <p className="participants-detail-label">Куратор</p>
-                                <p>{team.curator_data.fio || "—"}</p>
-                                <p>{team.curator_data.phone || "—"}</p>
-                              </div>
-                            )}
-                          </div>
-                          {team.participants?.length > 0 && (
-                            <table className="participants-inner-table">
-                              <thead>
-                                <tr>
-                                  <th>ФИО</th>
-                                  <th>Роль</th>
-                                  <th>Курс</th>
-                                  {editingTeam === team.id && <th></th>}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {(editingTeam === team.id ? editData.participants : team.participants).map((p, index) => (
-                                  <tr key={p.id}>
+
+                          <table>
+                            <tbody>
+                              {(editingTeam === team.id ? editData?.participants : team.participants)
+                                ?.map((p, i) => (
+                                  <tr key={p.id || i}>
                                     <td>
                                       {editingTeam === team.id ? (
-                                        <input value={p.fio} onChange={e => {
-                                            const copy = { ...editData };
-                                            copy.participants[index].fio = e.target.value;
-                                            setEditData(copy);
+                                        <input
+                                          value={p.fio}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((x, idx) =>
+                                                idx === i ? { ...x, fio: e.target.value } : x
+                                              )
+                                            }));
                                           }}
                                         />
                                       ) : p.fio}
                                     </td>
+
+                                    <td>{ROLE_LABELS[p.role] || p.role}</td>
+
                                     <td>
                                       {editingTeam === team.id ? (
-                                        <input value={p.role} onChange={e => {
-                                            const copy = { ...editData };
-                                            copy.participants[index].role = e.target.value;
-                                            setEditData(copy);
-                                          }}
-                                        />
-                                      ) : (ROLE_LABELS[p.role] || p.role)}
-                                    </td>
-                                    <td>
-                                      {editingTeam === team.id ? (
-                                        <input value={p.course} onChange={e => {
-                                            const copy = { ...editData };
-                                            copy.participants[index].course = e.target.value;
-                                            setEditData(copy);
+                                        <input
+                                          value={p.course}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((x, idx) =>
+                                                idx === i ? { ...x, course: e.target.value } : x
+                                              )
+                                            }));
                                           }}
                                         />
                                       ) : p.course}
                                     </td>
+
                                     {editingTeam === team.id && (
                                       <td>
-                                        <button className="participants-delete-btn" onClick={() => handleDeleteParticipant(p.id)} >
-                                          <TrashIcon style={{ width: 16 }} />
+                                        <button onClick={() => handleDeleteParticipant(p.id)}>
+                                          <TrashIcon />
                                         </button>
                                       </td>
                                     )}
                                   </tr>
                                 ))}
-                              </tbody>
-                            </table>
-                          )}
+                            </tbody>
+                          </table>
+
                         </div>
                       </td>
                     </tr>
                   )}
+
                 </Fragment>
               ))}
             </tbody>
+
           </table>
         </div>
       )}

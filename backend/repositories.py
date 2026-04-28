@@ -455,6 +455,12 @@ class RegistrationRepository:
                 cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
                 cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
 
+    def decrement_team_participants(self, team_id: int):
+        team = self.get_registration_by_id(team_id)
+        if team.amount_participants > 0:
+            team.amount_participants -= 1
+        self.session.commit()
+
     def create_participant(self, reg_id: int, p: dict) -> None:
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -483,6 +489,21 @@ class RegistrationRepository:
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
+    
+    def get_participant_by_id(self, p_id: int) -> Optional[Dict[str, Any]]:
+        query = """
+        SELECT id, fio, course, role, registration_id, created_at, is_available
+        FROM participants
+        WHERE id = %s
+        """
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (p_id,))
+                row = cursor.fetchone()
+                if not row:
+                    return None
+                columns = [col[0] for col in cursor.description]
+                return dict(zip(columns, row))
 
     def update_registration(self, reg_id: int, reg: Registration, participants: list) -> None:
         query = """UPDATE registration SET name=%s, institution=%s, amount_participants=%s, participation_form=%s, level_education=%s, selected_case=%s, spare_case=%s, captain_phone=%s, captain_email=%s, curator_data=%s, agreement=%s, acquaintance=%s WHERE id=%s"""

@@ -352,8 +352,13 @@ class RegistrationUseCase:
     def disable_registration(self, reg_id) -> None:
         self.repository.disable_registration(reg_id)
 
-    def delete_participant(self, p_id) -> None:
+    def delete_participant(self, p_id: int) -> None:
+        participant = self.repository.get_participant_by_id(p_id)
+        if not participant: raise Exception("Participant not found")
+        if participant.role == "captain": raise Exception("Нельзя удалить капитана команды")
+        team_id = participant.registration_id
         self.repository.delete_participant(p_id)
+        self.repository.decrement_team_participants(team_id)
 
     def create_participant(self, reg_id: int, p: dict):
         if not p["fio"]:
