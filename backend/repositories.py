@@ -449,28 +449,6 @@ class RegistrationRepository:
                 cursor.execute(query, (reg_id,))
                 return self._fetch_one_dict(cursor)
         
-    def disable_registration(self, reg_id: int) -> None:
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
-                cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
-
-    def decrement_team_participants(self, team_id: int):
-        team = self.get_registration_by_id(team_id)
-        if team.amount_participants > 0:
-            team.amount_participants -= 1
-        self.session.commit()
-
-    def create_participant(self, reg_id: int, p: dict) -> None:
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("""INSERT INTO participants (fio, course, role, registration_id) VALUES (%s,%s,%s,%s)""", (p["fio"].strip(), int(p["course"]), p["role"], reg_id))
-
-    def delete_participant(self, p_id: int) -> None:
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("DELETE FROM participants WHERE id=%s", (p_id,))
-
     def count_by_case(self, case_id: int, field: str) -> int:
         query = f"SELECT COUNT(*) FROM registration WHERE {field}=%s AND is_available=TRUE"
         with self.connection() as conn:
@@ -484,6 +462,32 @@ class RegistrationRepository:
             with conn.cursor() as cursor:
                 cursor.execute(query, (case_id, reg_id))
                 return cursor.fetchone()[0]
+            
+    def disable_registration(self, reg_id: int) -> None:
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
+                cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
+
+    def decrement_team_participants(self, team_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE registration SET amount_participants = amount_participants - 1 WHERE id = %s", (team_id,))
+
+    def increment_team_participants(self, team_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE registration SET amount_participants = amount_participants + 1 WHERE id = %s", (team_id,))
+
+    def create_participant(self, reg_id: int, p: dict) -> None:
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""INSERT INTO participants (fio, course, role, registration_id) VALUES (%s,%s,%s,%s)""", (p["fio"].strip(), int(p["course"]), p["role"], reg_id))
+
+    def delete_participant(self, p_id: int) -> None:
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM participants WHERE id=%s", (p_id,))
 
     def delete_participants_by_registration(self, reg_id: int) -> None:
         with self.connection() as conn:
@@ -491,10 +495,30 @@ class RegistrationRepository:
                 cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
     
     def get_participant_by_id(self, p_id: int) -> Optional[Dict[str, Any]]:
-        query = """ SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE id = %s"""
+        query = """SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (p_id,))
+                row = cursor.fetchone()
+                if not row: return None
+                columns = [col[0] for col in cursor.description]
+                return dict(zip(columns, row))
+            
+    def get_participants_by_registration(self, reg_id: int) -> list[dict]:
+        query = """ SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE registration_id = %s ORDER BY created_at"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (reg_id,))
+                rows = cursor.fetchall()
+                if not rows: return []
+                columns = [col[0] for col in cursor.description]
+                return [dict(zip(columns, row)) for row in rows]
+
+    def get_captain_by_registration(self, reg_id: int) -> Optional[dict]:
+        query = """SELECT id, fio, course, role, registration_id FROM participants WHERE registration_id = %s AND role = 'капитан' LIMIT 1"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (reg_id,))
                 row = cursor.fetchone()
                 if not row: return None
                 columns = [col[0] for col in cursor.description]

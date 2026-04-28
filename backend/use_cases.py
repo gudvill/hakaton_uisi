@@ -354,18 +354,35 @@ class RegistrationUseCase:
 
     def delete_participant(self, p_id: int) -> None:
         participant = self.repository.get_participant_by_id(p_id)
-        if not participant: raise Exception("Participant not found")
-        if participant.role == "captain": raise Exception("Нельзя удалить капитана команды")
+        if not participant: raise Exception("Участник не найден")
+        if participant.role == "капитан": raise Exception("Нельзя удалить капитана команды")
         team_id = participant.registration_id
+        current_participants = self.repository.get_participants_by_registration(team_id)
+        if len(current_participants) <= 2: raise Exception("В команде должно оставаться не менее 2 участников")
         self.repository.delete_participant(p_id)
         self.repository.decrement_team_participants(team_id)
 
-    def create_participant(self, reg_id: int, p: dict):
-        if not p["fio"]:
-            raise Exception("ФИО обязательно")
-        if int(p["course"]) < 1 or int(p["course"]) > 5:
-            raise Exception("Курс 1-5")
+    def create_participant(self, reg_id: int, p: dict) -> None:
+        if not p.get("fio"): raise Exception("ФИО обязательно")
+        if p.get("course") is None: raise Exception("Курс обязателен")
+        course = int(p["course"])
+        if course < 1 or course > 5: raise Exception("Курс должен быть от 1 до 5")
+        team = self.repository.get_by_id(reg_id)
+        if not team: raise Exception("Команда не найдена")
+        if team.amount_participants + 1 > 5: raise Exception("Команда не может быть больше 5 участников")
+        if p.get("role") == "капитан":
+            current_captain = self.repository.get_captain_by_registration(reg_id)
+            if current_captain: raise Exception("Капитан в команде уже есть, нельзя добавить второго")
+        case = self.cases_repository.get_by_id(team.selected_case)
+        if not case: raise Exception("Кейс не найден")
+        case_level = (case.level or "").lower()
+        level = (team.level_education or "").lower()
+        if case_level == "standard" and (course > 2 or level == "магистратура"):
+            raise Exception("Этот кейс только для 1-2 курса")
+        if case_level == "advanced" and course < 3 and level != "магистратура":
+            raise Exception("Этот кейс только для 3+ курса и магистрантов")
         self.repository.create_participant(reg_id, p)
+        self.repository.increment_team_participants(reg_id)
 
     def update(self, reg_id: int, data, participants) -> None:
         # количество участников
