@@ -217,38 +217,102 @@ export default function Participants() {
             <tbody>
               {registrations.map((team, idx) => (
                 <Fragment key={team.id}>
-                  <tr className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`} onClick={() => toggleExpand(team.id)} >
+                  {/* --- СТРОКА КОМАНДЫ В ОСНОВНОЙ ТАБЛИЦЕ --- */}
+                  <tr
+                    className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`}
+                    onClick={() => toggleExpand(team.id)}
+                  >
                     <td>{idx + 1}</td>
-                    <td>{team.name}</td>
-                    <td>{team.institution}</td>
-                    <td>{team.level_education || "—"}</td>
-                    <td>{team.selected_case}</td>
-                    <td>{team.amount_participants}</td>
-                    <td>{formatDate(team.created_at)}</td>
+
+                    {/* Просмотр: ячейки в таблице */}
+                    {editingTeam !== team.id ? (
+                      <>
+                        <td>{team.name}</td>
+                        <td>{team.institution}</td>
+                        <td>{team.level_education || "—"}</td>
+                        <td>{team.selected_case}</td>
+                        <td>{team.amount_participants}</td>
+                        <td>{formatDate(team.created_at)}</td>
+                      </>
+                    ) : (
+                      /* --- РЕДАКТИРОВАНИЕ: ФОРМА ВНУТРИ ЯЧЕЕК === */
+                      <>
+                        <td>
+                          <input
+                            className="section-input"
+                            value={editData.name || ""}
+                            placeholder="Название команды"
+                            onChange={e =>
+                              setEditData(p => ({ ...p, name: e.target.value }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            className="section-input"
+                            value={editData.institution || ""}
+                            placeholder="Учреждение"
+                            onChange={e =>
+                              setEditData(p => ({ ...p, institution: e.target.value }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            className="section-input"
+                            value={editData.level_education || ""}
+                            placeholder="Уровень образования"
+                            onChange={e =>
+                              setEditData(p => ({ ...p, level_education: e.target.value }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            className="section-input"
+                            value={editData.selected_case || ""}
+                            placeholder="Кейс"
+                            onChange={e =>
+                              setEditData(p => ({ ...p, selected_case: e.target.value }))
+                            }
+                          />
+                        </td>
+                        <td>{team.amount_participants}</td>
+                        <td>{formatDate(team.created_at)}</td>
+                      </>
+                    )}
+
                     <td className="participants-actions" onClick={e => e.stopPropagation()}>
                       <button className="participants-expand-btn" onClick={() => toggleExpand(team.id)}>
-                        {expanded === team.id
-                          ? <ChevronUpIcon style={{ width: 16 }} />
-                          : <ChevronDownIcon style={{ width: 16 }} />}
+                        {expanded === team.id ? (
+                          <ChevronUpIcon style={{ width: 16 }} />
+                        ) : (
+                          <ChevronDownIcon style={{ width: 16 }} />
+                        )}
                       </button>
-                      <button className="participants-delete-btn" onClick={() => startEdit(team)} >
+
+                      <button className="participants-delete-btn" onClick={() => startEdit(team)}>
                         <PencilIcon style={{ width: 15, height: 15 }} />
                       </button>
+
                       <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
                         <TrashIcon style={{ width: 16 }} />
                       </button>
                     </td>
                   </tr>
 
+                  {/* --- ДОПОЛНИТЕЛЬНЫЕ ДАННЫЕ (раскрываются после нажатия на стрелку) --- */}
                   {expanded === team.id && (
                     <tr className="participants-detail-row">
                       <td colSpan={8}>
                         <div className="participants-detail">
+
+                          {/* Кнопки сохранения/отмены в режиме редактирования */}
                           {editingTeam === team.id && (
                             <div className="section-row-actions" style={{ marginBottom: 12 }}>
                               <button className="section-save-btn" onClick={saveEdit}>сохранить</button>
-                              <button 
-                                className="section-cancel-btn" 
+                              <button
+                                className="section-cancel-btn"
                                 onClick={() => {
                                   setEditingTeam(null);
                                   setEditData(null);
@@ -256,197 +320,183 @@ export default function Participants() {
                               >
                                 отмена
                               </button>
-                              <button className="section-add-btn" onClick={handleAddParticipant}>+ участник</button>
+                              <button className="section-add-btn" onClick={handleAddParticipant}>
+                                + участник
+                              </button>
                             </div>
                           )}
 
-                          {/* === ТАБЛИЦА РЕДАКТИРОВАНИЯ КОМАНДЫ И УЧАСТНИКОВ === */}
-                          {editingTeam === team.id && editData ? (
+                          {/* --- ФОРМА КОМАНДЫ (видна только в режиме редактирования) --- */}
+                          {editingTeam === team.id && editData && (
+                            <>
+                              {/* Поля: запасной кейс */}
+                              <div className="participants-detail-cols">
+                                <div className="participants-detail-block">
+                                  <p className="participants-detail-label">Запасной кейс</p>
+                                  <input
+                                    className="section-input"
+                                    value={editData.spare_case || ""}
+                                    placeholder="Запасной кейс"
+                                    onChange={e =>
+                                      setEditData(p => ({ ...p, spare_case: e.target.value }))
+                                    }
+                                  />
+                                </div>
+
+                                {/* Поля: контакты капитана */}
+                                <div className="participants-detail-block">
+                                  <p className="participants-detail-label">Контакты капитана</p>
+                                  <input
+                                    className="section-input"
+                                    value={editData.captain_phone || ""}
+                                    placeholder="Телефон капитана"
+                                    onChange={e =>
+                                      setEditData(p => ({ ...p, captain_phone: e.target.value }))
+                                    }
+                                  />
+                                  <input
+                                    className="section-input"
+                                    value={editData.captain_email || ""}
+                                    placeholder="Email капитана"
+                                    onChange={e =>
+                                      setEditData(p => ({ ...p, captain_email: e.target.value }))
+                                    }
+                                  />
+                                </div>
+
+                                {/* Поля: куратор (если есть) */}
+                                {team.curator_data && (
+                                  <div className="participants-detail-block">
+                                    <p className="participants-detail-label">Куратор</p>
+                                    <input
+                                      className="section-input"
+                                      value={editData.curator_data.fio || ""}
+                                      placeholder="ФИО куратора"
+                                      onChange={e =>
+                                        setEditData(p => ({
+                                          ...p,
+                                          curator_data: { ...p.curator_data, fio: e.target.value },
+                                        }))
+                                      }
+                                    />
+                                    <input
+                                      className="section-input"
+                                      value={editData.curator_data.phone || ""}
+                                      placeholder="Телефон куратора"
+                                      onChange={e =>
+                                        setEditData(p => ({
+                                          ...p,
+                                          curator_data: { ...p.curator_data, phone: e.target.value },
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+
+                          {/* --- ПРОСТОЙ ВЫВОД НЕРЕДАКТИРОВАЕМЫХ ДАННЫХ (если НЕ в режиме редактирования) --- */}
+                          {editingTeam !== team.id && (
+                            <div className="participants-detail-cols">
+                              <div className="participants-detail-block">
+                                <p className="participants-detail-label">Запасной кейс</p>
+                                <p>{team.spare_case || "—"}</p>
+                              </div>
+                              <div className="participants-detail-block">
+                                <p className="participants-detail-label">Контакты капитана</p>
+                                <p>{team.captain_phone || "—"}</p>
+                                <p>{team.captain_email || "—"}</p>
+                              </div>
+                              {team.curator_data && (
+                                <div className="participants-detail-block">
+                                  <p className="participants-detail-label">Куратор</p>
+                                  <p>{team.curator_data.fio || "—"}</p>
+                                  <p>{team.curator_data.phone || "—"}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* --- ТАБЛИЦА УЧАСТНИКОВ (то же поведение: при редактировании — форма, при просмотре — просто список) --- */}
+                          {team.participants?.length > 0 && (
                             <table className="participants-inner-table">
                               <thead>
                                 <tr>
-                                  <th>Команда</th>
-                                  <th>Учреждение</th>
-                                  <th>Уровень образования</th>
-                                  <th>Кейс</th>
-                                  <th>Запасной кейс</th>
-                                  <th>Телефон капитана</th>
-                                  <th>Email капитана</th>
                                   <th>ФИО</th>
                                   <th>Роль</th>
                                   <th>Курс</th>
-                                  <th>Действия</th>
+                                  {editingTeam === team.id && <th></th>}
                                 </tr>
                               </thead>
                               <tbody>
-                                {/* --- СТРОКА КОМАНДЫ (1 штука, всегда) --- */}
-                                <tr>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.name || ''} 
-                                      placeholder="Название команды"
-                                      onChange={e => setEditData(p => ({ ...p, name: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.institution || ''} 
-                                      placeholder="Учреждение"
-                                      onChange={e => setEditData(p => ({ ...p, institution: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.level_education || ''} 
-                                      placeholder="Уровень образования"
-                                      onChange={e => setEditData(p => ({ ...p, level_education: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.selected_case || ''} 
-                                      placeholder="Кейс"
-                                      onChange={e => setEditData(p => ({ ...p, selected_case: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.spare_case || ''} 
-                                      placeholder="Запасной кейс"
-                                      onChange={e => setEditData(p => ({ ...p, spare_case: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.captain_phone || ''} 
-                                      placeholder="Телефон капитана"
-                                      onChange={e => setEditData(p => ({ ...p, captain_phone: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.captain_email || ''} 
-                                      placeholder="Email капитана"
-                                      onChange={e => setEditData(p => ({ ...p, captain_email: e.target.value }))}
-                                    />
-                                  </td>
-                                  <td>-</td>
-                                  <td>-</td>
-                                  <td>-</td>
-                                  <td>-</td>
-                                </tr>
-
-                                {/* --- СТРОКИ УЧАСТНИКОВ (множество строк) --- */}
-                                {editData.participants.map((p, index) => (
+                                {(editingTeam === team.id ? editData?.participants : team.participants).map((p, index) => (
                                   <tr key={p.id}>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
                                     <td>
-                                      <input 
-                                        value={p.fio} 
-                                        onChange={e => {
-                                          setEditData(prev => ({
-                                            ...prev,
-                                            participants: prev.participants.map((p, i) =>
-                                              i === index ? { ...p, fio: e.target.value } : p
-                                            )
-                                          }));
-                                        }}
-                                      />
+                                      {editingTeam === team.id ? (
+                                        <input
+                                          value={p.fio}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((p, i) =>
+                                                i === index ? { ...p, fio: e.target.value } : p
+                                              ),
+                                            }));
+                                          }}
+                                        />
+                                      ) : (
+                                        p.fio
+                                      )}
                                     </td>
                                     <td>
-                                      <input 
-                                        value={p.role} 
-                                        onChange={e => {
-                                          setEditData(prev => ({
-                                            ...prev,
-                                            participants: prev.participants.map((p, i) =>
-                                              i === index ? { ...p, role: e.target.value } : p
-                                            )
-                                          }));
-                                        }}
-                                      />
+                                      {editingTeam === team.id ? (
+                                        <input
+                                          value={p.role}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((p, i) =>
+                                                i === index ? { ...p, role: e.target.value } : p
+                                              ),
+                                            }));
+                                          }}
+                                        />
+                                      ) : (
+                                        ROLE_LABELS[p.role] || p.role
+                                      )}
                                     </td>
                                     <td>
-                                      <input 
-                                        value={p.course} 
-                                        onChange={e => {
-                                          setEditData(prev => ({
-                                            ...prev,
-                                            participants: prev.participants.map((p, i) =>
-                                              i === index ? { ...p, course: e.target.value } : p
-                                            )
-                                          }));
-                                        }}
-                                      />
+                                      {editingTeam === team.id ? (
+                                        <input
+                                          value={p.course}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((p, i) =>
+                                                i === index ? { ...p, course: e.target.value } : p
+                                              ),
+                                            }));
+                                          }}
+                                        />
+                                      ) : (
+                                        p.course
+                                      )}
                                     </td>
-                                    <td>
-                                      <button 
-                                        className="participants-delete-btn" 
-                                        onClick={() => handleDeleteParticipant(p.id)} 
-                                      >
-                                        <TrashIcon style={{ width: 16 }} />
-                                      </button>
-                                    </td>
+                                    {editingTeam === team.id && (
+                                      <td>
+                                        <button
+                                          className="participants-delete-btn"
+                                          onClick={() => handleDeleteParticipant(p.id)}
+                                        >
+                                          <TrashIcon style={{ width: 16 }} />
+                                        </button>
+                                      </td>
+                                    )}
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
-                          ) : (
-                            // === ПОКАЗ СТАТИЧНЫХ ДАННЫХ (ПРИ НЕРЕДАКТИРОВАНИИ) ===
-                            <>
-                              <div className="participants-detail-cols">
-                                <div className="participants-detail-block">
-                                  <p className="participants-detail-label">Запасной кейс</p>
-                                  <p>{team.spare_case || "—"}</p>
-                                </div>
-                                <div className="participants-detail-block">
-                                  <p className="participants-detail-label">Контакты капитана</p>
-                                  <p>{team.captain_phone || "—"}</p>
-                                  <p>{team.captain_email || "—"}</p>
-                                </div>
-                                {team.curator_data && (
-                                  <div className="participants-detail-block">
-                                    <p className="participants-detail-label">Куратор</p>
-                                    <p>{team.curator_data.fio || "—"}</p>
-                                    <p>{team.curator_data.phone || "—"}</p>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {team.participants?.length > 0 && (
-                                <table className="participants-inner-table">
-                                  <thead>
-                                    <tr>
-                                      <th>ФИО</th>
-                                      <th>Роль</th>
-                                      <th>Курс</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {team.participants.map((p, index) => (
-                                      <tr key={p.id}>
-                                        <td>{p.fio}</td>
-                                        <td>{ROLE_LABELS[p.role] || p.role}</td>
-                                        <td>{p.course}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              )}
-                            </>
                           )}
                         </div>
                       </td>
