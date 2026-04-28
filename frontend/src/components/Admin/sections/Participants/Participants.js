@@ -198,7 +198,9 @@ export default function Participants() {
                           ? <ChevronUpIcon style={{ width: 16 }} />
                           : <ChevronDownIcon style={{ width: 16 }} />}
                       </button>
-                      <button onClick={() => startEdit(team)}>✏️</button>
+                      <button className="participants-delete-btn" onClick={() => startEdit(team)} >
+                        <PencilIcon style={{ width: 15, height: 15 }} />
+                      </button>
                       <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
                         <TrashIcon style={{ width: 16 }} />
                       </button>
