@@ -74,15 +74,16 @@ export default function Participants() {
 
   const startEdit = (team) => {
     setEditingTeam(team.id);
-    setEditData(JSON.parse(JSON.stringify(team)));
+    setExpanded(team.id);
+    setEditData({
+      ...JSON.parse(JSON.stringify(team)),
+      participants: team.participants || []
+    });
   };
 
   const saveEdit = async () => {
     try {
-      await updateRegistration(editingTeam, {
-        team: editData,
-        participants: editData.participants
-      });
+      await updateRegistration(editingTeam, editData);
       setEditingTeam(null);
       loadData(true);
     } catch (e) {
@@ -212,10 +213,31 @@ export default function Participants() {
                       <td colSpan={8}>
                         <div className="participants-detail">
                           {editingTeam === team.id && (
-                            <div style={{ marginBottom: 10 }}>
-                              <button onClick={saveEdit}>💾 Сохранить</button>
-                              <button onClick={() => setEditingTeam(null)}>Отмена</button>
-                              <button onClick={handleAddParticipant}>+ Участник</button>
+                            <div className="section-row-actions" style={{ marginBottom: 12 }}>
+                              <button className="section-save-btn" onClick={saveEdit}>
+                                сохранить
+                              </button>
+
+                              <button className="section-cancel-btn" onClick={() => {
+                                setEditingTeam(null);
+                                setEditData(null);
+                              }}>
+                                отмена
+                              </button>
+
+                              <button className="section-add-btn" onClick={handleAddParticipant}>
+                                + участник
+                              </button>
+                            </div>
+                          )}
+                          {editingTeam === team.id && (
+                            <div className="participants-edit-form" style={{ marginBottom: 16 }}>
+                              <input className="section-input" value={editData.name || ''} placeholder="Название команды" onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} />
+                              <input className="section-input" value={editData.institution || ''} placeholder="Учреждение" onChange={e => setEditData(p => ({ ...p, institution: e.target.value }))} />
+                              <input className="section-input" value={editData.level_education || ''} placeholder="Уровень образования" onChange={e => setEditData(p => ({ ...p, level_education: e.target.value }))} />
+                              <input className="section-input" value={editData.selected_case || ''} placeholder="Кейс" onChange={e => setEditData(p => ({ ...p, selected_case: e.target.value }))} />
+                              <input className="section-input" value={editData.captain_phone || ''} placeholder="Телефон капитана" onChange={e => setEditData(p => ({ ...p, captain_phone: e.target.value }))} />
+                              <input className="section-input" value={editData.captain_email || ''} placeholder="Email капитана" onChange={e => setEditData(p => ({ ...p, captain_email: e.target.value }))} />
                             </div>
                           )}
                           <div className="participants-detail-cols">
@@ -281,7 +303,9 @@ export default function Participants() {
                                     </td>
                                     {editingTeam === team.id && (
                                       <td>
-                                        <button onClick={() => handleDeleteParticipant(p.id)}>❌</button>
+                                        <button className="participants-delete-btn" onClick={() => handleDeleteParticipant(p.id)} >
+                                          <TrashIcon style={{ width: 16 }} />
+                                        </button>
                                       </td>
                                     )}
                                   </tr>
