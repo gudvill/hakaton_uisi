@@ -1,36 +1,66 @@
 import './Reviews.css';
 import { useState, useEffect } from 'react';
-import { getReviews } from '../../../../api/reviewsService';
+import { getReviews, createReviews, updateReviews, disableReview } from '../../../../api/reviewsService';
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+
+function formatDate(date) {
+  if (!date) return '—';
+  return new Date(date).toLocaleString('ru-RU');
+}
 
 export default function Reviews() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
 
-  useEffect(() => {
+  const load = () => {
     getReviews().then(setItems).catch(console.error);
+  };
+
+  useEffect(() => {
+    load();
   }, []);
 
-  const startEdit = (item) => { setEditId(item.id); setForm(item); };
-  const startAdd  = () => { setEditId('new'); setForm({ content: '', image: '' }); };
-  const cancel    = () => { setEditId(null); setForm({}); };
-  const save = () => {
-    if (editId === 'new') {
-      setItems(p => [...p, { ...form, id: Date.now() }]);
-    } else {
-      setItems(p => p.map(i => i.id === editId ? { ...i, ...form } : i));
-    }
-    cancel();
+  const startEdit = (item) => {
+    setEditId(item.id);
+    setForm(item);
   };
-  const del = (id) => setItems(p => p.filter(i => i.id !== id));
+
+  const startAdd = () => {
+    setEditId('new');
+    setForm({ name: '', content: '', image: '' });
+  };
+
+  const cancel = () => {
+    setEditId(null);
+    setForm({});
+  };
+
+  const save = async () => {
+    try {
+      if (editId === 'new') {
+        await createReviews(form);
+      } else {
+        await updateReviews(editId, form);
+      }
+
+      await load();
+      cancel();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const del = async (id) => {
+    await disableReview(id);
+    load();
+  };
 
   const EditCard = ({ id }) => (
     <div key={id} className="review-edit-card">
-      <input className="section-input" value={form.image || ''} placeholder="URL фотографии"
-        onChange={e => setForm(p => ({ ...p, image: e.target.value }))} />
-      <textarea className="section-textarea" value={form.content || ''} placeholder="Текст отзыва"
-        onChange={e => setForm(p => ({ ...p, content: e.target.value }))} />
+      <input className="section-input" value={form.name || ''} placeholder="Название отзыва" onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+      <input className="section-input" value={form.image || ''} placeholder="URL фотографии" onChange={e => setForm(p => ({ ...p, image: e.target.value }))} />
+      <textarea className="section-textarea" value={form.content || ''} placeholder="Текст отзыва" onChange={e => setForm(p => ({ ...p, content: e.target.value }))} />
       <div className="section-row-actions" style={{ marginTop: 4 }}>
         <button className="section-save-btn" onClick={save}>сохранить</button>
         <button className="section-cancel-btn" onClick={cancel}>отмена</button>
@@ -48,18 +78,24 @@ export default function Reviews() {
       </div>
       <div className="reviews-grid">
         {editId === 'new' && <EditCard id="new" />}
-        {items.length === 0 && editId !== 'new' && <p className="section-empty">Нет отзывов</p>}
+        {items.length === 0 && editId !== 'new' && (
+          <p className="section-empty">Нет отзывов</p>
+        )}
         {items.map(item => editId === item.id ? (
           <EditCard key={item.id} id={item.id} />
         ) : (
           <div key={item.id} className="review-card">
-            {item.image && <img className="review-photo" src={item.image} alt="" />}
+            {item.image && (
+              <img className="review-photo" src={item.image} alt="" />
+            )}
+            <p style={{ fontWeight: 600 }}>{item.name || '—'}</p>
             <p className="review-content">{item.content}</p>
+            <p style={{ fontSize: 12, color: '#999' }}>Создан: {formatDate(item.created_at)}</p>
             <div className="section-row-actions" style={{ marginTop: 'auto', paddingTop: 6 }}>
-              <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
+              <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
                 <PencilIcon style={{ width: 15, height: 15 }} />
               </button>
-              <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
+              <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
                 <TrashIcon style={{ width: 15, height: 15 }} />
               </button>
             </div>

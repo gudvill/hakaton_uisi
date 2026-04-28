@@ -272,14 +272,7 @@ def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)
 # Эндпоинты для Партнёров
 @partners_router.post("/", response_model=PartnerSerializer)
 def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
-    partner = Partner(
-        id=0,
-        name=partner_data.name,
-        image=partner_data.image,        
-        description=partner_data.description,
-        full_description=partner_data.full_description,
-        site_link=partner_data.site_link,
-        is_available=True)
+    partner = Partner(id=0, name=partner_data.name, image=partner_data.image, description=partner_data.description, full_description=partner_data.full_description, site_link=partner_data.site_link, is_available=True)
     partner_id = use_case.create(partner)
     created = use_case.get_by_id(partner_id)
     return PartnerSerializer(**created)
@@ -300,13 +293,7 @@ def get_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partner
 
 @partners_router.put("/{partner_id}", response_model=PartnerSerializer)
 def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
-    partner = Partner(
-        id=partner_id,
-        name=partner_data.name,
-        image=partner_data.image,
-        description=partner_data.description,
-        full_description=partner_data.full_description,
-        site_link=partner_data.site_link)
+    partner = Partner(id=partner_id, name=partner_data.name, image=partner_data.image, description=partner_data.description, full_description=partner_data.full_description, site_link=partner_data.site_link)
     use_case.update(partner_id, partner)
     updated = use_case.get_by_id(partner_id)
     return PartnerSerializer(**updated)
@@ -320,39 +307,31 @@ def disable_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_par
 # Эндпоинты для Отзывов
 @reviews_router.post("/", response_model=ReviewSerializer)
 def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
-    review = Review(
-        id=0,
-        name=review_data.name,
-        content=review_data.content,
-        image=review_data.image,
-        created_at=review_data.created_at,
-        is_available=True)
+    review = Review(id=0, name=review_data.name, content=review_data.content, image=review_data.image, is_available=True)
     review_id = use_case.create(review)
-    review.id = review_id
-    return ReviewSerializer.from_entity(review)
+    created = use_case.get_by_id(review_id)
+    return ReviewSerializer(**created)
 
 @reviews_router.get("/", response_model=List[ReviewSerializer])
 def get_reviews(use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> List[ReviewSerializer]:
-    reviews = use_case.get_all()
-    return [ReviewSerializer.from_entity(c) for c in reviews]
+    return [ReviewSerializer(**row) for row in use_case.get_all_true()]
+
+@reviews_router.get("/", response_model=List[ReviewSerializer])
+def get_archived_reviews(use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> List[ReviewSerializer]:
+    return [ReviewSerializer(**row) for row in use_case.get_all_false()]
 
 @reviews_router.get("/{review_id}", response_model=ReviewSerializer)
 def get_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> ReviewSerializer:
-    review = use_case.get_by_id(review_id)
-    if not review: raise HTTPException(status_code=404, detail="Отзыв не найден")
-    return ReviewSerializer.from_entity(review)
+    row = use_case.get_by_id(review_id)
+    if not row: raise HTTPException(status_code=404, detail="Отзыв не найден")
+    return ReviewSerializer(**row)
 
 @reviews_router.put("/{review_id}", response_model=ReviewSerializer)
 def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
-    review = Review(
-        id=review_id,
-        name=review_data.name,
-        content=review_data.content,
-        image=review_data.image,
-        created_at=review_data.created_at)
+    review = Review(id=review_id, name=review_data.name, content=review_data.content, image=review_data.image)
     use_case.update(review_id, review)
-    updated_review = use_case.get_by_id(review_id)
-    return ReviewSerializer.from_entity(updated_review)
+    updated = use_case.get_by_id(review_id)
+    return ReviewSerializer(**updated)
 
 @reviews_router.delete("/{review_id}")
 def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:

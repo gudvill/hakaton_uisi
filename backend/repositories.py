@@ -3,7 +3,6 @@
 from base_repository import BaseRepository
 from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
-import psycopg2
 from datetime import datetime
 import json
 
@@ -54,8 +53,7 @@ class AdminRepository:
 
 class AcquaintanceRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="acquaintance", entity_class=Acquaintance,
+        super().__init__(connection=connection, table_name="acquaintance", entity_class=Acquaintance,
             columns=["title", "text"])
 
     def update(self, acquaintance_id: int, item: Acquaintance) -> None:
@@ -77,8 +75,7 @@ class AcquaintanceRepository(BaseRepository):
 
 class ProgramRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="program", entity_class=Program,
+        super().__init__(connection=connection, table_name="program", entity_class=Program,
             columns=["start_date", "end_date", "text", "order_index"])
         
     def _fetch_all_dict(self, cursor):
@@ -290,8 +287,7 @@ class PartnersRepository(BaseRepository):
 
 class ReviewsRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="reviews", entity_class=Review,
+        super().__init__(connection=connection, table_name="reviews", entity_class=Review,
             columns=["name", "content", "image", "is_available"])
 
     def _fetch_all_dict(self, cursor):
@@ -305,21 +301,21 @@ class ReviewsRepository(BaseRepository):
         return dict(zip(columns, row))
 
     def get_all_true(self):
-        query = """SELECT id, name, content, image, is_available FROM reviews WHERE is_available = TRUE ORDER BY created_at DESC"""
+        query = """SELECT id, name, content, image, created_at, is_available FROM reviews WHERE is_available = TRUE ORDER BY created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
             
     def get_all_false(self):
-        query = """SELECT id, name, content, image, is_available FROM reviews WHERE is_available = FALSE ORDER BY created_at DESC"""
+        query = """SELECT id, name, content, image, created_at, is_available FROM reviews WHERE is_available = FALSE ORDER BY created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
 
     def get_by_id(self, news_id: int):
-        query = """SELECT id, name, content, image, is_available FROM partners WHERE id = %s"""
+        query = """SELECT id, name, content, image, is_available FROM reviews WHERE id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (news_id,))
