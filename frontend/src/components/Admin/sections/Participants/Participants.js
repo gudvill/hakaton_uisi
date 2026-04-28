@@ -78,6 +78,8 @@ export default function Participants() {
     setEditData({
       name: team.name,
       institution: team.institution,
+      amount_participants: team.amount_participants,
+      participation_form: team.participation_form,
       level_education: team.level_education,
       selected_case: Number(team.selected_case),
       spare_case: Number(team.spare_case),
@@ -86,7 +88,6 @@ export default function Participants() {
       curator_data: team.curator_data || { fio: '', phone: '' },
       agreement: team.agreement,
       acquaintance: team.acquaintance,
-      amount_participants: team.amount_participants,
       participants: JSON.parse(JSON.stringify(team.participants || [])),
     });
   };
