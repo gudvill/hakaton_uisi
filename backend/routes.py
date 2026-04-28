@@ -279,7 +279,6 @@ def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseC
         description=partner_data.description,
         full_description=partner_data.full_description,
         site_link=partner_data.site_link,
-        created_at=partner_data.created_at,
         is_available=True)
     partner_id = use_case.create(partner)
     created = use_case.get_by_id(partner_id)
