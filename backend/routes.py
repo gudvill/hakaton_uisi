@@ -282,19 +282,22 @@ def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseC
         created_at=partner_data.created_at,
         is_available=True)
     partner_id = use_case.create(partner)
-    partner.id = partner_id
-    return PartnerSerializer.from_entity(partner)
+    created = use_case.get_by_id(partner_id)
+    return PartnerSerializer(**created)
 
 @partners_router.get("/", response_model=List[PartnerSerializer])
 def get_partners(use_case: PartnersUseCase = Depends(get_partners_usecase)) -> List[PartnerSerializer]:
-    partners = use_case.get_all()
-    return [PartnerSerializer.from_entity(c) for c in partners]
+    return [PartnerSerializer(**row) for row in use_case.get_all_true()]
+
+@news_router.get("/archived/", response_model=List[PartnerSerializer])
+def get_archived_partners(use_case: PartnersUseCase = Depends(get_partners_usecase)) -> List[PartnerSerializer]:
+    return [PartnerSerializer(**row) for row in use_case.get_all_false()]
 
 @partners_router.get("/{partner_id}", response_model=PartnerSerializer)
 def get_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partners_usecase)) -> PartnerSerializer:
-    partner = use_case.get_by_id(partner_id)
-    if not partner: raise HTTPException(status_code=404, detail="Партнёр не найден")
-    return PartnerSerializer.from_entity(partner)
+    row = use_case.get_by_id(partner_id)
+    if not row: raise HTTPException(status_code=404, detail="Партнёр не найден")
+    return PartnerSerializer(**row)
 
 @partners_router.put("/{partner_id}", response_model=PartnerSerializer)
 def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
@@ -304,55 +307,15 @@ def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_c
         image=partner_data.image,
         description=partner_data.description,
         full_description=partner_data.full_description,
-        site_link=partner_data.site_link,
-        created_at=partner_data.created_at)
+        site_link=partner_data.site_link)
     use_case.update(partner_id, partner)
-    updated_partner = use_case.get_by_id(partner_id)
-    return PartnerSerializer.from_entity(updated_partner)
+    updated = use_case.get_by_id(partner_id)
+    return PartnerSerializer(**updated)
 
 @partners_router.delete("/{partner_id}")
 def disable_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(partner_id)
     return {"message": "Партнёр отключён"}
-
-
-# Эндпоинты для ФотоАльбомов
-@photoalbums_router.post("/", response_model=PhotoAlbumSerializer)
-def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
-    photoalbum = PhotoAlbum(
-        id=0,
-        image=photoalbum_data.image,
-        created_at=photoalbum_data.created_at,
-        is_available=True)
-    photoalbum_id = use_case.create(photoalbum)
-    photoalbum.id = photoalbum_id
-    return PhotoAlbumSerializer.from_entity(photoalbum)
-
-@photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
-def get_photoalbums(use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> List[PhotoAlbumSerializer]:
-    data = use_case.get_all()
-    return [PhotoAlbumSerializer.from_entity(item.album, item.photos) for item in data]
-
-@photoalbums_router.get("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
-def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> PhotoAlbumSerializer:
-    item = use_case.get_by_id(photoalbum_id)
-    if not item: raise HTTPException(status_code=404, detail="Фотоальбом не найден")
-    return PhotoAlbumSerializer.from_entity(item.album, item.photos)
-
-@photoalbums_router.put("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
-def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
-    photoalbum = PhotoAlbum(
-        id=photoalbum_id,
-        image=photoalbum_data.image,
-        created_at=photoalbum_data.created_at)
-    use_case.update(photoalbum_id, photoalbum)
-    updated_photoalbum = use_case.get_by_id(photoalbum_id)
-    return PhotoAlbumSerializer.from_entity(updated_photoalbum.album, updated_photoalbum.photos)
-
-@photoalbums_router.delete("/{photoalbum_id}")
-def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> dict:
-    use_case.disable(photoalbum_id)
-    return {"message": "Фотоальбом отключён"}
 
 
 # Эндпоинты для Отзывов
@@ -396,6 +359,45 @@ def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case:
 def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(review_id)
     return {"message": "Отзыв отключён"}
+
+
+# Эндпоинты для ФотоАльбомов
+@photoalbums_router.post("/", response_model=PhotoAlbumSerializer)
+def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
+    photoalbum = PhotoAlbum(
+        id=0,
+        image=photoalbum_data.image,
+        created_at=photoalbum_data.created_at,
+        is_available=True)
+    photoalbum_id = use_case.create(photoalbum)
+    photoalbum.id = photoalbum_id
+    return PhotoAlbumSerializer.from_entity(photoalbum)
+
+@photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
+def get_photoalbums(use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> List[PhotoAlbumSerializer]:
+    data = use_case.get_all()
+    return [PhotoAlbumSerializer.from_entity(item.album, item.photos) for item in data]
+
+@photoalbums_router.get("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
+def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> PhotoAlbumSerializer:
+    item = use_case.get_by_id(photoalbum_id)
+    if not item: raise HTTPException(status_code=404, detail="Фотоальбом не найден")
+    return PhotoAlbumSerializer.from_entity(item.album, item.photos)
+
+@photoalbums_router.put("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
+def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
+    photoalbum = PhotoAlbum(
+        id=photoalbum_id,
+        image=photoalbum_data.image,
+        created_at=photoalbum_data.created_at)
+    use_case.update(photoalbum_id, photoalbum)
+    updated_photoalbum = use_case.get_by_id(photoalbum_id)
+    return PhotoAlbumSerializer.from_entity(updated_photoalbum.album, updated_photoalbum.photos)
+
+@photoalbums_router.delete("/{photoalbum_id}")
+def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> dict:
+    use_case.disable(photoalbum_id)
+    return {"message": "Фотоальбом отключён"}
 
 
 # Эндпоинты для Фото

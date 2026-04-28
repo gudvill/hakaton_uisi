@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, date
-from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Acquaintance, PhotoAlbum, Photo, Registration, Participant
 
 
 class LoginRequest(BaseModel):
@@ -91,7 +91,7 @@ class CaseSerializer(BaseModel):
     is_available: bool = True
     teams_count: int = 0
     registered_teams_count: int = 0
-    created_at: date = None
+    created_at: Optional[date] = None
 
 
 class NewsCreateSerializer(BaseModel):
@@ -116,7 +116,6 @@ class PartnerCreateSerializer(BaseModel):
     description: Optional[str] = None
     full_description: Optional[str] = None
     site_link: Optional[str] = None
-    created_at: datetime = None
 
 class PartnerSerializer(BaseModel):
     id: int
@@ -125,32 +124,34 @@ class PartnerSerializer(BaseModel):
     description: Optional[str] = None
     full_description: Optional[str] = None
     site_link: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
+    is_available: bool = True
+    
+
+class ReviewCreateSerializer(BaseModel):
+    name: Optional[str] = None
+    content: Optional[str] = None
+    image: Optional[str] = None
+
+class ReviewSerializer(BaseModel):
+    id: int
+    name: Optional[str] = None
+    content: Optional[str] = None
+    image: Optional[str] = None
+    created_at: Optional[datetime] = None
     is_available: bool = True
 
-    @classmethod
-    def from_entity(cls, entity: Partner) -> "PartnerSerializer":
-        return cls(
-            id=entity.id,
-            name=entity.name,
-            image=entity.image,
-            description=entity.description,
-            full_description=entity.full_description,
-            site_link=entity.site_link,
-            created_at=entity.created_at,
-            is_available=entity.is_available)
-    
 
 class PhotoCreateSerializer(BaseModel):
     photo_album_id: int
     path: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
 
 class PhotoSerializer(BaseModel):
     id: int
     photoalbum_id: int
     path: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
     is_available: bool = True
 
     @classmethod
@@ -165,12 +166,12 @@ class PhotoSerializer(BaseModel):
 
 class PhotoAlbumCreateSerializer(BaseModel):
     image: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
 
 class PhotoAlbumSerializer(BaseModel):
     id: int
     image: Optional[str] = None
-    created_at: datetime = None
+    created_at: Optional[datetime] = None
     is_available: bool = True
     photos: List["PhotoSerializer"] = Field(default_factory=list)
 
@@ -184,31 +185,6 @@ class PhotoAlbumSerializer(BaseModel):
             photos=[PhotoSerializer.from_entity(p) for p in (photos or [])])
 
 PhotoAlbumSerializer.model_rebuild()
-
-
-class ReviewCreateSerializer(BaseModel):
-    name: Optional[str] = None
-    content: Optional[str] = None
-    image: Optional[str] = None
-    created_at: datetime = None
-
-class ReviewSerializer(BaseModel):
-    id: int
-    name: Optional[str] = None
-    content: Optional[str] = None
-    image: Optional[str] = None
-    created_at: datetime = None
-    is_available: bool = True
-
-    @classmethod
-    def from_entity(cls, entity: Review) -> "ReviewSerializer":
-        return cls(
-            id=entity.id,
-            name=entity.name,
-            content=entity.content,
-            image=entity.image,
-            created_at=entity.created_at,
-            is_available=entity.is_available)
 
 
 class ParticipantsCreateSerializer(BaseModel):

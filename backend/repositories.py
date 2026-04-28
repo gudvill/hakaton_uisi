@@ -254,15 +254,76 @@ class NewsRepository(BaseRepository):
 class PartnersRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="partners", entity_class=Partner,
-            columns=["name", "image", "description", "full_description", "site_link", "created_at", "is_available"])
-    
-    def update(self, partner_id: int, partner: Partner) -> None:
-        query = """UPDATE news
-            SET name=%s, image=%s, description=%s, full_description=%s, site_link=%s, created_at=%s WHERE id=%s"""
-        values = [partner.name, partner.image, partner.description, partner.full_description, partner.site_link, partner.created_at, partner_id]
+            columns=["name", "image", "description", "full_description", "site_link", "is_available"])
+
+    def _fetch_all_dict(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row: return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
+    def get_all_true(self):
+        query = """SELECT id, name, image, description, full_description, site_link, is_available FROM partners WHERE is_available = TRUE ORDER BY created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query, values)
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
+    def get_all_false(self):
+        query = """SELECT id, name, image, description, full_description, site_link, is_available FROM partners WHERE is_available = FALSE ORDER BY created_at DESC"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+
+    def get_by_id(self, news_id: int):
+        query = """SELECT id, name, image, description, full_description, site_link, is_available FROM partners WHERE id = %s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (news_id,))
+                return self._fetch_one_dict(cursor)
+
+
+class ReviewsRepository(BaseRepository):
+    def __init__(self, connection):
+        super().__init__(
+            connection=connection, table_name="reviews", entity_class=Review,
+            columns=["name", "content", "image", "is_available"])
+
+    def _fetch_all_dict(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row: return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
+    def get_all_true(self):
+        query = """SELECT id, name, content, image, is_available FROM reviews WHERE is_available = TRUE ORDER BY created_at DESC"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
+    def get_all_false(self):
+        query = """SELECT id, name, content, image, is_available FROM reviews WHERE is_available = FALSE ORDER BY created_at DESC"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+
+    def get_by_id(self, news_id: int):
+        query = """SELECT id, name, content, image, is_available FROM partners WHERE id = %s"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (news_id,))
+                return self._fetch_one_dict(cursor)
 
 
 class PhotoAlbumsRepository(BaseRepository):
@@ -322,21 +383,6 @@ class PhotosRepository(BaseRepository):
     def update(self, photo_id: int, photo: Photo) -> None:
         query = """UPDATE photos SET photoalbum_id=%s, path=%s, created_at=%s WHERE id=%s"""
         values = [photo.photo_album_id, photo.path, photo.created_at, photo_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
-
-
-class ReviewsRepository(BaseRepository):
-    def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="reviews", entity_class=Review,
-            columns=["name", "content", "image", "created_at", "is_available"])
-    
-    def update(self, review_id: int, review: Review) -> None:
-        query = """UPDATE reviews
-            SET name=%s, content=%s, image=%s, created_at=%s WHERE id=%s"""
-        values = [review.name, review.content, review.image, review.created_at, review_id]
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, values)

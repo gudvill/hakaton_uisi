@@ -161,8 +161,11 @@ class PartnersUseCase:
     def create(self, partner: Partner) -> int:
         return self.repository.create(partner)
 
-    def get_all(self) -> List[Partner]:
-        return self.repository.get_all()
+    def get_all_true(self) -> List[Partner]:
+        return self.repository.get_all_true()
+    
+    def get_all_false(self) -> List[Partner]:
+        return self.repository.get_all_false()
 
     def get_by_id(self, partner_id: int) -> Optional[Partner]:
         return self.repository.get_by_id(partner_id)
@@ -172,6 +175,29 @@ class PartnersUseCase:
 
     def disable(self, partner_id: int) -> None:
         self.repository.disable(partner_id)
+
+
+class ReviewsUseCase:
+    def __init__(self, repository: ReviewsRepository):
+        self.repository = repository
+        
+    def create(self, review: Review) -> int:
+        return self.repository.create(review)
+    
+    def get_all_true(self) -> List[Review]:
+        return self.repository.get_all_true()
+    
+    def get_all_false(self) -> List[Review]:
+        return self.repository.get_all_false()
+
+    def get_by_id(self, review_id: int) -> Optional[Review]:
+        return self.repository.get_by_id(review_id)
+
+    def update(self, review_id: int, review: Review) -> None:
+        self.repository.update(review_id, review)
+
+    def disable(self, review_id: int) -> None:
+        self.repository.disable(review_id)
 
 
 class PhotoAlbumsUseCase:
@@ -212,26 +238,6 @@ class PhotosUseCase:
 
     def disable(self, photo_id: int) -> None:
         self.repository.disable(photo_id)
-
-
-class ReviewsUseCase:
-    def __init__(self, repository: ReviewsRepository):
-        self.repository = repository
-        
-    def create(self, review: Review) -> int:
-        return self.repository.create(review)
-
-    def get_all(self) -> List[Review]:
-        return self.repository.get_all()
-
-    def get_by_id(self, review_id: int) -> Optional[Review]:
-        return self.repository.get_by_id(review_id)
-
-    def update(self, review_id: int, review: Review) -> None:
-        self.repository.update(review_id, review)
-
-    def disable(self, review_id: int) -> None:
-        self.repository.disable(review_id)
 
 
 class RegistrationUseCase:
