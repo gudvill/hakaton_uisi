@@ -1,6 +1,6 @@
 import api from "./axios";
 
-// получить все кейсы
+// получить все доступные кейсы
 export const getCases = async () => {
   const res = await api.get("/cases/");
   return res.data;
@@ -12,7 +12,7 @@ export const getCaseById = async (id) => {
   return res.data;
 };
 
-// получить архивные кейсы (is_available = false)
+// получить все архивные кейсы
 export const getArchivedCases = async () => {
   const res = await api.get("/cases/archived");
   return res.data;

@@ -233,13 +233,7 @@ def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecas
 # Эндпоинты для Новостей
 @news_router.post("/", response_model=NewsSerializer)
 def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
-    news = News(
-        name=news_data.name,
-        image=news_data.image,
-        brief_description=news_data.brief_description,
-        full_description=news_data.full_description,
-        is_available=True
-    )
+    news = News(name=news_data.name, image=news_data.image, brief_description=news_data.brief_description, full_description=news_data.full_description, is_available=True)
     news_id = use_case.create(news)
     created = use_case.get_by_id(news_id)
     return NewsSerializer(**created)
@@ -264,12 +258,7 @@ def get_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) ->
 
 @news_router.put("/{news_id}", response_model=NewsSerializer)
 def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
-    news = News(
-        id=news_id,
-        name=news_data.name,
-        image=news_data.image,
-        brief_description=news_data.brief_description,
-        full_description=news_data.full_description)
+    news = News(id=news_id, name=news_data.name, image=news_data.image, brief_description=news_data.brief_description, full_description=news_data.full_description)
     use_case.update(news_id, news)
     updated = use_case.get_by_id(news_id)
     return NewsSerializer(**updated)

@@ -161,7 +161,7 @@ class CasesRepository(BaseRepository):
         super().__init__(connection=connection, table_name="cases", entity_class=Case,
             columns=["name", "case_number", "level", "description", "partner_id", "is_available", "teams_count"])
 
-    def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]:
+    def _fetch_all_dict(self, cursor) -> List[Dict[str, Any]]: # вынести в базовый репозиторий
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
@@ -224,14 +224,14 @@ class NewsRepository(BaseRepository):
         return dict(zip(columns, row))
 
     def get_all_true(self):
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = TRUE ORDER BY id DESC"""
+        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = TRUE ORDER BY created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
             
     def get_all_false(self):
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = FALSE ORDER BY id DESC"""
+        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = FALSE ORDER BY created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
