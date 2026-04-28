@@ -84,7 +84,7 @@ export default function Participants() {
       <div className="participants-filters">
         <div className="participants-search-wrap">
           <MagnifyingGlassIcon className="participants-search-icon" />
-          <input className="participants-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по команде..." />
+          <input className="participants-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по команде или учреждению..." />
           {search && (
             <button className="participants-search-clear" onClick={() => setSearch('')}>
               <XMarkIcon style={{ width: 14, height: 14 }} />
@@ -187,7 +187,6 @@ export default function Participants() {
                                 <p className="participants-detail-label">Куратор</p>
                                 <p>{team.curator_data.fio || "—"}</p>
                                 <p>{team.curator_data.phone || "—"}</p>
-                                <p>{team.curator_data.email || "—"}</p>
                               </div>
                             )}
                           </div>
