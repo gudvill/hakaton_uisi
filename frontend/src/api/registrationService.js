@@ -7,8 +7,8 @@ export const registerTeam = async (data) => {
 };
 
 // получить все регистрации (команды)
-export const getRegistrations = async () => {
-  const res = await api.get("/registration/");
+export const getRegistrations = async (params = {}) => {
+  const res = await api.get("/registration/", { params });
   return res.data;
 };
 
