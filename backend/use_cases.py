@@ -434,10 +434,10 @@ class RegistrationUseCase:
         if not case: raise Exception("Кейс не найден")
         case_level = (case.level or "").lower()
         level = (data.level_education or "").lower()
-        if case_level == "стартовый":
+        if case_level == "standard":
             if any(c > 2 for c in courses) or level == "магистратура":
                 raise Exception("Этот кейс только для 1-2 курса")
-        if case_level == "продвинутый":
+        if case_level == "advanced":
             if any(c < 3 for c in courses) and level != "магистратура":
                 raise Exception("Этот кейс только для 3+ курса и магистрантов")
         self.repository.update_registration(reg_id, data, participants)
