@@ -182,7 +182,7 @@ def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depend
 def get_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
     return [CaseSerializer(**row) for row in use_case.get_all()]
 
-@cases_router.get("/archived", response_model=List[CaseSerializer])
+@cases_router.get("/archived/", response_model=List[CaseSerializer])
 def get_archived_cases(use_case: CasesUseCase = Depends(get_cases_usecase)):
     return [CaseSerializer(**row) for row in use_case.get_unavailable()]
 
@@ -260,7 +260,7 @@ def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseC
 def get_partners(use_case: PartnersUseCase = Depends(get_partners_usecase)) -> List[PartnerSerializer]:
     return [PartnerSerializer(**row) for row in use_case.get_all_true()]
 
-@news_router.get("/archived/", response_model=List[PartnerSerializer])
+@partners_router.get("/archived/", response_model=List[PartnerSerializer])
 def get_archived_partners(use_case: PartnersUseCase = Depends(get_partners_usecase)) -> List[PartnerSerializer]:
     return [PartnerSerializer(**row) for row in use_case.get_all_false()]
 
@@ -295,7 +295,7 @@ def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase 
 def get_reviews(use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> List[ReviewSerializer]:
     return [ReviewSerializer(**row) for row in use_case.get_all_true()]
 
-@reviews_router.get("/", response_model=List[ReviewSerializer])
+@reviews_router.get("/archived/", response_model=List[ReviewSerializer])
 def get_archived_reviews(use_case: ReviewsUseCase = Depends(get_reviews_usecase)) -> List[ReviewSerializer]:
     return [ReviewSerializer(**row) for row in use_case.get_all_false()]
 
