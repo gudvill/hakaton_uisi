@@ -108,8 +108,9 @@ export default function Participants() {
           amount_participants: editData.amount_participants,
         },
         participants: editData.participants.map(p => ({
-          ...p,
-          course: Number(p.course)
+          fio: p.fio,
+          course: Number(p.course),
+          role: p.role
         })),
       };
 
