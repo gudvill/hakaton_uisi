@@ -342,6 +342,9 @@ class RegistrationUseCase:
 
     def get_all(self) -> List[Dict[str, Any]]:
         return self.repository.get_all()
+    
+    def get_filtered(self, search, level, case_id, sort_by, sort_dir):
+        return self.repository.get_filtered(search, level, case_id, sort_by, sort_dir)
 
     def get_by_id(self, reg_id) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id(reg_id)

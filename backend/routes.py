@@ -417,8 +417,8 @@ def create_registration(data: RegistrationRequestSerializer, usecase: Registrati
     return {"id": reg_id}
 
 @registration_router.get("/", response_model=List[RegistrationSerializer])
-def get_all(usecase: RegistrationUseCase = Depends(get_registration_usecase)):
-    return usecase.get_all()
+def get_all(search: str = None, level: str = None, case_id: int = None, sort_by: str = "created_at", sort_dir: str = "desc", usecase: RegistrationUseCase = Depends(get_registration_usecase)):
+    return usecase.get_filtered(search, level, case_id, sort_by, sort_dir)
 
 @registration_router.get("/{reg_id}", response_model=RegistrationSerializer)
 def get_one(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase)):

@@ -513,3 +513,67 @@ class RegistrationRepository:
             with conn.cursor() as cursor:
                 cursor.execute(query, params)
                 return cursor.fetchone() is not None
+
+    def get_filtered(
+        self,
+        search: str = None,
+        level: str = None,
+        case_id: int = None,
+        sort_by: str = "created_at",
+        sort_dir: str = "desc"
+    ) -> List[Dict[str, Any]]:
+
+        allowed_sort = {
+            "name": "r.name",
+            "institution": "r.institution",
+            "level_education": "r.level_education",
+            "selected_case": "r.selected_case",
+            "amount_participants": "r.amount_participants",
+            "created_at": "r.created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "r.created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = f"""
+        SELECT r.*, 
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'id', p.id,
+                    'fio', p.fio,
+                    'course', p.course,
+                    'role', p.role,
+                    'registration_id', p.registration_id,
+                    'created_at', p.created_at,
+                    'is_available', p.is_available
+                )
+            ) FILTER (WHERE p.id IS NOT NULL),
+            '[]'
+        ) as participants
+        FROM registration r
+        LEFT JOIN participants p 
+            ON p.registration_id = r.id AND p.is_available = TRUE
+        WHERE r.is_available = TRUE
+        """
+
+        params = []
+
+        if search:
+            query += " AND (LOWER(r.name) LIKE %s OR LOWER(r.institution) LIKE %s)"
+            params.extend([f"%{search.lower()}%", f"%{search.lower()}%"])
+
+        if level:
+            query += " AND r.level_education = %s"
+            params.append(level)
+
+        if case_id:
+            query += " AND r.selected_case = %s"
+            params.append(case_id)
+
+        query += f" GROUP BY r.id ORDER BY {sort_column} {sort_direction}"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
