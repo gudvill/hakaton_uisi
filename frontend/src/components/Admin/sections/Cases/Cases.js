@@ -137,7 +137,7 @@ export default function Cases() {
         <table className="section-table">
           <thead>
             <tr>
-              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Команд</th><th>Описание</th><th>Год</th><th></th>
+              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Разрешено команд</th><th>Описание</th><th>Год</th><th></th>
             </tr>
           </thead>
           <tbody>
