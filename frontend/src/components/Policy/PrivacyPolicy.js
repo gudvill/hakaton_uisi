@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import Header from '../Header/header';
 import Footer from '../Footer/footer';
-import { getAcquaintanceByTitle } from "../../api/acquaintanceService";
+import { getAcquaintanceById } from "../../api/acquaintanceService";
 import './policy.css';
 
 export default function PrivacyPolicy() {
   const [page, setPage] = useState(null);
 
   useEffect(() => {
-    getAcquaintanceByTitle("Политика конфиденциальности")
+    getAcquaintanceById(1)
       .then(data => setPage(data))
       .catch(err => console.error(err));
   }, []);

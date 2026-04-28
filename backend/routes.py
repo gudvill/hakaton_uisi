@@ -95,12 +95,6 @@ def get_acquaintance(item_id: int, use_case: AcquaintanceUseCase = Depends(get_a
     if not item: raise HTTPException(status_code=404, detail="Не найдено")
     return AcquaintanceSerializer.from_entity(item)
 
-@acquaintance_router.get("/by-title/", response_model=AcquaintanceSerializer)
-def get_acquaintance_by_title(title: str, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase)):
-    item = use_case.get_by_title(title)
-    if not item: raise HTTPException(status_code=404, detail="Не найдено")
-    return AcquaintanceSerializer.from_entity(item)
-
 @acquaintance_router.put("/{item_id}", response_model=AcquaintanceSerializer)
 def update_acquaintance(item_id: int, item_data: AcquaintanceCreateSerializer, use_case: AcquaintanceUseCase = Depends(get_acquaintance_usecase), admin=Depends(get_current_admin)):
     item = Acquaintance(id=item_id, title=item_data.title, text=item_data.text)
@@ -179,15 +173,7 @@ def delete_about(item_id: int, use_case: AboutUseCase = Depends(get_about_usecas
 # Эндпоинты для Кейсов
 @cases_router.post("/", response_model=CaseSerializer)
 def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
-    case = Case(
-        id=0,
-        name=case_data.name,
-        case_number=case_data.case_number,
-        level=case_data.level,
-        description=case_data.description,
-        partner_id=case_data.partner_id,
-        is_available=True,
-        teams_count=case_data.teams_count)
+    case = Case( id=0, name=case_data.name, case_number=case_data.case_number, level=case_data.level, description=case_data.description, partner_id=case_data.partner_id, is_available=True, teams_count=case_data.teams_count)
     case_id = use_case.create(case)
     created = use_case.get_by_id(case_id)
     return CaseSerializer(**created)
@@ -212,14 +198,7 @@ def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
 
 @cases_router.put("/{case_id}", response_model=CaseSerializer)
 def update_case(case_id: int, case_data: CaseCreateSerializer, use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)) -> CaseSerializer:
-    case = Case(
-        id=case_id,
-        name=case_data.name,
-        case_number=case_data.case_number,
-        level=case_data.level,
-        description=case_data.description,
-        partner_id=case_data.partner_id,
-        teams_count=case_data.teams_count)
+    case = Case(id=case_id, name=case_data.name, case_number=case_data.case_number, level=case_data.level, description=case_data.description, partner_id=case_data.partner_id, teams_count=case_data.teams_count)
     use_case.update(case_id, case)
     updated = use_case.get_by_id(case_id)
     return CaseSerializer(**updated)
@@ -342,11 +321,7 @@ def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_review
 # Эндпоинты для ФотоАльбомов
 @photoalbums_router.post("/", response_model=PhotoAlbumSerializer)
 def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
-    photoalbum = PhotoAlbum(
-        id=0,
-        image=photoalbum_data.image,
-        created_at=photoalbum_data.created_at,
-        is_available=True)
+    photoalbum = PhotoAlbum(id=0, name=photoalbum_data.name, is_available=True)
     photoalbum_id = use_case.create(photoalbum)
     photoalbum.id = photoalbum_id
     return PhotoAlbumSerializer.from_entity(photoalbum)
@@ -364,10 +339,7 @@ def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(ge
 
 @photoalbums_router.put("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
 def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
-    photoalbum = PhotoAlbum(
-        id=photoalbum_id,
-        image=photoalbum_data.image,
-        created_at=photoalbum_data.created_at)
+    photoalbum = PhotoAlbum(id=photoalbum_id, image=photoalbum_data.image)
     use_case.update(photoalbum_id, photoalbum)
     updated_photoalbum = use_case.get_by_id(photoalbum_id)
     return PhotoAlbumSerializer.from_entity(updated_photoalbum.album, updated_photoalbum.photos)

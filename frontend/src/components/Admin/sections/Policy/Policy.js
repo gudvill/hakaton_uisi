@@ -1,6 +1,6 @@
 import './Policy.css';
 import { useState, useEffect } from 'react';
-import { getAcquaintanceByTitle, updateAcquaintance } from '../../../../api/acquaintanceService';
+import { getAcquaintanceById, updateAcquaintance } from '../../../../api/acquaintanceService';
 import { PencilIcon } from '@heroicons/react/24/outline';
 
 export default function Policy() {
@@ -9,7 +9,7 @@ export default function Policy() {
   const [form, setForm] = useState({});
 
   useEffect(() => {
-    getAcquaintanceByTitle('Политика конфиденциальности')
+    getAcquaintanceById(1)
       .then(d => { setData(d); setForm(d); })
       .catch(console.error);
   }, []);

@@ -82,7 +82,7 @@ class Partner:
 @dataclass
 class PhotoAlbum:
     id: int = None
-    image: Optional[str] = None
+    name: Optional[str] = None
     created_at: datetime = None
     is_available: bool = True
 

@@ -1,6 +1,6 @@
 import './Agreement.css';
 import { useState, useEffect } from 'react';
-import { getAcquaintanceByTitle, updateAcquaintance } from '../../../../api/acquaintanceService';
+import { getAcquaintanceById, updateAcquaintance } from '../../../../api/acquaintanceService';
 import { PencilIcon } from '@heroicons/react/24/outline';
 
 export default function Agreement() {
@@ -9,7 +9,7 @@ export default function Agreement() {
   const [form, setForm] = useState({});
 
   useEffect(() => {
-    getAcquaintanceByTitle('Пользовательское соглашение')
+    getAcquaintanceById(2)
       .then(d => { setData(d); setForm(d); })
       .catch(console.error);
   }, []);

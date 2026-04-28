@@ -145,7 +145,6 @@ class ReviewSerializer(BaseModel):
 class PhotoCreateSerializer(BaseModel):
     photo_album_id: int
     path: Optional[str] = None
-    created_at: Optional[datetime] = None
 
 class PhotoSerializer(BaseModel):
     id: int
@@ -165,12 +164,11 @@ class PhotoSerializer(BaseModel):
 
 
 class PhotoAlbumCreateSerializer(BaseModel):
-    image: Optional[str] = None
-    created_at: Optional[datetime] = None
+    name: Optional[str] = None
 
 class PhotoAlbumSerializer(BaseModel):
     id: int
-    image: Optional[str] = None
+    name: Optional[str] = None
     created_at: Optional[datetime] = None
     is_available: bool = True
     photos: List["PhotoSerializer"] = Field(default_factory=list)

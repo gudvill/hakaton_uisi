@@ -12,12 +12,6 @@ export const getAcquaintanceById = async (id) => {
   return res.data;
 };
 
-// получить oзнакомление по title
-export const getAcquaintanceByTitle = async (title) => {
-  const res = await api.get(`/acquaintance/by-title/`, { params: { title } });
-  return res.data;
-};
-
 // создать oзнакомление
 export const createAcquaintance = async (data) => {
   const res = await api.post("/acquaintance/", data);

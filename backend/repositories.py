@@ -55,23 +55,7 @@ class AcquaintanceRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="acquaintance", entity_class=Acquaintance,
             columns=["title", "text"])
-
-    def update(self, acquaintance_id: int, item: Acquaintance) -> None:
-        query = """UPDATE acquaintance SET title=%s, text=%s WHERE id=%s"""
-        values = [item.title, item.text, acquaintance_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
-
-    def get_by_title(self, title: str) -> Optional[Acquaintance]:
-        query = """SELECT id, title, text FROM acquaintance WHERE title=%s LIMIT 1"""
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, [title])
-                row = cursor.fetchone()
-                if row: return self.entity_class(id=row[0], title=row[1], text=row[2])
-                return None
-
+        
 
 class ProgramRepository(BaseRepository):
     def __init__(self, connection):
@@ -326,10 +310,10 @@ class PhotoAlbumsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(
             connection=connection, table_name="photoalbums", entity_class=PhotoAlbum,
-            columns=["image", "created_at", "is_available"])
+            columns=["name", "is_available"])
         
     def get_all_with_photos(self) -> List[Dict[str, Any]]:
-        query = """SELECT pa.id, pa.image, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
+        query = """SELECT pa.id, pa.name, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
                 FROM photoalbums pa LEFT JOIN photos p ON pa.id = p.photoalbum_id WHERE pa.is_available = TRUE ORDER BY pa.id"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -337,15 +321,15 @@ class PhotoAlbumsRepository(BaseRepository):
                 rows = cursor.fetchall()
         albums = {}
         for row in rows:
-            pa_id, image, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
+            pa_id, name, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
             if pa_id not in albums:
-                albums[pa_id] = PhotoAlbumWithPhotos(album=PhotoAlbum(pa_id, image, created_at, is_available), photos=[])
+                albums[pa_id] = PhotoAlbumWithPhotos(album=PhotoAlbum(pa_id, name, created_at, is_available), photos=[])
             if p_id:
                 albums[pa_id].photos.append(Photo(p_id, p_album_id, path, p_created_at, p_is_available))
         return list(albums.values())
     
     def get_by_id_with_photos(self, photoalbum_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT pa.id, pa.image, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
+        query = """SELECT pa.id, pa.name, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
                 FROM photoalbums pa LEFT JOIN photos p ON pa.id = p.photoalbum_id WHERE pa.id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -355,19 +339,12 @@ class PhotoAlbumsRepository(BaseRepository):
         album = None
         photos = []
         for row in rows:
-            pa_id, image, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
+            pa_id, name, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
             if not album:
-                album = PhotoAlbum(pa_id, image, created_at, is_available)
+                album = PhotoAlbum(pa_id, name, created_at, is_available)
             if p_id:
                 photos.append(Photo(p_id, p_album_id, path, p_created_at, p_is_available))
         return PhotoAlbumWithPhotos(album=album, photos=photos)
-
-    def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
-        query = """UPDATE photoalbums SET image=%s, created_at=%s WHERE id=%s"""
-        values = [photoalbum.image, photoalbum.created_at, photoalbum_id]
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, values)
 
 
 class PhotosRepository(BaseRepository):
