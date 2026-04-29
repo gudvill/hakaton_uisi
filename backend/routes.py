@@ -42,7 +42,7 @@ registration_router = APIRouter(prefix="/registration", tags=["registration"])
 # Эндпоинты для Админа
 @admin_router.get("/me")
 def get_me(current_admin=Depends(get_current_admin), use_case: AdminUseCase = Depends(get_admin_usecase)):
-    return use_case.get_me(current_admin["id"])
+    return use_case.get_me(int(current_admin))
 
 @admin_router.post("/login")
 def login(admin_data: LoginRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):

@@ -12,7 +12,10 @@ class AdminUseCase:
         self.repository = repository
 
     def get_me(self, admin_id: int):
-        return self.repository.get_by_id(admin_id)
+        user = self.repository.get_by_id(admin_id)
+        if not user: return None
+        user_id, login, password_hash, email = user
+        return { "id": user_id, "login": login, "email": email }
 
     def login(self, login: str, password: str):
         user = self.repository.get_by_login(login)

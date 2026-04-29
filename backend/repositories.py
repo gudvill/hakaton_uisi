@@ -12,13 +12,11 @@ class AdminRepository:
         self.connection = connection
 
     def get_by_id(self, admin_id: int):
-        query = "SELECT id, login, email FROM admins WHERE id = %s"
+        query = "SELECT id, login, password_hash, email FROM admins WHERE id = %s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (admin_id,))
-                row = cursor.fetchone()
-                if not row: return None
-                return { "id": row[0], "login": row[1], "email": row[2] }
+                return cursor.fetchone()
 
     def get_by_login(self, login: str) -> Optional[tuple]:
         query = "SELECT id, login, password_hash, email FROM admins WHERE login = %s"
@@ -33,7 +31,7 @@ class AdminRepository:
             with conn.cursor() as cursor:
                 cursor.execute(query, (email,))
                 return cursor.fetchone()
-
+    
     def save_password_reset_token(self, admin_id: int, token: str, expires_at: datetime):
         query = "INSERT INTO password_reset_tokens (admin_id, token, expires_at, used) VALUES (%s, %s, %s, FALSE)"
         with self.connection() as conn:
