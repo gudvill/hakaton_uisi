@@ -141,11 +141,11 @@ class CasesUseCase:
     def create(self, case: Case) -> int:
         return self.repository.create(case)
 
-    def get_filtered(self) -> List[Dict[str, Any]]:
-        return self.repository.get_filtered()
-    
-    def get_filtered_archived(self):
-        return self.repository.get_filtered_archived()
+    def get_filtered(self, search=None, year=None, level=None, sort_by="created_at", sort_dir="desc"):
+        return self.repository.get_filtered(search, year, level, sort_by, sort_dir)
+
+    def get_filtered_archived(self, search=None, year=None, level=None, sort_by="created_at", sort_dir="desc"):
+        return self.repository.get_filtered_archived(search, year, level, sort_by, sort_dir)
     
     def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id(case_id)
