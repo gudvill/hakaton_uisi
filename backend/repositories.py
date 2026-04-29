@@ -11,6 +11,15 @@ class AdminRepository:
     def __init__(self, connection):
         self.connection = connection
 
+    def get_by_id(self, admin_id: int):
+        query = "SELECT id, login, email FROM admins WHERE id = %s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (admin_id,))
+                row = cursor.fetchone()
+                if not row: return None
+                return { "id": row[0], "login": row[1], "email": row[2] }
+
     def get_by_login(self, login: str) -> Optional[tuple]:
         query = "SELECT id, login, password_hash, email FROM admins WHERE login = %s"
         with self.connection() as conn:
@@ -196,7 +205,7 @@ class CasesRepository(BaseRepository):
         columns = [col[0] for col in cursor.description]
         return dict(zip(columns, row))
 
-    def get_all_with_partner(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> List[Dict[str, Any]]:
         query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
             FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
             WHERE c.is_available = TRUE GROUP BY c.id, p.name, p.image ORDER BY c.case_number"""
@@ -205,7 +214,7 @@ class CasesRepository(BaseRepository):
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
 
-    def get_by_id_with_partner(self, case_id: int) -> Optional[Dict[str, Any]]:
+    def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
         query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
             FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
             WHERE c.id = %s GROUP BY c.id, p.name, p.image"""
@@ -214,9 +223,9 @@ class CasesRepository(BaseRepository):
                 cursor.execute(query, (case_id,))
                 return self._fetch_one_dict(cursor)
             
-    def get_unavailable(self) -> List[Dict[str, Any]]:
+    def get_all_archived(self) -> List[Dict[str, Any]]:
         query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
+            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id
             WHERE c.is_available = FALSE GROUP BY c.id, p.name, p.image ORDER BY c.created_at DESC"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -230,6 +239,104 @@ class CasesRepository(BaseRepository):
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (year,))
+                return self._fetch_all_dict(cursor)
+            
+    def get_filtered(self, search: str = None, year: int = None, level: str = None, sort_by: str = "created_at", sort_dir: str = "desc") -> List[Dict[str, Any]]:
+        allowed_sort = {
+            "name": "c.name",
+            "partner": "p.name",
+            "created_at": "c.created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "c.created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = """
+        SELECT 
+            c.id, c.name, c.case_number, c.level, c.description,
+            c.partner_id, c.teams_count, c.created_at,
+            p.name as partner_name, p.image as partner_image,
+            c.is_available,
+            COUNT(r.id) as registered_teams_count
+        FROM cases c
+        LEFT JOIN partners p ON c.partner_id = p.id
+        LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
+        WHERE c.is_available = TRUE
+        """
+
+        params = []
+
+        # поиск
+        if search:
+            query += " AND LOWER(c.name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+
+        # фильтр по году
+        if year:
+            query += " AND EXTRACT(YEAR FROM c.created_at) = %s"
+            params.append(year)
+
+        # фильтр по уровню
+        if level:
+            query += " AND c.level = %s"
+            params.append(level)
+
+        query += f"""
+        GROUP BY c.id, p.name, p.image
+        ORDER BY {sort_column} {sort_direction}
+        """
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
+            
+    def get_filtered_archived(self, search: str = None, year: int = None, level: str = None, sort_by: str = "created_at", sort_dir: str = "desc") -> List[Dict[str, Any]]:
+
+        allowed_sort = {
+            "name": "c.name",
+            "partner": "p.name",
+            "created_at": "c.created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "c.created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = """
+        SELECT 
+            c.id, c.name, c.case_number, c.level, c.description,
+            c.partner_id, c.teams_count, c.created_at,
+            p.name as partner_name, p.image as partner_image,
+            c.is_available,
+            COUNT(r.id) as registered_teams_count
+        FROM cases c
+        LEFT JOIN partners p ON c.partner_id = p.id
+        LEFT JOIN registration r ON r.selected_case = c.id
+        WHERE c.is_available = FALSE
+        """
+
+        params = []
+
+        if search:
+            query += " AND LOWER(c.name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+
+        if year:
+            query += " AND EXTRACT(YEAR FROM c.created_at) = %s"
+            params.append(year)
+
+        if level:
+            query += " AND c.level = %s"
+            params.append(level)
+
+        query += f"""
+        GROUP BY c.id, p.name, p.image
+        ORDER BY {sort_column} {sort_direction}
+        """
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
                 return self._fetch_all_dict(cursor)
 
 
@@ -268,6 +375,67 @@ class PartnersRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query, (news_id,))
                 return self._fetch_one_dict(cursor)
+            
+    def get_filtered(self, search: str = None, sort_by: str = "created_at", sort_dir: str = "desc"):
+        allowed_sort = {
+            "name": "name",
+            "description": "description",
+            "full_description": "full_description",
+            "created_at": "created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = """
+            SELECT id, name, image, description, full_description, site_link, created_at, is_available
+            FROM partners
+            WHERE is_available = TRUE
+        """
+
+        params = []
+
+        if search:
+            query += " AND LOWER(name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+
+        query += f" ORDER BY {sort_column} {sort_direction}"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
+
+
+    def get_filtered_archived(self, search: str = None, sort_by: str = "created_at", sort_dir: str = "desc"):
+        allowed_sort = {
+            "name": "name",
+            "description": "description",
+            "full_description": "full_description",
+            "created_at": "created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = """
+            SELECT id, name, image, description, full_description, site_link, created_at, is_available
+            FROM partners
+            WHERE is_available = FALSE
+        """
+
+        params = []
+
+        if search:
+            query += " AND LOWER(name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+
+        query += f" ORDER BY {sort_column} {sort_direction}"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
 
 
 class ReviewsRepository(BaseRepository):
@@ -305,6 +473,47 @@ class ReviewsRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query, (news_id,))
                 return self._fetch_one_dict(cursor)
+            
+    def get_filtered(self, year: int = None):
+        query = """
+            SELECT id, name, content, image, created_at, is_available
+            FROM reviews
+            WHERE is_available = TRUE
+        """
+
+        params = []
+
+        if year:
+            query += " AND EXTRACT(YEAR FROM created_at) = %s"
+            params.append(year)
+
+        query += " ORDER BY created_at DESC"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
+
+
+    def get_filtered_archived(self, year: int = None):
+        query = """
+            SELECT id, name, content, image, created_at, is_available
+            FROM reviews
+            WHERE is_available = FALSE
+        """
+
+        params = []
+
+        if year:
+            query += " AND EXTRACT(YEAR FROM created_at) = %s"
+            params.append(year)
+
+        query += " ORDER BY created_at DESC"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
 
 
 class PhotoAlbumsRepository(BaseRepository):
@@ -504,7 +713,7 @@ class RegistrationRepository:
                 return dict(zip(columns, row))
             
     def get_participants_by_registration(self, reg_id: int) -> list[dict]:
-        query = """ SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE registration_id = %s AND is_available = TRUE ORDER BY created_at"""
+        query = """SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE registration_id = %s AND is_available = TRUE ORDER BY created_at"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (reg_id,))
@@ -589,7 +798,7 @@ class RegistrationRepository:
             '[]'
         ) as participants
         FROM registration r
-        LEFT JOIN participants p ON p.registration_id = r.id
+        LEFT JOIN participants p ON p.registration_id = r.id AND p.is_available = TRUE
         WHERE r.is_available = TRUE
         """
 
@@ -645,8 +854,7 @@ class RegistrationRepository:
             '[]'
         ) as participants
         FROM registration r
-        LEFT JOIN participants p 
-            ON p.registration_id = r.id AND p.is_available = FALSE
+        LEFT JOIN participants p ON p.registration_id = r.id
         WHERE r.is_available = FALSE
         """
 

@@ -1,10 +1,16 @@
 import './Account.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
-export default function Account() {
+export default function Account({ admin }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: 'admin@mail.ru', login: 'admin', password: '' });
+  const [form, setForm] = useState({ email: '', login: '', password: '' });
+
+  useEffect(() => {
+    if (admin) {
+      setForm({ email: admin.email || '', login: admin.login || '', password: '' });
+    }
+  }, [admin]);
 
   return (
     <div className="admin-card">
@@ -21,13 +27,8 @@ export default function Account() {
         <div className="admin-field">
           <label>Пароль</label>
           <div className="admin-password-wrap">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={form.password}
-              onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-              placeholder="Новый пароль"
-            />
-            <button className="admin-eye" onClick={() => setShowPassword(p => !p)}>
+            <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder="Новый пароль" />
+            <button className="admin-eye" type="button" onClick={() => setShowPassword(p => !p)} >
               {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
             </button>
           </div>

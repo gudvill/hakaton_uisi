@@ -1,14 +1,14 @@
 import api from "./axios";
 
-// получить всех доступных партнёров
-export const getPartners = async () => {
-  const res = await api.get("/partners/");
+// получить всех активных партнёров
+export const getPartners = async (params = {}) => {
+  const res = await api.get("/partners/", { params });
   return res.data;
 };
 
 // получить всех архивных партнёров
-export const getArchivedPartners = async () => {
-  const res = await api.get("/partners/archived/");
+export const getArchivedPartners = async (params = {}) => {
+  const res = await api.get("/partners/archived/", { params });
   return res.data;
 };
 

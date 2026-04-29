@@ -11,6 +11,9 @@ class AdminUseCase:
     def __init__(self, repository: AdminRepository):
         self.repository = repository
 
+    def get_me(self, admin_id: int):
+        return self.repository.get_by_id(admin_id)
+
     def login(self, login: str, password: str):
         user = self.repository.get_by_login(login)
         if not user: return None
@@ -135,14 +138,14 @@ class CasesUseCase:
     def create(self, case: Case) -> int:
         return self.repository.create(case)
 
-    def get_all(self) -> List[Dict[str, Any]]:
-        return self.repository.get_all_with_partner()
-
-    def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
-        return self.repository.get_by_id_with_partner(case_id)
+    def get_filtered(self) -> List[Dict[str, Any]]:
+        return self.repository.get_filtered()
     
-    def get_unavailable(self):
-        return self.repository.get_unavailable()
+    def get_filtered_archived(self):
+        return self.repository.get_filtered_archived()
+    
+    def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
+        return self.repository.get_by_id(case_id)
 
     def get_by_year(self, year: int):
         return self.repository.get_by_year(year)
@@ -161,11 +164,11 @@ class PartnersUseCase:
     def create(self, partner: Partner) -> int:
         return self.repository.create(partner)
 
-    def get_all_true(self) -> List[Partner]:
-        return self.repository.get_all_true()
-    
-    def get_all_false(self) -> List[Partner]:
-        return self.repository.get_all_false()
+    def get_filtered(self, search, sort_by, sort_dir):
+        return self.repository.get_filtered(search, sort_by, sort_dir)
+
+    def get_filtered_archived(self, search, sort_by, sort_dir):
+        return self.repository.get_filtered_archived(search, sort_by, sort_dir)
 
     def get_by_id(self, partner_id: int) -> Optional[Partner]:
         return self.repository.get_by_id(partner_id)
@@ -184,11 +187,11 @@ class ReviewsUseCase:
     def create(self, review: Review) -> int:
         return self.repository.create(review)
     
-    def get_all_true(self) -> List[Review]:
-        return self.repository.get_all_true()
-    
-    def get_all_false(self) -> List[Review]:
-        return self.repository.get_all_false()
+    def get_filtered(self, year):
+        return self.repository.get_filtered(year)
+
+    def get_filtered_archived(self, year):
+        return self.repository.get_filtered_archived(year)
 
     def get_by_id(self, review_id: int) -> Optional[Review]:
         return self.repository.get_by_id(review_id)
@@ -345,6 +348,9 @@ class RegistrationUseCase:
     
     def get_filtered(self, search, level, case_id, sort_by, sort_dir):
         return self.repository.get_filtered(search, level, case_id, sort_by, sort_dir)
+    
+    def get_filtered_archived(self, search, level, case_id, sort_by, sort_dir):
+        return self.repository.get_filtered_archived(search, level, case_id, sort_by, sort_dir)
 
     def get_by_id(self, reg_id) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id(reg_id)

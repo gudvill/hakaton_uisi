@@ -1,20 +1,20 @@
 import api from "./axios";
 
-// получить все доступные кейсы
+// получить все активные кейсы
 export const getCases = async () => {
   const res = await api.get("/cases/");
+  return res.data;
+};
+
+// получить все архивные кейсы
+export const getArchivedCases = async (params = {}) => {
+  const res = await api.get("/cases/archived/", { params });
   return res.data;
 };
 
 // получить кейс по id
 export const getCaseById = async (id) => {
   const res = await api.get(`/cases/${id}`);
-  return res.data;
-};
-
-// получить все архивные кейсы
-export const getArchivedCases = async () => {
-  const res = await api.get("/cases/archived");
   return res.data;
 };
 
