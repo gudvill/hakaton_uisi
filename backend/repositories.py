@@ -438,8 +438,7 @@ class RegistrationRepository:
             '[]'
         ) as participants
         FROM registration r
-        LEFT JOIN participants p 
-            ON p.registration_id = r.id
+        LEFT JOIN participants p ON p.registration_id = r.id AND p.is_available = TRUE
         WHERE r.id = %s
         GROUP BY r.id
         """
@@ -495,7 +494,7 @@ class RegistrationRepository:
                 cursor.execute("DELETE FROM participants WHERE registration_id=%s", (reg_id,))
     
     def get_participant_by_id(self, p_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE id = %s"""
+        query = """SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE id = %s AND is_available = TRUE"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (p_id,))
@@ -505,7 +504,7 @@ class RegistrationRepository:
                 return dict(zip(columns, row))
             
     def get_participants_by_registration(self, reg_id: int) -> list[dict]:
-        query = """ SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE registration_id = %s ORDER BY created_at"""
+        query = """ SELECT id, fio, course, role, registration_id, created_at, is_available FROM participants WHERE registration_id = %s AND is_available = TRUE ORDER BY created_at"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (reg_id,))
@@ -536,7 +535,7 @@ class RegistrationRepository:
                         VALUES (%s,%s,%s,%s)""", (p["fio"].strip(), int(p["course"]), p["role"], reg_id))
                     
     def exists_team_name(self, name: str, exclude_id: int = None) -> bool:
-        query = "SELECT 1 FROM registration WHERE name = %s"
+        query = "SELECT 1 FROM registration WHERE name = %s AND is_available = TRUE"
         params = [name]
         if exclude_id is not None:
             query += " AND id != %s"
@@ -548,10 +547,10 @@ class RegistrationRepository:
                 return cursor.fetchone() is not None
 
     def exists_participant(self, fio: str, course: int, exclude_registration_id: int = None) -> bool:
-        query = "SELECT 1 FROM participants WHERE fio = %s AND course = %s"
+        query = "SELECT 1 FROM participants p JOIN registration r ON p.registration_id = r.id WHERE p.fio = %s AND p.course = %s AND r.is_available = TRUE"
         params = [fio, course]
         if exclude_registration_id is not None:
-            query += " AND registration_id != %s"
+            query += " AND p.registration_id != %s"
             params.append(exclude_registration_id)
         query += " LIMIT 1"
         with self.connection() as conn:
@@ -590,9 +589,65 @@ class RegistrationRepository:
             '[]'
         ) as participants
         FROM registration r
-        LEFT JOIN participants p 
-            ON p.registration_id = r.id AND p.is_available = TRUE
+        LEFT JOIN participants p ON p.registration_id = r.id
         WHERE r.is_available = TRUE
+        """
+
+        params = []
+
+        if search:
+            query += " AND (LOWER(r.name) LIKE %s OR LOWER(r.institution) LIKE %s)"
+            params.extend([f"%{search.lower()}%", f"%{search.lower()}%"])
+
+        if level:
+            query += " AND r.level_education = %s"
+            params.append(level)
+
+        if case_id:
+            query += " AND r.selected_case = %s"
+            params.append(case_id)
+
+        query += f" GROUP BY r.id ORDER BY {sort_column} {sort_direction}"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
+
+    def get_filtered_archived(self, search: str = None, level: str = None, case_id: int = None, sort_by: str = "created_at", sort_dir: str = "desc") -> List[Dict[str, Any]]:
+
+        allowed_sort = {
+            "name": "r.name",
+            "institution": "r.institution",
+            "level_education": "r.level_education",
+            "selected_case": "r.selected_case",
+            "amount_participants": "r.amount_participants",
+            "created_at": "r.created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "r.created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = f"""
+        SELECT r.*, 
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'id', p.id,
+                    'fio', p.fio,
+                    'course', p.course,
+                    'role', p.role,
+                    'registration_id', p.registration_id,
+                    'created_at', p.created_at,
+                    'is_available', p.is_available
+                )
+            ) FILTER (WHERE p.id IS NOT NULL),
+            '[]'
+        ) as participants
+        FROM registration r
+        LEFT JOIN participants p 
+            ON p.registration_id = r.id AND p.is_available = FALSE
+        WHERE r.is_available = FALSE
         """
 
         params = []

@@ -357,6 +357,8 @@ class RegistrationUseCase:
         if not participant: raise Exception("Участник не найден")
         if participant["role"] == "капитан": raise Exception("Нельзя удалить капитана команды")
         team_id = participant["registration_id"]
+        team = self.repository.get_by_id(team_id)
+        if not team or not team["is_available"]: raise Exception("Команда не найдена или архивирована")
         current_participants = self.repository.get_participants_by_registration(team_id)
         if len(current_participants) <= 2: raise Exception("В команде должно оставаться не менее 2 участников")
         self.repository.delete_participant(p_id)
@@ -368,7 +370,7 @@ class RegistrationUseCase:
         course = int(p["course"])
         if course < 1 or course > 5: raise Exception("Курс должен быть от 1 до 5")
         team = self.repository.get_by_id(reg_id)
-        if not team: raise Exception("Команда не найдена")
+        if not team or not team["is_available"]: raise Exception("Команда не найдена или архивирована")
         if team["amount_participants"] + 1 > 5: raise Exception("Команда не может быть больше 5 участников")
         if p.get("role") == "капитан":
             current_captain = self.repository.get_captain_by_registration(reg_id)
