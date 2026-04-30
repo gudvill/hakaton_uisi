@@ -323,20 +323,18 @@ class RegistrationUseCase:
         if not case:
             raise Exception("Кейс не найден")
         current_count = self.repository.count_by_case(data.selected_case, "selected_case")
-        limit = case.teams_count
+        limit = case["teams_count"]
         if limit is not None and current_count >= limit:
             raise Exception("Этот кейс уже заполнен")
         spare_case = self.cases_repository.get_by_id(data.spare_case)
         if not spare_case:
             raise Exception("Запасной кейс не найден")
         current_count_spare = self.repository.count_by_case(data.spare_case, "spare_case")
-        limit_spare = spare_case.teams_count
+        limit_spare = spare_case["teams_count"]
         if limit_spare is not None and current_count_spare >= limit_spare:
             raise Exception("Запасной кейс уже заполнен")
         # проверка уровня для основного кейса
-        case = self.cases_repository.get_by_id(data.selected_case)
-        if not case: raise Exception("Кейс не найден")
-        case_level = (case.level or "").lower()
+        case_level = (case["level"] or "").lower()
         level = (data.level_education or "").lower()
         if case_level == "standard":
             if any(c > 2 for c in courses) or level == "магистратура":
@@ -409,7 +407,7 @@ class RegistrationUseCase:
             if current_captain: raise Exception("Капитан в команде уже есть, нельзя добавить второго")
         case = self.cases_repository.get_by_id(team["selected_case"])
         if not case: raise Exception("Кейс не найден")
-        case_level = (case.level or "").lower()
+        case_level = (case["level"] or "").lower()
         level = (team["level_education"] or "").lower()
         if case_level == "standard" and (course > 2 or level == "магистратура"):
             raise Exception("Этот кейс только для 1-2 курса")
@@ -478,20 +476,18 @@ class RegistrationUseCase:
         if not case:
             raise Exception("Кейс не найден")
         current_count = self.repository.count_by_case_exclude_self(data.selected_case, "selected_case", reg_id)
-        limit = case.teams_count
+        limit = case["teams_count"]
         if limit is not None and current_count >= limit:
             raise Exception("Этот кейс уже заполнен")
         spare_case = self.cases_repository.get_by_id(data.spare_case)
         if not spare_case:
             raise Exception("Запасной кейс не найден")
         current_count_spare = self.repository.count_by_case_exclude_self(data.spare_case, "spare_case", reg_id)
-        limit_spare = spare_case.teams_count
+        limit_spare = spare_case["teams_count"]
         if limit_spare is not None and current_count_spare >= limit_spare:
             raise Exception("Запасной кейс уже заполнен")
         # проверка уровня для основного кейса
-        case = self.cases_repository.get_by_id(data.selected_case)
-        if not case: raise Exception("Кейс не найден")
-        case_level = (case.level or "").lower()
+        case_level = (case["level"] or "").lower()
         level = (data.level_education or "").lower()
         if case_level == "standard":
             if any(c > 2 for c in courses) or level == "магистратура":
