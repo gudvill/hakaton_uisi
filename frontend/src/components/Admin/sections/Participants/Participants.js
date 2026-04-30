@@ -171,60 +171,41 @@ export default function Participants() {
 
   return (
     <div className="participants-wrap">
-      {/* Заголовок с вкладками */}
       <div className="participants-header">
         <h3 className="admin-card-title">УЧАСТНИКИ</h3>
-        
-        <div className="participants-tabs">
-          <button 
-            className={`participants-tab ${activeTab === 'active' ? 'active' : ''}`}
-            onClick={() => setActiveTab('active')}
-          >
-            Активные ({registrations.length})
-          </button>
-          <button 
-            className={`participants-tab ${activeTab === 'archive' ? 'active' : ''}`}
-            onClick={() => setActiveTab('archive')}
-          >
-            Архив
-          </button>
-        </div>
+        <span className="participants-count">
+          {activeTab === 'active' ? registrations.length : registrations.length} команд
+        </span>
       </div>
 
-      {/* Фильтры */}
+      {/* ===== ВКЛАДКИ ===== */}
+      <div className="participants-tabs">
+        <button className={`participants-tab ${activeTab === 'active' ? 'participants-tab--active' : ''}`}
+          onClick={() => setActiveTab('active')} >Активные</button>
+
+        <button className={`participants-tab ${activeTab === 'archive' ? 'participants-tab--active' : ''}`}
+          onClick={() => setActiveTab('archive')} >Архив</button>
+      </div>
+
+      {/* ===== ФИЛЬТРЫ ===== */}
       <div className="participants-filters">
         <div className="participants-search-wrap">
           <MagnifyingGlassIcon className="participants-search-icon" />
-          <input 
-            className="participants-search" 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
-            placeholder="Поиск по команде или учреждению..." 
-          />
+          <input className="participants-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по команде или учреждению..." />
           {search && (
-            <button className="participants-search-clear" onClick={() => setSearch('')}>
+            <button onClick={() => setSearch('')}>
               <XMarkIcon style={{ width: 14, height: 14 }} />
             </button>
           )}
         </div>
-        
-        <select 
-          className="participants-filter-select" 
-          value={levelFilter} 
-          onChange={e => setLevelFilter(e.target.value)}
-        >
+        <select value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
           <option value="">Образование</option>
           <option value="спо 9класс">СПО (9 класс)</option>
           <option value="спо 11класс">СПО (11 класс)</option>
           <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
           <option value="магистратура">Магистратура</option>
         </select>
-        
-        <select 
-          className="participants-filter-select" 
-          value={caseFilter} 
-          onChange={e => setCaseFilter(e.target.value)}
-        >
+        <select value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
           <option value="">Все кейсы</option>
           {[1, 2, 3, 4, 5, 6].map(c => (
             <option key={c} value={c}>{c}</option>
@@ -244,10 +225,11 @@ export default function Participants() {
           </button>
         )}
       </div>
-
       {registrations.length === 0 ? (
         <p className="participants-empty">
-          {activeTab === 'archive' ? 'Нет архивных команд' : 'Нет активных команд'}
+          {activeTab === 'archive'
+            ? 'Нет архивных команд'
+            : 'Нет активных команд'}
         </p>
       ) : (
         <div className="participants-table-wrap">
@@ -263,7 +245,7 @@ export default function Participants() {
                   { key: 'amount_participants', label: 'Участников' },
                   { key: 'created_at', label: 'Создана' },
                 ].map(({ key, label }) => (
-                  <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)}>
+                  <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)} >
                     {label}
                     <span className="participants-sort-icon">
                       {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
@@ -276,10 +258,8 @@ export default function Participants() {
             <tbody>
               {registrations.map((team, idx) => (
                 <Fragment key={team.id}>
-                  <tr 
-                    className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`} 
-                    onClick={() => toggleExpand(team.id)}
-                  >
+
+                  <tr className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`} onClick={() => toggleExpand(team.id)} >
                     <td>{idx + 1}</td>
                     {editingTeam !== team.id ? (
                       <>
@@ -293,36 +273,34 @@ export default function Participants() {
                     ) : (
                       <>
                         <td>
-                          <input 
-                            className="section-input" 
-                            value={editData.name || ""} 
-                            placeholder="Название команды" 
-                            onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} 
+                          <input className="section-input" value={editData.name || ""}
+                            onChange={e =>
+                              setEditData(p => ({ ...p, name: e.target.value }))
+                            }
                           />
                         </td>
                         <td>
-                          <input 
-                            className="section-input" 
-                            value={editData.institution || ""} 
-                            placeholder="Учреждение" 
-                            onChange={e => setEditData(p => ({ ...p, institution: e.target.value }))} 
+                          <input className="section-input" value={editData.institution || ""}
+                            onChange={e =>
+                              setEditData(p => ({ ...p, institution: e.target.value }))
+                            }
                           />
                         </td>
                         <td>
-                          <input 
-                            className="section-input" 
-                            value={editData.level_education || ""} 
-                            placeholder="Уровень образования" 
-                            onChange={e => setEditData(p => ({ ...p, level_education: e.target.value }))} 
+                          <input className="section-input" value={editData.level_education || ""}
+                            onChange={e =>
+                              setEditData(p => ({ ...p, level_education: e.target.value }))
+                            }
                           />
                         </td>
                         <td>
-                          <input 
-                            className="section-input" 
-                            type="number"
-                            value={editData.selected_case || ""} 
-                            placeholder="Кейс" 
-                            onChange={e => setEditData(p => ({ ...p, selected_case: Number(e.target.value) || null }))} 
+                          <input className="section-input" value={editData.selected_case || ""}
+                            onChange={e =>
+                              setEditData(p => ({
+                                ...p,
+                                selected_case: e.target.value
+                              }))
+                            }
                           />
                         </td>
                         <td>{team.amount_participants}</td>
@@ -330,8 +308,8 @@ export default function Participants() {
                       </>
                     )}
 
-                    <td className="participants-actions" onClick={e => e.stopPropagation()}>
-                      <button className="participants-expand-btn" onClick={() => toggleExpand(team.id)}>
+                    <td onClick={e => e.stopPropagation()}>
+                      <button onClick={() => toggleExpand(team.id)}>
                         {expanded === team.id ? (
                           <ChevronUpIcon style={{ width: 16 }} />
                         ) : (
@@ -341,49 +319,35 @@ export default function Participants() {
 
                       {activeTab === 'active' && (
                         <>
-                          <button className="participants-delete-btn" onClick={() => startEdit(team)}>
-                            <PencilIcon style={{ width: 15, height: 15 }} />
+                          <button onClick={() => startEdit(team)}>
+                            <PencilIcon style={{ width: 15 }} />
                           </button>
-                          <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
+                          <button onClick={() => handleDelete(team.id)}>
                             <TrashIcon style={{ width: 16 }} />
                           </button>
                         </>
                       )}
 
                       {activeTab === 'archive' && (
-                        <button
-                          className="participants-restore-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRestore(team.id);
-                          }}
-                        >
+                        <button onClick={() => handleRestore(team.id)}>
                           восстановить
                         </button>
                       )}
                     </td>
                   </tr>
-                  
                   {expanded === team.id && (
                     <tr className="participants-detail-row">
                       <td colSpan={8}>
                         <div className="participants-detail">
                           {editingTeam === team.id && (
-                            <div className="section-row-actions" style={{ marginBottom: 12 }}>
-                              <button className="section-save-btn" onClick={saveEdit}>сохранить</button>
-                              <button 
-                                className="section-cancel-btn"
-                                onClick={() => {
-                                  setEditingTeam(null);
-                                  setEditData(null);
-                                }}
-                              >
-                                отмена
-                              </button>
+                            <div className="section-row-actions">
+                              <button onClick={saveEdit}>сохранить</button>
+                              <button onClick={() => {
+                                setEditingTeam(null);
+                                setEditData(null);
+                              }}>отмена</button>
                               {activeTab === 'active' && (
-                                <button className="section-add-btn" onClick={handleAddParticipant}>
-                                  + участник
-                                </button>
+                                <button onClick={handleAddParticipant}>+ участник</button>
                               )}
                             </div>
                           )}
@@ -393,45 +357,29 @@ export default function Participants() {
                               <div className="participants-detail-cols">
                                 <div className="participants-detail-block">
                                   <p className="participants-detail-label">Запасной кейс</p>
-                                  <input 
-                                    className="section-input" 
-                                    type="number"
-                                    value={editData.spare_case || ""} 
-                                    placeholder="Запасной кейс"
+                                  <input className="section-input" type="number" value={editData.spare_case || ""} placeholder="Запасной кейс"
                                     onChange={e => setEditData(p => ({ ...p, spare_case: Number(e.target.value) || null }))} 
                                   />
                                 </div>
                                 <div className="participants-detail-block">
                                   <p className="participants-detail-label">Контакты капитана</p>
-                                  <input 
-                                    className="section-input" 
-                                    value={editData.captain_phone || ""} 
-                                    placeholder="Телефон капитана"
+                                  <input className="section-input" value={editData.captain_phone || ""} placeholder="Телефон капитана"
                                     onChange={e => setEditData(p => ({ ...p, captain_phone: e.target.value }))} 
                                   />
-                                  <input 
-                                    className="section-input" 
-                                    value={editData.captain_email || ""} 
-                                    placeholder="Email капитана"
+                                  <input className="section-input" value={editData.captain_email || ""} placeholder="Email капитана"
                                     onChange={e => setEditData(p => ({ ...p, captain_email: e.target.value }))} 
                                   />
                                 </div>
                                 {editData.curator_data && (
                                   <div className="participants-detail-block">
                                     <p className="participants-detail-label">Куратор</p>
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.curator_data.fio || ""} 
-                                      placeholder="ФИО куратора"
+                                    <input className="section-input" value={editData.curator_data.fio || ""} placeholder="ФИО куратора"
                                       onChange={e => setEditData(p => ({ 
                                         ...p, 
                                         curator_data: { ...p.curator_data, fio: e.target.value } 
                                       }))} 
                                     />
-                                    <input 
-                                      className="section-input" 
-                                      value={editData.curator_data.phone || ""} 
-                                      placeholder="Телефон куратора"
+                                    <input className="section-input" value={editData.curator_data.phone || ""} placeholder="Телефон куратора"
                                       onChange={e => setEditData(p => ({ 
                                         ...p, 
                                         curator_data: { ...p.curator_data, phone: e.target.value } 
