@@ -280,7 +280,11 @@ export default function Participants() {
               {registrations.map((team, idx) => (
                 <Fragment key={team.id}>
 
-                  <tr className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`} onClick={() => toggleExpand(team.id)} >
+                  <tr className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`}
+                    onClick={(e) => {
+                      if (editingTeam === team.id) return;
+                      toggleExpand(team.id);
+                    }} >
                     <td>{idx + 1}</td>
                     {editingTeam !== team.id ? (
                       <>
