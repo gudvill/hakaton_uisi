@@ -6,7 +6,6 @@ import { UserCircleIcon, UsersIcon, NewspaperIcon, ChartBarIcon, CalendarDaysIco
 
 import Account from './sections/Account/Account';
 import Participants from './sections/Participants/Participants';
-<<<<<<< HEAD
 import News from './sections/News/News';
 import Stats from './sections/Stats/Stats';
 import Program from './sections/Program/Program';
