@@ -16,12 +16,13 @@ export default function News() {
   const [search, setSearch] = useState('');
   const [year, setYear] = useState('');
   const [sort, setSort] = useState({ key: 'created_at', dir: 'desc' });
+  const years = Array.from({ length: 5 }, (_, i) => 2022 + i);
 
   const load = async (silent = false) => {
     try {
       const params = {
         search: search || undefined,
-        year: year || undefined,
+        year: year ? Number(year) : undefined,
         sort_by: sort.key,
         sort_dir: sort.dir,
       };
@@ -38,8 +39,16 @@ export default function News() {
   };
 
   useEffect(() => {
-    load();
+    const delay = setTimeout(() => {
+      load(true);
+    }, 400);
+
+    return () => clearTimeout(delay);
   }, [tab, search, year, sort]);
+
+  useEffect(() => {
+    load();
+  }, []);
 
 const toggleSort = (key) => {
     setSort(prev =>
@@ -142,7 +151,12 @@ const toggleSort = (key) => {
       {/* ===== FILTERS ===== */}
       <div className="participants-filters">
         <input className="participants-search" placeholder="Поиск по названию..." value={search} onChange={e => setSearch(e.target.value)} />
-        <input className="participants-search" placeholder="Год (например 2026)" value={year} onChange={e => setYear(e.target.value)} />
+        <select className="participants-filter-select" value={year} onChange={e => setYear(e.target.value)} >
+          <option value="">Год</option>
+          {years.map(y => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
         {(search || year) && (
           <button className="participants-reset-btn"
             onClick={() => {
@@ -181,7 +195,7 @@ const toggleSort = (key) => {
               editId === item.id ? (
                 <EditRow key={item.id} />
               ) : (
-                <tr key={item.id} className={tab === 'archive' ? 'news-row--archived' : ''}>
+                <tr key={item.id}>
                   <td>
                     {item.image && (
                       <img className="section-thumbnail" src={item.image} alt="" />
