@@ -193,19 +193,19 @@ export default function Participants() {
           <MagnifyingGlassIcon className="participants-search-icon" />
           <input className="participants-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по команде или учреждению..." />
           {search && (
-            <button onClick={() => setSearch('')}>
+            <button className="participants-search-clear" onClick={() => setSearch('')}>
               <XMarkIcon style={{ width: 14, height: 14 }} />
             </button>
           )}
         </div>
-        <select value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
+        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
           <option value="">Образование</option>
           <option value="спо 9класс">СПО (9 класс)</option>
           <option value="спо 11класс">СПО (11 класс)</option>
           <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
           <option value="магистратура">Магистратура</option>
         </select>
-        <select value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
+        <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
           <option value="">Все кейсы</option>
           {[1, 2, 3, 4, 5, 6].map(c => (
             <option key={c} value={c}>{c}</option>
@@ -273,32 +273,32 @@ export default function Participants() {
                     ) : (
                       <>
                         <td>
-                          <input className="section-input" value={editData.name || ""}
+                          <input className="section-input" value={editData.name || ""} placeholder="Название команды"
                             onChange={e =>
                               setEditData(p => ({ ...p, name: e.target.value }))
                             }
                           />
                         </td>
                         <td>
-                          <input className="section-input" value={editData.institution || ""}
+                          <input className="section-input" value={editData.institution || ""} placeholder="Учреждение"
                             onChange={e =>
                               setEditData(p => ({ ...p, institution: e.target.value }))
                             }
                           />
                         </td>
                         <td>
-                          <input className="section-input" value={editData.level_education || ""}
+                          <input className="section-input" value={editData.level_education || ""} placeholder="Уровень образования"
                             onChange={e =>
                               setEditData(p => ({ ...p, level_education: e.target.value }))
                             }
                           />
                         </td>
                         <td>
-                          <input className="section-input" value={editData.selected_case || ""}
+                          <input className="section-input" value={editData.selected_case || ""} placeholder="Кейс"
                             onChange={e =>
                               setEditData(p => ({
                                 ...p,
-                                selected_case: e.target.value
+                                selected_case: Number(e.target.value) || null
                               }))
                             }
                           />
@@ -308,8 +308,8 @@ export default function Participants() {
                       </>
                     )}
 
-                    <td onClick={e => e.stopPropagation()}>
-                      <button onClick={() => toggleExpand(team.id)}>
+                    <td className="participants-actions" onClick={e => e.stopPropagation()}>
+                      <button className="participants-expand-btn" onClick={() => toggleExpand(team.id)}>
                         {expanded === team.id ? (
                           <ChevronUpIcon style={{ width: 16 }} />
                         ) : (
@@ -319,19 +319,17 @@ export default function Participants() {
 
                       {activeTab === 'active' && (
                         <>
-                          <button onClick={() => startEdit(team)}>
+                          <button className="participants-delete-btn" onClick={() => startEdit(team)}>
                             <PencilIcon style={{ width: 15 }} />
                           </button>
-                          <button onClick={() => handleDelete(team.id)}>
+                          <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
                             <TrashIcon style={{ width: 16 }} />
                           </button>
                         </>
                       )}
 
                       {activeTab === 'archive' && (
-                        <button onClick={() => handleRestore(team.id)}>
-                          восстановить
-                        </button>
+                        <button className="participants-restore-btn" onClick={() => { e.stopPropagation(); handleRestore(team.id); }}>восстановить</button>
                       )}
                     </td>
                   </tr>
@@ -341,13 +339,13 @@ export default function Participants() {
                         <div className="participants-detail">
                           {editingTeam === team.id && (
                             <div className="section-row-actions">
-                              <button onClick={saveEdit}>сохранить</button>
-                              <button onClick={() => {
+                              <button className="section-save-btn" onClick={saveEdit}>сохранить</button>
+                              <button className="section-cancel-btn" onClick={() => {
                                 setEditingTeam(null);
                                 setEditData(null);
                               }}>отмена</button>
                               {activeTab === 'active' && (
-                                <button onClick={handleAddParticipant}>+ участник</button>
+                                <button className="section-add-btn" onClick={handleAddParticipant}>+ участник</button>
                               )}
                             </div>
                           )}
