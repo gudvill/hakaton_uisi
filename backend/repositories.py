@@ -204,7 +204,7 @@ class NewsRepository(BaseRepository):
                 cursor.execute(query, params)
                 return self._fetch_all_dict(cursor)
     
-    def get_filtered(self, search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc"):
+    def get_filtered_archived(self, search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc"):
 
         allowed_sort = {
             "name": "n.name",
