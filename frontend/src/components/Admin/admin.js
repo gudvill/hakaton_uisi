@@ -4,33 +4,34 @@ import { useNavigate } from 'react-router-dom';
 import { logout, getMe } from '../../api/authService';
 import { UserCircleIcon, UsersIcon, NewspaperIcon, ChartBarIcon, CalendarDaysIcon, QuestionMarkCircleIcon, BriefcaseIcon, UserGroupIcon, ChatBubbleLeftRightIcon, PhotoIcon, DocumentTextIcon, DocumentMinusIcon, MapIcon } from '@heroicons/react/24/outline';
 
-import Account      from './sections/Account/Account';
+import Account from './sections/Account/Account';
 import Participants from './sections/Participants/Participants';
-import News         from './sections/News/News';
-import Stats        from './sections/Stats/Stats';
-import Program      from './sections/Program/Program';
-import Faq          from './sections/Faq/Faq';
-import Cases        from './sections/Cases/Cases';
-import Partners     from './sections/Partners/Partners';
-import Reviews      from './sections/Reviews/Reviews';
-import Photos       from './sections/Photos/Photos';
-import Policy       from './sections/Policy/Policy';
-import Agreement    from './sections/Agreement/Agreement';
-import About        from './sections/About/About';
+<<<<<<< HEAD
+import News from './sections/News/News';
+import Stats from './sections/Stats/Stats';
+import Program from './sections/Program/Program';
+import Faq from './sections/Faq/Faq';
+import Cases from './sections/Cases/Cases';
+import Partners from './sections/Partners/Partners';
+import Reviews from './sections/Reviews/Reviews';
+import Photos from './sections/Photos/Photos';
+import Policy from './sections/Policy/Policy';
+import Agreement from './sections/Agreement/Agreement';
+import About from './sections/About/About';
 
 const NAV_ITEMS = [
-  { id: 'participants', label: 'участники',  Icon: UsersIcon,              Component: Participants },
-  { id: 'about',        label: 'о хакатоне', Icon: MapIcon,                Component: About },
-  { id: 'news',         label: 'новости',    Icon: NewspaperIcon,          Component: News },
-  { id: 'stats',        label: 'статистика', Icon: ChartBarIcon,           Component: Stats },
-  { id: 'program',      label: 'программа',  Icon: CalendarDaysIcon,       Component: Program },
-  { id: 'faq',          label: 'faq',        Icon: QuestionMarkCircleIcon, Component: Faq },
-  { id: 'cases',        label: 'кейсы',      Icon: BriefcaseIcon,          Component: Cases },
-  { id: 'partners',     label: 'партнеры',   Icon: UserGroupIcon,          Component: Partners },
-  { id: 'reviews',      label: 'отзывы',     Icon: ChatBubbleLeftRightIcon,Component: Reviews },
-  { id: 'photos',       label: 'фотоальбом', Icon: PhotoIcon,              Component: Photos },
-  { id: 'policy',       label: 'политика',   Icon: DocumentTextIcon,       Component: Policy },
-  { id: 'agreement',    label: 'соглашение', Icon: DocumentMinusIcon,      Component: Agreement },
+  { id: 'participants', label: 'команды', Icon: UsersIcon, Component: Participants },
+  { id: 'about', label: 'о хакатоне', Icon: MapIcon, Component: About },
+  { id: 'news', label: 'новости', Icon: NewspaperIcon, Component: News },
+  { id: 'stats', label: 'статистика', Icon: ChartBarIcon, Component: Stats },
+  { id: 'program', label: 'программа', Icon: CalendarDaysIcon, Component: Program },
+  { id: 'faq', label: 'faq', Icon: QuestionMarkCircleIcon, Component: Faq },
+  { id: 'cases', label: 'кейсы', Icon: BriefcaseIcon, Component: Cases },
+  { id: 'partners', label: 'партнеры', Icon: UserGroupIcon, Component: Partners },
+  { id: 'reviews', label: 'отзывы', Icon: ChatBubbleLeftRightIcon, Component: Reviews },
+  { id: 'photos', label: 'фотоальбом', Icon: PhotoIcon, Component: Photos },
+  { id: 'policy', label: 'политика',   Icon: DocumentTextIcon, Component: Policy },
+  { id: 'agreement', label: 'соглашение', Icon: DocumentMinusIcon, Component: Agreement },
 ];
 
 export default function Admin() {
@@ -62,7 +63,6 @@ export default function Admin() {
   return (
     <div className="admin-layout">
 
-      {/* Топ строка: лого слева, юзер справа */}
       <header className="admin-topbar">
         <div className="admin-logo">
           <img src="/images/logo2.svg" alt="logo" />
@@ -73,7 +73,6 @@ export default function Admin() {
         </div>
       </header>
 
-      {/* Нижняя строка: сайдбар + контент одной высоты */}
       <div className="admin-body">
         <aside className="admin-sidebar">
           <div className="admin-profile" onClick={() => setActive('account')}>
@@ -98,8 +97,6 @@ export default function Admin() {
           {renderContent()}
         </main>
       </div>
-
-      <img src="/images/virus1.svg" alt="" className="admin-dino" />
     </div>
   );
 }

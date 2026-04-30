@@ -23,7 +23,7 @@ export default function Partners() {
             onClick={() => setSelected(partner)}
           >
             <img src={partner.image} alt={partner.name} />
-            <p className="partner-description">{partner.description}</p>
+            <p className="partner-name">{partner.name}</p>
           </div>
         ))}
       </div>
@@ -31,16 +31,13 @@ export default function Partners() {
       {selected && (
         <div className="partner-modal-overlay" onClick={() => setSelected(null)}>
           <div className="partner-modal" onClick={e => e.stopPropagation()}>
-            <button className="partner-modal__close" onClick={() => setSelected(null)}>✕</button>
+            <button className="partner-modal__close" onClick={() => setSelected(null)}><img src='images/close.svg'></img></button>
             <div className="partner-modal__img-wrap">
               <img src={selected.image} alt={selected.name} />
             </div>
             <h3 className="partner-modal__name">{selected.name}</h3>
-            <p className="partner-modal__desc">{selected.description}</p>
-            {selected.site && (
-              <a className="partner-modal__site" href={selected.site} target="_blank" rel="noreferrer">
-              </a>
-            )}
+            <p className="partner-modal__desc">{selected.description}Уральский банк реконструкции и развития входит в список 30 крупнейших банков России, составленный ЦБ РФ, и в топ-100  самых надёжных кредитных учреждений России, по версии журнала Forbes.</p>
+            <a className="partner-modal__site" href="#" target="_blank" rel="noreferrer">Перейти на сайт</a>
           </div>
         </div>
       )}

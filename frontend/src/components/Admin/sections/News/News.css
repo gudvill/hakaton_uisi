@@ -2,3 +2,45 @@
 .admin-content .news-brief  { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; }
 .admin-content .news-url    { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #aaa; font-size: 11px; }
 .admin-content .news-img-placeholder { width: 44px; height: 44px; background: #f3f0ff; border-radius: 8px; }
+
+.admin-content .news-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-content .news-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: black;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.admin-content .news-tab:hover { color: #6a35cc; }
+
+.admin-content .news-tab--active {
+  color: #1a1a2e;
+  border-bottom-color: #6a35cc;
+}
+
+.admin-content .news-tab-badge {
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+.admin-content .news-row--archived td { opacity: 0.55; }
