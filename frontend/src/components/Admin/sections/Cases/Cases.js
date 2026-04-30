@@ -227,7 +227,7 @@ export default function Cases() {
                 { key: 'partner', label: 'Партнёр' },
                 { key: 'teams_count', label: 'Разрешено команд' },
                 { key: 'description', label: 'Описание' },
-                { key: 'created_at', label: 'Год' },
+                { key: 'created_at', label: 'Создан' },
               ].map(({ key, label }) => (
                 <th key={key} className={SORTABLE_KEYS.includes(key) ? "participants-th-sort" : ""} onClick={() => toggleSort(key)} >
                   {label}
