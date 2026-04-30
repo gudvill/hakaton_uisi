@@ -115,11 +115,11 @@ class NewsUseCase:
     def create(self, news: News) -> int:
         return self.repository.create(news)
 
-    def get_all_true(self) -> List[News]:
-        return self.repository.get_all_true()
-    
-    def get_all_false(self) -> List[News]:
-        return self.repository.get_all_false()
+    def get_filtered(self, search, year, sort_by, sort_dir):
+        return self.repository.get_filtered(search, year, sort_by, sort_dir)
+
+    def get_filtered_archived(self, search, year, sort_by, sort_dir):
+        return self.repository.get_filtered_archived(search, year, sort_by, sort_dir)
 
     def get_by_id(self, news_id: int) -> Optional[News]:
         return self.repository.get_by_id(news_id)
@@ -132,6 +132,9 @@ class NewsUseCase:
 
     def disable(self, news_id: int) -> None:
         self.repository.disable(news_id)
+    
+    def restore_news(self, news_id: int):
+        self.repository.restore_news(news_id)
 
 
 class CasesUseCase:

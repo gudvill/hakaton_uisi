@@ -187,9 +187,17 @@ def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends
 def get_news(use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
     return [NewsSerializer(**row) for row in use_case.get_all_true()]
 
+@news_router.get("/")
+def get_news(search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc", usecase: NewsUseCase = Depends(get_news_usecase)):
+    return usecase.get_filtered(search, year, sort_by, sort_dir)
+
 @news_router.get("/archived/", response_model=List[NewsSerializer])
 def get_archived_news(use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
     return [NewsSerializer(**row) for row in use_case.get_all_false()]
+# в архивных необходимо сделать защиту, что только админ может
+@news_router.get("/archived/")
+def get_archived_news(search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc", usecase: NewsUseCase = Depends(get_news_usecase)):
+    return usecase.get_filtered_archived(search, year, sort_by, sort_dir)
 
 @news_router.get("/by-year/{year}", response_model=List[NewsSerializer]) # надо будет делать поиск по году среди действующих и среди активных
 def get_news_by_year(year: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
@@ -213,6 +221,10 @@ def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)
     use_case.disable(news_id)
     return {"message": "Новость отключена"}
 
+@news_router.post("/{news_id}/restore")
+def restore_news(news_id: int, usecase: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)):
+    usecase.restore_news(news_id)
+    return {"message": "Новость восстановлена"}
 
 # Эндпоинты для Кейсов
 @cases_router.post("/", response_model=CaseSerializer)

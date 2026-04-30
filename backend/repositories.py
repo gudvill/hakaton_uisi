@@ -172,6 +172,68 @@ class NewsRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
+    
+    def get_filtered(self, search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc"):
+
+        allowed_sort = {
+            "name": "n.name",
+            "created_at": "n.created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "n.created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = "SELECT * FROM news n WHERE n.is_available = TRUE"
+
+        params = []
+
+        # поиск по названию
+        if search:
+            query += " AND LOWER(n.name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+
+        # фильтр по году
+        if year:
+            query += " AND EXTRACT(YEAR FROM n.created_at) = %s"
+            params.append(year)
+
+        query += f" ORDER BY {sort_column} {sort_direction}"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
+    
+    def get_filtered(self, search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc"):
+
+        allowed_sort = {
+            "name": "n.name",
+            "created_at": "n.created_at"
+        }
+
+        sort_column = allowed_sort.get(sort_by, "n.created_at")
+        sort_direction = "ASC" if sort_dir == "asc" else "DESC"
+
+        query = "SELECT * FROM news n WHERE n.is_available = FALSE"
+
+        params = []
+
+        # поиск по названию
+        if search:
+            query += " AND LOWER(n.name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+
+        # фильтр по году
+        if year:
+            query += " AND EXTRACT(YEAR FROM n.created_at) = %s"
+            params.append(year)
+
+        query += f" ORDER BY {sort_column} {sort_direction}"
+
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                return self._fetch_all_dict(cursor)
 
     def get_by_id(self, news_id: int):
         query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE id = %s"""
@@ -186,6 +248,11 @@ class NewsRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query, (year,))
                 return self._fetch_all_dict(cursor)
+            
+    def restore_news(self, news_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE news SET is_available = TRUE WHERE id = %s", (news_id,))
 
 
 class CasesRepository(BaseRepository):

@@ -1,6 +1,6 @@
 import './News.css';
 import { useState, useEffect } from 'react';
-import { getNews, createNews, updateNews, disableNews } from '../../../../api/newsService';
+import { getNews, getArchivedNews, createNews, updateNews, disableNews, restoreNews } from '../../../../api/newsService';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 function formatDate(str) {
@@ -13,26 +13,61 @@ export default function News() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
   const [tab, setTab] = useState('active'); // 'active' | 'archive'
+  const [search, setSearch] = useState('');
+  const [year, setYear] = useState('');
+  const [sort, setSort] = useState({ key: 'created_at', dir: 'desc' });
 
-  const load = () => {
-    getNews().then(setItems).catch(console.error);
+  const load = async (silent = false) => {
+    try {
+      const params = {
+        search: search || undefined,
+        year: year || undefined,
+        sort_by: sort.key,
+        sort_dir: sort.dir,
+      };
+
+      const data =
+        tab === 'archive'
+          ? await getArchivedNews(params)
+          : await getNews(params);
+
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {
     load();
-  }, []);
+  }, [tab, search, year, sort]);
 
-  // Фильтрация по вкладке
-  const visibleItems = items.filter(i =>
-    tab === 'active' ? i.is_available !== false : i.is_available === false
-  );
+const toggleSort = (key) => {
+    setSort(prev =>
+      prev.key === key
+        ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: 'asc' }
+    );
+  };
 
-  const startEdit = (item) => { setEditId(item.id); setForm(item); };
+  const startEdit = (item) => {
+    setEditId(item.id);
+    setForm(item);
+  };
+
   const startAdd = () => {
     setEditId('new');
-    setForm({ name: '', brief_description: '', full_description: '', image: '' });
+    setForm({
+      name: '',
+      brief_description: '',
+      full_description: '',
+      image: ''
+    });
   };
-  const cancel = () => { setEditId(null); setForm({}); };
+
+  const cancel = () => {
+    setEditId(null);
+    setForm({});
+  };
 
   const save = async () => {
     try {
@@ -53,19 +88,14 @@ export default function News() {
     load();
   };
 
-  // Восстановить из архива
-  const restore = async (item) => {
-    await updateNews(item.id, { ...item, is_available: true });
+  const restore = async (id) => {
+    await restoreNews(id);
     load();
   };
 
   const inp = (key, placeholder) => (
-    <input
-      className="section-input"
-      value={form[key] || ''}
-      placeholder={placeholder}
-      onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-    />
+    <input className="section-input" value={form[key] || ''} placeholder={placeholder}
+    onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
   );
 
   const EditRow = () => (
@@ -89,8 +119,6 @@ export default function News() {
     </tr>
   );
 
-  const archiveCount = items.filter(i => i.is_available === false).length;
-
   return (
     <div className="admin-card">
       <div className="section-header">
@@ -104,52 +132,60 @@ export default function News() {
 
       {/* Вкладки */}
       <div className="news-tabs">
-        <button
-          className={`news-tab ${tab === 'active' ? 'news-tab--active' : ''}`}
-          onClick={() => { setTab('active'); cancel(); }}
-        >
+        <button className={`news-tab ${tab === 'active' ? 'news-tab--active' : ''}`} onClick={() => { setTab('active'); cancel(); }} >
           Активные
         </button>
-        <button
-          className={`news-tab ${tab === 'archive' ? 'news-tab--active' : ''}`}
-          onClick={() => { setTab('archive'); cancel(); }}
-        >
+        <button className={`news-tab ${tab === 'archive' ? 'news-tab--active' : ''}`} onClick={() => { setTab('archive'); cancel(); }} >
           Архив
-          {archiveCount > 0 && (
-            <span className="news-tab-badge">{archiveCount}</span>
-          )}
         </button>
       </div>
-
+      {/* ===== FILTERS ===== */}
+      <div className="participants-filters">
+        <input className="participants-search" placeholder="Поиск по названию..." value={search} onChange={e => setSearch(e.target.value)} />
+        <input className="participants-search" placeholder="Год (например 2026)" value={year} onChange={e => setYear(e.target.value)} />
+        {(search || year) && (
+          <button className="participants-reset-btn"
+            onClick={() => {
+              setSearch('');
+              setYear('');
+            }} >сбросить</button>
+        )}
+      </div>
       <div className="section-table-wrap">
         <table className="section-table">
           <thead>
             <tr>
               <th style={{ width: 56 }}>Фото</th>
               <th>Путь к фото</th>
-              <th>Заголовок</th>
+              <th onClick={() => toggleSort('name')} style={{ cursor: 'pointer' }}>
+                Заголовок {sort.key === 'name' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}
+              </th>
               <th>Краткое описание</th>
               <th>Полное описание</th>
-              <th style={{ width: 100 }}>Создана</th>
+              <th onClick={() => toggleSort('created_at')} style={{ cursor: 'pointer' }}>
+                Создана {sort.key === 'created_at' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}
+              </th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {tab === 'active' && editId === 'new' && <EditRow />}
-            {visibleItems.length === 0 && editId !== 'new' && (
+            {items.length === 0 && editId !== 'new' && (
               <tr>
                 <td colSpan={7} className="section-empty">
-                  {tab === 'active' ? 'Нет новостей' : 'Архив пуст'}
+                  Нет новостей
                 </td>
               </tr>
             )}
-            {visibleItems.map(item =>
+            {items.map(item =>
               editId === item.id ? (
                 <EditRow key={item.id} />
               ) : (
                 <tr key={item.id} className={tab === 'archive' ? 'news-row--archived' : ''}>
                   <td>
-                    {item.image && <img className="section-thumbnail" src={item.image} alt="" />}
+                    {item.image && (
+                      <img className="section-thumbnail" src={item.image} alt="" />
+                    )}
                   </td>
                   <td className="news-url">{item.image || '—'}</td>
                   <td className="news-title">{item.name}</td>
@@ -162,25 +198,15 @@ export default function News() {
                     <div className="section-row-actions">
                       {tab === 'active' ? (
                         <>
-                          <button
-                            className="section-icon-btn section-icon-btn--edit"
-                            onClick={() => startEdit(item)}
-                          >
+                          <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
                             <PencilIcon style={{ width: 15, height: 15 }} />
                           </button>
-                          <button
-                            className="section-icon-btn section-icon-btn--delete"
-                            onClick={() => del(item.id)}
-                          >
+                          <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
                             <TrashIcon style={{ width: 15, height: 15 }} />
                           </button>
                         </>
                       ) : (
-                        <button
-                          className="section-icon-btn section-icon-btn--edit"
-                          title="Восстановить"
-                          onClick={() => restore(item)}
-                        >
+                        <button className="section-icon-btn section-icon-btn--edit" title="Восстановить" onClick={() => restore(item.id)} >
                           <ArchiveBoxIcon style={{ width: 15, height: 15 }} />
                         </button>
                       )}

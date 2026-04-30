@@ -42,3 +42,8 @@ export const disableNews = async (id) => {
   const res = await api.delete(`/news/${id}`);
   return res.data;
 };
+
+// восстановить новость
+export const restoreNews = async (id) => {
+  await api.post(`/news/${id}/restore`);
+};
