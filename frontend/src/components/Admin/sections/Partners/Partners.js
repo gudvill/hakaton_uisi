@@ -1,20 +1,49 @@
 import './Partners.css';
 import { useState, useEffect } from 'react';
 import { getPartners, createPartner, updatePartner, disablePartner } from '../../../../api/partnersService';
-import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function Partners() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
 
-  const load = () => {
-    getPartners().then(setItems).catch(console.error);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState({ key: "created_at", dir: "desc" });
+
+  const load = async (silent = false) => {
+    try {
+      const data = await getPartners({
+        search: search || undefined,
+        sort_by: sort.key,
+        sort_dir: sort.dir,
+      });
+
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    }
   };
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      load(true);
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [search, sort]);
 
   useEffect(() => {
     load();
   }, []);
+
+  const toggleSort = (key) => {
+    setSort(prev =>
+      prev.key === key
+        ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: 'asc' }
+    );
+  };
 
   const startEdit = (item) => {
     setEditId(item.id);
@@ -85,11 +114,42 @@ export default function Partners() {
           <PlusIcon style={{ width: 16, height: 16 }} /> добавить
         </button>
       </div>
+      <div className="participants-filters">
+        <div className="participants-search-wrap">
+          <MagnifyingGlassIcon className="participants-search-icon" />
+          <input
+            className="participants-search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Поиск по партнёру..."
+          />
+          {search && (
+            <button className="participants-search-clear" onClick={() => setSearch('')}>
+              <XMarkIcon style={{ width: 14, height: 14 }} />
+            </button>
+          )}
+        </div>
+      </div>
       <div className="section-table-wrap">
         <table className="section-table">
           <thead>
             <tr>
-              <th style={{ width: 56 }}>Лого</th><th>Путь к фото</th><th>Название</th><th>Описание</th><th>Полное описание</th><th>Ссылка на сайт</th><th></th>
+              <th style={{ width: 56 }}>Лого</th>
+              {[
+                { key: 'image', label: 'Путь к фото' },
+                { key: 'name', label: 'Название' },
+                { key: 'description', label: 'Описание' },
+                { key: 'full_description', label: 'Полное описание' },
+                { key: 'site_link', label: 'Ссылка на сайт' },
+              ].map(({ key, label }) => (
+                <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)}>
+                  {label}
+                  <span className="participants-sort-icon">
+                    {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                  </span>
+                </th>
+              ))}
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -104,17 +164,19 @@ export default function Partners() {
             ) : (
               <tr key={item.id}>
                 <td>{item.image && (<img className="section-thumbnail partner-logo" src={item.image} alt="" />)}</td>
-                <td style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.image || '—'}</td>
+                <td style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {item.image || '—'}
+                </td>
                 <td style={{ fontWeight: 600 }}>{item.name || '—'}</td>
                 <td className="partner-desc">{item.description || '—'}</td>
                 <td className="partner-desc">{item.full_description || '—'}</td>
                 <td style={{ color: '#666' }}>{item.site_link || '—'}</td>
                 <td>
                   <div className="section-row-actions">
-                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
+                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
                       <PencilIcon style={{ width: 15, height: 15 }} />
                     </button>
-                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
+                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
                       <TrashIcon style={{ width: 15, height: 15 }} />
                     </button>
                   </div>

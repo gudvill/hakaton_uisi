@@ -44,3 +44,9 @@ export const resetPassword = async (token, newPassword) => {
   });
   return res.data;
 };
+
+// получить данные админа
+export const getMe = async () => {
+  const res = await api.get("/admin/me");
+  return res.data;
+};

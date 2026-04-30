@@ -10,11 +10,7 @@ const LEVELS = [
 ];
 
 const sel = (key, options, placeholder) => ({ form, setForm }) => (
-  <select
-    className="section-input cases-select"
-    value={form[key] || ''}
-    onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-  >
+  <select className="section-input cases-select" value={form[key] || ''} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} >
     <option value="">{placeholder}</option>
     {options.map(o => (
       <option key={o.value} value={o.value}>{o.label}</option>
@@ -27,27 +23,58 @@ export default function Cases() {
   const [partners, setPartners] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [search, setSearch] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+  const [levelFilter, setLevelFilter] = useState('');
+  const [sort, setSort] = useState({ key: "created_at", dir: "desc" });
+  const [loading, setLoading] = useState(true);
 
-  const load = () => {
-    getCases().then(setItems).catch(console.error);
+  const load = async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+
+      const data = await getCases({
+        search: search || undefined,
+        year: yearFilter || undefined,
+        level: levelFilter || undefined,
+        sort_by: sort.key,
+        sort_dir: sort.dir,
+      });
+
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      if (!silent) setLoading(false);
+    }
   };
+
+  // debounce
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      load(true);
+    }, 400);
+    return () => clearTimeout(delay);
+  }, [search, yearFilter, levelFilter, sort]);
 
   useEffect(() => {
     load();
     getPartners().then(setPartners).catch(console.error);
   }, []);
 
-  const partnerOptions = partners.map(p => ({
-    value: p.id,
-    label: p.name
-  }));
+  const toggleSort = (key) => {
+    setSort(prev =>
+      prev.key === key
+        ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: 'asc' }
+    );
+  };
+
+  const partnerOptions = partners.map(p => ({ value: p.id, label: p.name }));
 
   const startEdit = (item) => {
     setEditId(item.id);
-    setForm({
-      ...item,
-      partner_id: item.partner_id?.toString() || ''
-    });
+    setForm({ ...item, partner_id: item.partner_id?.toString() || '' });
   };
 
   const startAdd = () => {
@@ -95,12 +122,9 @@ export default function Cases() {
 
   const LevelSelect = sel('level', LEVELS, 'Уровень');
   const PartnerSelect = sel('partner_id', partnerOptions, 'Партнёр');
-
-  const levelLabel = (val) =>
-    LEVELS.find(l => l.value === val)?.label || val || '—';
-
-  const formatDate = (date) =>
-    date ? new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+  const levelLabel = (val) => LEVELS.find(l => l.value === val)?.label || val || '—';
+  const formatDate = (date) => date ? new Date(date).toLocaleDateString('ru-RU') : '—';
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
   const EditRow = () => (
     <tr className="section-edit-row">
@@ -116,6 +140,7 @@ export default function Cases() {
       <td>
         <textarea className="section-textarea" value={form.description || ''} placeholder="Описание" onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </td>
+      <td></td>
       <td>
         <div className="section-row-actions">
           <button className="section-save-btn" onClick={save}>сохранить</button>
@@ -125,6 +150,8 @@ export default function Cases() {
     </tr>
   );
 
+  if (loading) return <p className="participants-loading">Загрузка...</p>;
+
   return (
     <div className="admin-card">
       <div className="section-header">
@@ -133,11 +160,51 @@ export default function Cases() {
           <PlusIcon style={{ width: 16, height: 16 }} /> добавить
         </button>
       </div>
+      <div className="participants-filters" style={{ marginBottom: 12 }}>
+        <input className="participants-search" placeholder="Поиск по названию кейса..." value={search} onChange={e => setSearch(e.target.value)} />
+        <select className="participants-filter-select" value={yearFilter} onChange={e => setYearFilter(e.target.value)} >
+          <option value="">Год</option>
+          {years.map(y => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)} >
+          <option value="">Уровень</option>
+          {LEVELS.map(l => (
+            <option key={l.value} value={l.value}>{l.label}</option>
+          ))}
+        </select>
+
+        {(search || yearFilter || levelFilter) && (
+          <button className="participants-reset-btn"
+            onClick={() => {
+              setSearch('');
+              setYearFilter('');
+              setLevelFilter('');
+            }} >сбросить</button>
+        )}
+      </div>
       <div className="section-table-wrap">
         <table className="section-table">
           <thead>
             <tr>
-              <th>№</th><th>Название</th><th>Уровень</th><th>Партнёр</th><th>Разрешено команд</th><th>Описание</th><th>Год</th><th></th>
+              <th>№</th>
+              {[
+                { key: 'name', label: 'Название' },
+                { key: 'level', label: 'Уровень' },
+                { key: 'partner', label: 'Партнёр' },
+                { key: 'teams_count', label: 'Разрешено команд' },
+                { key: 'description', label: 'Описание' },
+                { key: 'created_at', label: 'Год' },
+              ].map(({ key, label }) => (
+                <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)} >
+                  {label}
+                  <span className="participants-sort-icon">
+                    {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                  </span>
+                </th>
+              ))}
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -151,11 +218,7 @@ export default function Cases() {
               <EditRow key={item.id} />
             ) : (
               <tr key={item.id}>
-                <td>
-                  <span className="section-badge">
-                    {item.case_number || '—'}
-                  </span>
-                </td>
+                <td><span className="section-badge">{item.case_number || '—'}</span></td>
                 <td className="cases-name">{item.name}</td>
                 <td>
                   {item.level ? (
@@ -164,21 +227,17 @@ export default function Cases() {
                     </span>
                   ) : '—'}
                 </td>
-                <td style={{ color: '#666' }}>
-                  {item.partner_name || '—'}
-                </td>
+                <td style={{ color: '#666' }}>{item.partner_name || '—'}</td>
                 <td>{item.registered_teams_count ?? 0}/{item.teams_count ?? 0}</td>
                 <td>{item.description || '—'}</td>
-                <td style={{ color: '#999' }}>
-                  {formatDate(item.created_at)}
-                </td>
+                <td style={{ color: '#999' }}>{formatDate(item.created_at)}</td>
                 <td>
                   <div className="section-row-actions">
-                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
-                      <PencilIcon style={{ width: 15, height: 15 }} />
+                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
+                      <PencilIcon style={{ width: 15 }} />
                     </button>
-                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
-                      <TrashIcon style={{ width: 15, height: 15 }} />
+                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
+                      <TrashIcon style={{ width: 15 }} />
                     </button>
                   </div>
                 </td>

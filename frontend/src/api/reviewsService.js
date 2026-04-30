@@ -1,14 +1,14 @@
 import api from "./axios";
 
-// получить все доступные отзывы
-export const getReviews = async () => {
-  const res = await api.get("/reviews/");
+// получить все активные отзывы
+export const getReviews = async (params = {}) => {
+  const res = await api.get("/reviews/", { params });
   return res.data;
 };
 
 // получить все архивные отзывы
-export const getArchivedReviews = async () => {
-  const res = await api.get("/reviews/archived/");
+export const getArchivedReviews = async (params = {}) => {
+  const res = await api.get("/reviews/archived/", { params });
   return res.data;
 };
 

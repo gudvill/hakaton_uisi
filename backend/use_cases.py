@@ -11,6 +11,12 @@ class AdminUseCase:
     def __init__(self, repository: AdminRepository):
         self.repository = repository
 
+    def get_me(self, admin_id: int):
+        user = self.repository.get_by_id(admin_id)
+        if not user: return None
+        user_id, login, password_hash, email = user
+        return { "id": user_id, "login": login, "email": email }
+
     def login(self, login: str, password: str):
         user = self.repository.get_by_login(login)
         if not user: return None
@@ -135,14 +141,14 @@ class CasesUseCase:
     def create(self, case: Case) -> int:
         return self.repository.create(case)
 
-    def get_all(self) -> List[Dict[str, Any]]:
-        return self.repository.get_all_with_partner()
+    def get_filtered(self, search=None, year=None, level=None, sort_by="created_at", sort_dir="desc"):
+        return self.repository.get_filtered(search, year, level, sort_by, sort_dir)
 
-    def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
-        return self.repository.get_by_id_with_partner(case_id)
+    def get_filtered_archived(self, search=None, year=None, level=None, sort_by="created_at", sort_dir="desc"):
+        return self.repository.get_filtered_archived(search, year, level, sort_by, sort_dir)
     
-    def get_unavailable(self):
-        return self.repository.get_unavailable()
+    def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
+        return self.repository.get_by_id(case_id)
 
     def get_by_year(self, year: int):
         return self.repository.get_by_year(year)
@@ -161,11 +167,11 @@ class PartnersUseCase:
     def create(self, partner: Partner) -> int:
         return self.repository.create(partner)
 
-    def get_all_true(self) -> List[Partner]:
-        return self.repository.get_all_true()
-    
-    def get_all_false(self) -> List[Partner]:
-        return self.repository.get_all_false()
+    def get_filtered(self, search, sort_by, sort_dir):
+        return self.repository.get_filtered(search, sort_by, sort_dir)
+
+    def get_filtered_archived(self, search, sort_by, sort_dir):
+        return self.repository.get_filtered_archived(search, sort_by, sort_dir)
 
     def get_by_id(self, partner_id: int) -> Optional[Partner]:
         return self.repository.get_by_id(partner_id)
@@ -184,11 +190,11 @@ class ReviewsUseCase:
     def create(self, review: Review) -> int:
         return self.repository.create(review)
     
-    def get_all_true(self) -> List[Review]:
-        return self.repository.get_all_true()
-    
-    def get_all_false(self) -> List[Review]:
-        return self.repository.get_all_false()
+    def get_filtered(self, year):
+        return self.repository.get_filtered(year)
+
+    def get_filtered_archived(self, year):
+        return self.repository.get_filtered_archived(year)
 
     def get_by_id(self, review_id: int) -> Optional[Review]:
         return self.repository.get_by_id(review_id)
@@ -345,6 +351,9 @@ class RegistrationUseCase:
     
     def get_filtered(self, search, level, case_id, sort_by, sort_dir):
         return self.repository.get_filtered(search, level, case_id, sort_by, sort_dir)
+    
+    def get_filtered_archived(self, search, level, case_id, sort_by, sort_dir):
+        return self.repository.get_filtered_archived(search, level, case_id, sort_by, sort_dir)
 
     def get_by_id(self, reg_id) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id(reg_id)
@@ -357,6 +366,8 @@ class RegistrationUseCase:
         if not participant: raise Exception("Участник не найден")
         if participant["role"] == "капитан": raise Exception("Нельзя удалить капитана команды")
         team_id = participant["registration_id"]
+        team = self.repository.get_by_id(team_id)
+        if not team or not team["is_available"]: raise Exception("Команда не найдена или архивирована")
         current_participants = self.repository.get_participants_by_registration(team_id)
         if len(current_participants) <= 2: raise Exception("В команде должно оставаться не менее 2 участников")
         self.repository.delete_participant(p_id)
@@ -368,7 +379,7 @@ class RegistrationUseCase:
         course = int(p["course"])
         if course < 1 or course > 5: raise Exception("Курс должен быть от 1 до 5")
         team = self.repository.get_by_id(reg_id)
-        if not team: raise Exception("Команда не найдена")
+        if not team or not team["is_available"]: raise Exception("Команда не найдена или архивирована")
         if team["amount_participants"] + 1 > 5: raise Exception("Команда не может быть больше 5 участников")
         if p.get("role") == "капитан":
             current_captain = self.repository.get_captain_by_registration(reg_id)

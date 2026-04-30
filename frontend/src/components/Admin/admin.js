@@ -1,11 +1,12 @@
 import './admin.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../../api/authService';
+import { logout, getMe } from '../../api/authService';
 import { UserCircleIcon, UsersIcon, NewspaperIcon, ChartBarIcon, CalendarDaysIcon, QuestionMarkCircleIcon, BriefcaseIcon, UserGroupIcon, ChatBubbleLeftRightIcon, PhotoIcon, DocumentTextIcon, DocumentMinusIcon, MapIcon } from '@heroicons/react/24/outline';
 
 import Account from './sections/Account/Account';
 import Participants from './sections/Participants/Participants';
+<<<<<<< HEAD
 import News from './sections/News/News';
 import Stats from './sections/Stats/Stats';
 import Program from './sections/Program/Program';
@@ -35,7 +36,17 @@ const NAV_ITEMS = [
 
 export default function Admin() {
   const [active, setActive] = useState('account');
+  const [admin, setAdmin] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getMe()
+      .then(setAdmin)
+      .catch(() => {
+        logout();
+        navigate('/admin/login');
+      });
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -43,7 +54,7 @@ export default function Admin() {
   };
 
   const renderContent = () => {
-    if (active === 'account') return <Account />;
+    if (active === 'account') return <Account admin={admin} />;
     const item = NAV_ITEMS.find(n => n.id === active);
     const Section = item?.Component;
     return Section ? <Section /> : null;
@@ -58,7 +69,7 @@ export default function Admin() {
         </div>
         <div className="admin-topbar-user">
           <UserCircleIcon className="admin-topbar-icon" />
-          <span>admin</span>
+          <span>{admin?.login || '...'}</span>
         </div>
       </header>
 
@@ -67,20 +78,14 @@ export default function Admin() {
           <div className="admin-profile" onClick={() => setActive('account')}>
             <UserCircleIcon className="admin-avatar-icon" />
             <div>
-              <p className="admin-profile-name">admin</p>
-              <button className="admin-logout-btn" onClick={(e) => { e.stopPropagation(); handleLogout(); }}>
-                выйти
-              </button>
+              <p className="admin-profile-name">{admin?.login || '...'}</p>
+              <button className="admin-logout-btn" onClick={(e) => { e.stopPropagation(); handleLogout(); }} >выйти</button>
             </div>
           </div>
 
           <nav className="admin-nav">
             {NAV_ITEMS.map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                className={`admin-nav-item ${active === id ? 'admin-nav-item--active' : ''}`}
-                onClick={() => setActive(id)}
-              >
+              <button key={id} className={`admin-nav-item ${active === id ? 'admin-nav-item--active' : ''}`} onClick={() => setActive(id)} >
                 <Icon className="admin-nav-icon" />
                 <span>{label}</span>
               </button>
