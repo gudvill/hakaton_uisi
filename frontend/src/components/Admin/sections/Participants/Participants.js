@@ -132,13 +132,9 @@ export default function Participants() {
     }
   };
 
-  const handleDeleteParticipant = async (participantId, localIndex = null) => {
-    if (localIndex !== null && editingTeam) {
-      // Локальное удаление нового участника (без id)
-      setEditData(prev => ({
-        ...prev,
-        participants: prev.participants.filter((_, i) => i !== localIndex)
-      }));
+  const handleDeleteParticipant = async (participantId) => {
+    if (!participantId) {
+      alert("Сначала сохраните участника, затем можно удалить");
       return;
     }
 
