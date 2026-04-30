@@ -325,7 +325,7 @@ export default function Participants() {
                       )}
 
                       {activeTab === 'archive' && (
-                        <button className="participants-restore-btn" onClick={() => { e.stopPropagation(); handleRestore(team.id); }}>восстановить</button>
+                        <button className="participants-restore-btn" onClick={(e) => { e.stopPropagation(); handleRestore(team.id); }}>восстановить</button>
                       )}
                     </td>
                   </tr>
