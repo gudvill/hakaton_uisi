@@ -256,6 +256,11 @@ def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecas
     use_case.disable(case_id)
     return {"message": "Кейс отключён"}
 
+@cases_router.post("/{case_id}/restore")
+def restore_case(case_id: int, usecase: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
+    usecase.restore_case(case_id)
+    return {"message": "Кейс восстановлен"}
+
 
 # Эндпоинты для Партнёров
 @partners_router.post("/", response_model=PartnerSerializer)
@@ -291,6 +296,11 @@ def disable_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_par
     use_case.disable(partner_id)
     return {"message": "Партнёр отключён"}
 
+@partners_router.post("/{partner_id}/restore")
+def restore_partner(partner_id: int, usecase: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)):
+    usecase.restore_partner(partner_id)
+    return {"message": "Партнёр восстановлен"}
+
 
 # Эндпоинты для Отзывов
 @reviews_router.post("/", response_model=ReviewSerializer)
@@ -325,6 +335,11 @@ def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case:
 def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> dict:
     use_case.disable(review_id)
     return {"message": "Отзыв отключён"}
+
+@reviews_router.post("/{review_id}/restore")
+def restore_review(review_id: int, usecase: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)):
+    usecase.restore_review(review_id)
+    return {"message": "Отзыв восстановлен"}
 
 
 # Эндпоинты для ФотоАльбомов

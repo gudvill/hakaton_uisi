@@ -1,6 +1,6 @@
 import './Cases.css';
 import { useState, useEffect } from 'react';
-import { getCases, createCase, updateCase, disableCase } from '../../../../api/casesService';
+import { getCases, getArchivedCases, createCase, updateCase, disableCase, restoreCase } from '../../../../api/casesService';
 import { getPartners } from '../../../../api/partnersService';
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
@@ -25,6 +25,7 @@ export default function Cases() {
   const [partners, setPartners] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [tab, setTab] = useState('active');
   const [search, setSearch] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
@@ -35,13 +36,18 @@ export default function Cases() {
     try {
       if (!silent) setLoading(true);
 
-      const data = await getCases({
+      const params = {
         search: search || undefined,
         year: yearFilter ? Number(yearFilter) : undefined,
         level: levelFilter || undefined,
         sort_by: sort.key,
         sort_dir: sort.dir,
-      });
+      };
+
+      const data =
+        tab === 'archive'
+          ? await getArchivedCases(params)
+          : await getCases(params);
 
       setItems(data);
     } catch (e) {
@@ -57,7 +63,7 @@ export default function Cases() {
       load(true);
     }, 400);
     return () => clearTimeout(delay);
-  }, [search, yearFilter, levelFilter, sort]);
+  }, [search, yearFilter, levelFilter, sort, tab]);
 
   useEffect(() => {
     load();
@@ -119,6 +125,12 @@ export default function Cases() {
     load();
   };
 
+  const restore = async (id) => {
+    await restoreCase(id);
+    load();
+  };
+
+
   const inp = (key, placeholder) => (
     <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
   );
@@ -159,10 +171,27 @@ export default function Cases() {
     <div className="admin-card">
       <div className="section-header">
         <h3 className="admin-card-title" style={{ marginBottom: 0 }}>КЕЙСЫ</h3>
-        <button className="section-add-btn" onClick={startAdd}>
-          <PlusIcon style={{ width: 16, height: 16 }} /> добавить
+        {tab === 'active' && (
+          <button className="section-add-btn" onClick={startAdd}>
+            <PlusIcon style={{ width: 16, height: 16 }} /> добавить
+          </button>
+        )}
+      </div>
+
+      {/* ВКЛАДКИ */}
+      <div className="news-tabs">
+        <button
+          className={`news-tab ${tab === 'active' ? 'news-tab--active' : ''}`}
+          onClick={() => { setTab('active'); cancel(); }} >
+          Активные
+        </button>
+        <button
+          className={`news-tab ${tab === 'archive' ? 'news-tab--active' : ''}`}
+          onClick={() => { setTab('archive'); cancel(); }} >
+          Архив
         </button>
       </div>
+      {/* ФИЛЬТРЫ */}
       <div className="participants-filters" style={{ marginBottom: 12 }}>
         <input className="participants-search" placeholder="Поиск по названию кейса..." value={search} onChange={e => setSearch(e.target.value)} />
         <select className="participants-filter-select" value={yearFilter} onChange={e => setYearFilter(e.target.value)} >
@@ -213,7 +242,7 @@ export default function Cases() {
             </tr>
           </thead>
           <tbody>
-            {editId === 'new' && <EditRow />}
+            {tab === 'active' && editId === 'new' && <EditRow />}
             {items.length === 0 && editId !== 'new' && (
               <tr>
                 <td colSpan={8} className="section-empty">Нет кейсов</td>
@@ -238,13 +267,21 @@ export default function Cases() {
                 <td style={{ color: '#999' }}>{formatDate(item.created_at)}</td>
                 <td>
                   <div className="section-row-actions">
-                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
-                      <PencilIcon style={{ width: 15 }} />
-                    </button>
-                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
-                      <TrashIcon style={{ width: 15 }} />
-                    </button>
-                  </div>
+                      {tab === 'active' ? (
+                        <>
+                          <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
+                            <PencilIcon style={{ width: 15 }} />
+                          </button>
+                          <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
+                            <TrashIcon style={{ width: 15 }} />
+                          </button>
+                        </>
+                      ) : (
+                        <button className="section-icon-btn section-icon-btn--edit" title="Восстановить" onClick={() => restore(item.id)} >
+                          <ArchiveBoxIcon style={{ width: 15 }} />
+                        </button>
+                      )}
+                    </div>
                 </td>
               </tr>
             ))}

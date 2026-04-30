@@ -161,6 +161,9 @@ class CasesUseCase:
 
     def disable(self, case_id: int) -> None:
         self.repository.disable(case_id)
+    
+    def restore_case(self, case_id: int):
+        self.repository.restore_case(case_id)
 
 
 class PartnersUseCase:
@@ -185,6 +188,8 @@ class PartnersUseCase:
     def disable(self, partner_id: int) -> None:
         self.repository.disable(partner_id)
 
+    def restore_partner(self, partner_id: int):
+        self.repository.restore_partner(partner_id)
 
 class ReviewsUseCase:
     def __init__(self, repository: ReviewsRepository):
@@ -207,6 +212,9 @@ class ReviewsUseCase:
 
     def disable(self, review_id: int) -> None:
         self.repository.disable(review_id)
+
+    def restore_review(self, review_id: int):
+        self.repository.restore_review(review_id)
 
 
 class PhotoAlbumsUseCase:

@@ -6,7 +6,6 @@ export const getCases = async (params = {}) => {
   return res.data;
 };
 
-
 // получить все архивные кейсы
 export const getArchivedCases = async (params = {}) => {
   const res = await api.get("/cases/archived/", { params });
@@ -42,4 +41,9 @@ export const updateCase = async (id, data) => {
 export const disableCase = async (id) => {
   const res = await api.delete(`/cases/${id}`);
   return res.data;
+};
+
+// восстановить кейс
+export const restoreCase = async (id) => {
+  await api.post(`/cases/${id}/restore`);
 };

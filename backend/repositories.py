@@ -306,6 +306,11 @@ class CasesRepository(BaseRepository):
                 cursor.execute(query, (year,))
                 return self._fetch_all_dict(cursor)
             
+    def restore_case(self, case_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE cases SET is_available = TRUE WHERE id = %s", (case_id,))
+            
     def get_filtered(self, search: str = None, year: int = None, level: str = None, sort_by: str = "created_at", sort_dir: str = "desc") -> List[Dict[str, Any]]:
         allowed_sort = {
             "name": "c.name",
@@ -434,12 +439,17 @@ class PartnersRepository(BaseRepository):
                 cursor.execute(query)
                 return self._fetch_all_dict(cursor)
 
-    def get_by_id(self, news_id: int):
+    def get_by_id(self, partner_id: int):
         query = """SELECT id, name, image, description, full_description, site_link, is_available FROM partners WHERE id = %s"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query, (news_id,))
+                cursor.execute(query, (partner_id,))
                 return self._fetch_one_dict(cursor)
+    
+    def restore_partner(self, partner_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE partners SET is_available = TRUE WHERE id = %s", (partner_id,))
             
     def get_filtered(self, search: str = None, sort_by: str = "name", sort_dir: str = "asc"):
         allowed_sort = {
@@ -536,6 +546,11 @@ class ReviewsRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query, (news_id,))
                 return self._fetch_one_dict(cursor)
+    
+    def restore_review(self, review_id: int):
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE reviews SET is_available = TRUE WHERE id = %s", (review_id,))
             
     def get_filtered(self, year: int = None):
         query = """
