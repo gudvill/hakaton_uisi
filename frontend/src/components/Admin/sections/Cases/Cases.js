@@ -9,6 +9,8 @@ const LEVELS = [
   { value: 'advanced', label: 'Продвинутый' },
 ];
 
+const SORTABLE_KEYS = ['name', 'partner', 'created_at'];
+
 const sel = (key, options, placeholder) => ({ form, setForm }) => (
   <select className="section-input cases-select" value={form[key] || ''} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} >
     <option value="">{placeholder}</option>
@@ -35,7 +37,7 @@ export default function Cases() {
 
       const data = await getCases({
         search: search || undefined,
-        year: yearFilter || undefined,
+        year: yearFilter ? Number(yearFilter) : undefined,
         level: levelFilter || undefined,
         sort_by: sort.key,
         sort_dir: sort.dir,
@@ -63,6 +65,7 @@ export default function Cases() {
   }, []);
 
   const toggleSort = (key) => {
+    if (!SORTABLE_KEYS.includes(key)) return;
     setSort(prev =>
       prev.key === key
         ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
@@ -197,11 +200,13 @@ export default function Cases() {
                 { key: 'description', label: 'Описание' },
                 { key: 'created_at', label: 'Год' },
               ].map(({ key, label }) => (
-                <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)} >
+                <th key={key} className={SORTABLE_KEYS.includes(key) ? "participants-th-sort" : ""} onClick={() => toggleSort(key)} >
                   {label}
-                  <span className="participants-sort-icon">
-                    {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                  </span>
+                  {SORTABLE_KEYS.includes(key) && (
+                    <span className="participants-sort-icon">
+                      {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                    </span>
+                  )}
                 </th>
               ))}
               <th></th>

@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 import { getPartners, createPartner, updatePartner, disablePartner } from '../../../../api/partnersService';
 import { PencilIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
+const SORTABLE_KEYS = ['name', 'description', 'full_description'];
+
 export default function Partners() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
-
   const [search, setSearch] = useState('');
-  const [sort, setSort] = useState({ key: "created_at", dir: "desc" });
+  const [sort, setSort] = useState({ key: "name", dir: "asc" });
 
   const load = async (silent = false) => {
     try {
@@ -38,6 +39,7 @@ export default function Partners() {
   }, []);
 
   const toggleSort = (key) => {
+    if (!SORTABLE_KEYS.includes(key)) return;
     setSort(prev =>
       prev.key === key
         ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
@@ -52,7 +54,13 @@ export default function Partners() {
 
   const startAdd = () => {
     setEditId('new');
-    setForm({ name: '', description: '', full_description: '', site_link: '', image: '' });
+    setForm({ 
+      name: '', 
+      description: '', 
+      full_description: '', 
+      site_link: '', 
+      image: '' 
+    });
   };
 
   const cancel = () => {
@@ -142,11 +150,13 @@ export default function Partners() {
                 { key: 'full_description', label: 'Полное описание' },
                 { key: 'site_link', label: 'Ссылка на сайт' },
               ].map(({ key, label }) => (
-                <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)}>
+                <th key={key} className={SORTABLE_KEYS.includes(key) ? "participants-th-sort" : ""} onClick={() => SORTABLE_KEYS.includes(key) && toggleSort(key)} >
                   {label}
-                  <span className="participants-sort-icon">
-                    {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                  </span>
+                  {SORTABLE_KEYS.includes(key) && (
+                    <span className="participants-sort-icon">
+                      {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                    </span>
+                  )}
                 </th>
               ))}
               <th></th>
@@ -163,7 +173,11 @@ export default function Partners() {
               <EditRow key={item.id} />
             ) : (
               <tr key={item.id}>
-                <td>{item.image && (<img className="section-thumbnail partner-logo" src={item.image} alt="" />)}</td>
+                <td>
+                  {item.image && (
+                    <img className="section-thumbnail partner-logo" src={item.image} alt="" />
+                  )}
+                </td>
                 <td style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.image || '—'}
                 </td>
@@ -173,10 +187,10 @@ export default function Partners() {
                 <td style={{ color: '#666' }}>{item.site_link || '—'}</td>
                 <td>
                   <div className="section-row-actions">
-                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
+                    <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
                       <PencilIcon style={{ width: 15, height: 15 }} />
                     </button>
-                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
+                    <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
                       <TrashIcon style={{ width: 15, height: 15 }} />
                     </button>
                   </div>

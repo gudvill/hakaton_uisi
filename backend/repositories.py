@@ -374,15 +374,14 @@ class PartnersRepository(BaseRepository):
                 cursor.execute(query, (news_id,))
                 return self._fetch_one_dict(cursor)
             
-    def get_filtered(self, search: str = None, sort_by: str = "created_at", sort_dir: str = "desc"):
+    def get_filtered(self, search: str = None, sort_by: str = "name", sort_dir: str = "asc"):
         allowed_sort = {
             "name": "name",
             "description": "description",
             "full_description": "full_description",
-            "created_at": "created_at"
         }
 
-        sort_column = allowed_sort.get(sort_by, "created_at")
+        sort_column = allowed_sort.get(sort_by, "name")
         sort_direction = "ASC" if sort_dir == "asc" else "DESC"
 
         query = """
@@ -410,10 +409,9 @@ class PartnersRepository(BaseRepository):
             "name": "name",
             "description": "description",
             "full_description": "full_description",
-            "created_at": "created_at"
         }
 
-        sort_column = allowed_sort.get(sort_by, "created_at")
+        sort_column = allowed_sort.get(sort_by, "name")
         sort_direction = "ASC" if sort_dir == "asc" else "DESC"
 
         query = """
