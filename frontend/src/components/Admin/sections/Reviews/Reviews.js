@@ -13,6 +13,7 @@ export default function Reviews() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
   const [year, setYear] = useState('');
+  const years = Array.from({ length: 3 }, (_, i) => 2022 + i);
 
   const load = async (silent = false) => {
     try {
@@ -97,7 +98,12 @@ export default function Reviews() {
         </button>
       </div>
       <div className="participants-filters">
-        <input className="participants-filter-select" placeholder="Год (например 2024)" value={year} onChange={e => setYear(e.target.value)} />
+        <select className="participants-filter-select" value={year} onChange={e => setYear(e.target.value)} >
+          <option value="">Год отзыва</option>
+          {years.map(y => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
         {year && (
           <button className="participants-reset-btn" onClick={() => setYear('')} >
             <XMarkIcon style={{ width: 14, height: 14 }} /> сбросить

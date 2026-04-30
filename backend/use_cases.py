@@ -361,6 +361,29 @@ class RegistrationUseCase:
     def disable_registration(self, reg_id) -> None:
         self.repository.disable_registration(reg_id)
 
+    def restore_registration(self, reg_id: int) -> None:
+        team = self.repository.get_by_id(reg_id)
+        if not team: raise Exception("Команда не найдена")
+        if team["is_available"]: raise Exception("Команда уже активна")
+        if self.repository.exists_team_name(team["name"]):
+            raise Exception("Команда с таким названием уже существует")
+        participants = self.repository.get_participants_by_registration(reg_id)
+        for p in participants:
+            fio = p["fio"].strip().lower()
+            course = int(p["course"])
+            if self.repository.exists_participant(fio, course): raise Exception(f"Участник {p['fio']} уже есть среди активных")
+        case = self.cases_repository.get_by_id(team["selected_case"])
+        if not case: raise Exception("Кейс не найден")
+        current_count = self.repository.count_by_case(team["selected_case"], "selected_case")
+        if case["teams_count"] is not None and current_count >= case["teams_count"]:
+            raise Exception("Основной кейс уже заполнен")
+        spare_case = self.cases_repository.get_by_id(team["spare_case"])
+        if not spare_case: raise Exception("Запасной кейс не найден")
+        current_count_spare = self.repository.count_by_case(team["spare_case"], "spare_case")
+        if spare_case["teams_count"] is not None and current_count_spare >= spare_case["teams_count"]:
+            raise Exception("Запасной кейс уже заполнен")
+        self.repository.restore_registration(reg_id)
+
     def delete_participant(self, p_id: int) -> None:
         participant = self.repository.get_participant_by_id(p_id)
         if not participant: raise Exception("Участник не найден")

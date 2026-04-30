@@ -435,10 +435,22 @@ def get_one(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration
     if not reg: raise HTTPException(status_code=404, detail="Регистрация не найдена")
     return reg
 
+@registration_router.put("/{reg_id}")
+def update_registration(reg_id: int, data: RegistrationRequestSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
+    reg = Registration(**data.team.dict())
+    participants = [p.dict() for p in data.participants]
+    usecase.update(reg_id, reg, participants)
+    return {"message": "Регистрация обновлена"}
+
 @registration_router.delete("/{reg_id}")
 def disable_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
     usecase.disable_registration(reg_id)
     return {"message": "Команда отключена"}
+
+@registration_router.post("/{reg_id}/restore")
+def restore_registration(reg_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
+    usecase.restore_registration(reg_id)
+    return {"message": "Команда восстановлена"}
 
 @registration_router.post("/{reg_id}/participant")
 def create_participant(reg_id: int, p: ParticipantsCreateSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
@@ -449,10 +461,3 @@ def create_participant(reg_id: int, p: ParticipantsCreateSerializer, usecase: Re
 def delete_participant(p_id: int, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
     usecase.delete_participant(p_id)
     return {"message": "Участник удалён"}
-
-@registration_router.put("/{reg_id}")
-def update_registration(reg_id: int, data: RegistrationRequestSerializer, usecase: RegistrationUseCase = Depends(get_registration_usecase), admin=Depends(get_current_admin)):
-    reg = Registration(**data.team.dict())
-    participants = [p.dict() for p in data.participants]
-    usecase.update(reg_id, reg, participants)
-    return {"message": "Регистрация обновлена"}

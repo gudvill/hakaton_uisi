@@ -1,7 +1,7 @@
 import './Participants.css';
 import { useEffect, useState, Fragment } from "react";
-import { getRegistrations, disableRegistration, restoreRegistration, updateRegistration, deleteParticipant, createParticipant } from "../../../../api/registrationService";
-import { ChevronDownIcon, ChevronUpIcon, TrashIcon, PencilIcon, MagnifyingGlassIcon, XMarkIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
+import { getRegistrations, getArchivedRegistrations, disableRegistration, restoreRegistration, updateRegistration, deleteParticipant, createParticipant } from "../../../../api/registrationService";
+import { ChevronDownIcon, ChevronUpIcon, TrashIcon, PencilIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const ROLE_LABELS = {
   капитан: "Капитан",
@@ -23,31 +23,30 @@ export default function Participants() {
   const [sort, setSort] = useState({ key: "created_at", dir: "desc" });
   const [editingTeam, setEditingTeam] = useState(null);
   const [editData, setEditData] = useState(null);
-
-  // Архив
-  const [activeTab, setActiveTab] = useState('active');
-  const [archived, setArchived] = useState([]);
-  const [archivedLoading, setArchivedLoading] = useState(false);
+  const [isArchive, setIsArchive] = useState(false);
 
   useEffect(() => {
     const delay = setTimeout(() => {
       loadData(true);
     }, 400);
     return () => clearTimeout(delay);
-  }, [search, levelFilter, caseFilter, sort]);
+  }, [search, levelFilter, caseFilter, sort, isArchive]);
 
   const loadData = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
 
-      const data = await getRegistrations({
+      const params = {
         search: search || undefined,
         level: levelFilter || undefined,
         case_id: caseFilter ? Number(caseFilter) : undefined,
         sort_by: sort.key,
         sort_dir: sort.dir,
-        is_available: true,
-      });
+      };
+
+      const data = isArchive
+        ? await getArchivedRegistrations(params)
+        : await getRegistrations(params);
 
       setRegistrations(data);
     } catch (e) {
@@ -61,22 +60,6 @@ export default function Participants() {
     loadData();
   }, []);
 
-  const loadArchived = async () => {
-    try {
-      setArchivedLoading(true);
-      const data = await getRegistrations({ is_available: false });
-      setArchived(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setArchivedLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'archive') loadArchived();
-  }, [activeTab]);
-
   const toggleSort = (key) => {
     setSort(prev =>
       prev.key === key
@@ -89,18 +72,12 @@ export default function Participants() {
     if (!window.confirm("Удалить команду?")) return;
     await disableRegistration(id);
     loadData(true);
-    if (activeTab === 'archive') loadArchived();
-  };
-
-  const handleRestore = async (id) => {
-    if (!window.confirm("Восстановить команду?")) return;
-    await restoreRegistration(id);
-    loadArchived();
   };
 
   const toggleExpand = (id) => setExpanded(prev => prev === id ? null : id);
 
   const startEdit = (team) => {
+    if (isArchive) return;
     setEditingTeam(team.id);
     setExpanded(team.id);
 
@@ -110,8 +87,8 @@ export default function Participants() {
       amount_participants: team.amount_participants,
       participation_form: team.participation_form,
       level_education: team.level_education,
-      selected_case: Number(team.selected_case),
-      spare_case: Number(team.spare_case),
+      selected_case: team.selected_case ? Number(team.selected_case) : null,
+      spare_case: team.spare_case ? Number(team.spare_case) : null,
       captain_phone: team.captain_phone,
       captain_email: team.captain_email,
       curator_data: team.curator_data || { fio: '', phone: '' },
@@ -172,391 +149,314 @@ export default function Participants() {
     loadData(true);
   };
 
-  if (loading) return <p className="participants-loading">Загрузка...</p>;
+  const toggleArchive = () => {
+    setIsArchive(prev => !prev);
+    setExpanded(null);
+    setEditingTeam(null);
+    setEditData(null);
+  };
 
-  const SORT_COLUMNS = [
-    { key: 'name', label: 'Команда' },
-    { key: 'institution', label: 'Учреждение' },
-    { key: 'level_education', label: 'Образование' },
-    { key: 'selected_case', label: 'Кейс' },
-    { key: 'amount_participants', label: 'Участников' },
-    { key: 'created_at', label: 'Создана' },
-  ];
+  if (loading) return <p className="participants-loading">Загрузка...</p>;
 
   return (
     <div className="participants-wrap">
       <div className="participants-header">
-        <h3 className="admin-card-title">УЧАСТНИКИ</h3>
-        <span className="participants-count">
-          {activeTab === 'active' ? registrations.length : archived.length} команд
-        </span>
+        <h3 className="admin-card-title">
+          {isArchive ? "АРХИВ КОМАНД" : "УЧАСТНИКИ"}
+        </h3>
+
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span className="participants-count">{registrations.length} команд</span>
+          <button className="participants-reset-btn" onClick={toggleArchive} >
+            {isArchive ? "активные" : "архив"}
+          </button>
+        </div>
       </div>
 
-      {/* ===== ВКЛАДКИ ===== */}
-      <div className="participants-tabs">
-        <button
-          className={`participants-tab ${activeTab === 'active' ? 'participants-tab--active' : ''}`}
-          onClick={() => setActiveTab('active')}
-        >
-          Активные
-        </button>
-        <button
-          className={`participants-tab ${activeTab === 'archive' ? 'participants-tab--active' : ''}`}
-          onClick={() => setActiveTab('archive')}
-        >
-          Архив
-          {archived.length > 0 && (
-            <span className="participants-tab-badge">{archived.length}</span>
+      {/* Фильтры */}
+      <div className="participants-filters">
+        <div className="participants-search-wrap">
+          <MagnifyingGlassIcon className="participants-search-icon" />
+          <input className="participants-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по команде или учреждению..." />
+          {search && (
+            <button className="participants-search-clear" onClick={() => setSearch('')}>
+              <XMarkIcon style={{ width: 14, height: 14 }} />
+            </button>
           )}
-        </button>
+        </div>
+        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
+          <option value="">Образование</option>
+          <option value="спо 9класс">СПО (9 класс)</option>
+          <option value="спо 11класс">СПО (11 класс)</option>
+          <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
+          <option value="магистратура">Магистратура</option>
+        </select>
+        <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
+          <option value="">Все кейсы</option>
+          {[1, 2, 3, 4, 5, 6].map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+
+        {(search || levelFilter || caseFilter) && (
+          <button
+            className="participants-reset-btn"
+            onClick={() => {
+              setSearch('');
+              setLevelFilter('');
+              setCaseFilter('');
+            }}
+          >
+            <XMarkIcon style={{ width: 14, height: 14 }} /> сбросить
+          </button>
+        )}
       </div>
 
-      {/* ===== АКТИВНЫЕ ===== */}
-      {activeTab === 'active' && (
-        <>
-          {/* Фильтры */}
-          <div className="participants-filters">
-            <div className="participants-search-wrap">
-              <MagnifyingGlassIcon className="participants-search-icon" />
-              <input
-                className="participants-search"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Поиск по команде или учреждению..."
-              />
-              {search && (
-                <button className="participants-search-clear" onClick={() => setSearch('')}>
-                  <XMarkIcon style={{ width: 14, height: 14 }} />
-                </button>
-              )}
-            </div>
-            <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
-              <option value="">Образование</option>
-              <option value="спо 9класс">СПО (9 класс)</option>
-              <option value="спо 11класс">СПО (11 класс)</option>
-              <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
-              <option value="магистратура">Магистратура</option>
-            </select>
-            <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
-              <option value="">Все кейсы</option>
-              {[1, 2, 3, 4, 5, 6].map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+      {registrations.length === 0 ? (
+        <p className="participants-empty">Нет команд</p>
+      ) : (
+        <div className="participants-table-wrap">
+          <table className="participants-table">
+            <thead>
+              <tr>
+                <th>№</th>
+                {[
+                  { key: 'name', label: 'Команда' },
+                  { key: 'institution', label: 'Учреждение' },
+                  { key: 'level_education', label: 'Образование' },
+                  { key: 'selected_case', label: 'Кейс' },
+                  { key: 'amount_participants', label: 'Участников' },
+                  { key: 'created_at', label: 'Создана' },
+                ].map(({ key, label }) => (
+                  <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)}>
+                    {label}
+                    <span className="participants-sort-icon">
+                      {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                    </span>
+                  </th>
+                ))}
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {registrations.map((team, idx) => (
+                <Fragment key={team.id}>
+                  <tr className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`} onClick={() => toggleExpand(team.id)} >
+                    <td>{idx + 1}</td>
+                    {editingTeam !== team.id ? (
+                      <>
+                        <td>{team.name}</td>
+                        <td>{team.institution}</td>
+                        <td>{team.level_education || "—"}</td>
+                        <td>{team.selected_case}</td>
+                        <td>{team.amount_participants}</td>
+                        <td>{formatDate(team.created_at)}</td>
+                      </>
+                    ) : (
+                      /* --- РЕДАКТИРОВАНИЕ: ФОРМА ВНУТРИ ЯЧЕЕК === */
+                      <>
+                        <td>
+                          <input className="section-input" value={editData.name || ""} placeholder="Название команды" onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} />
+                        </td>
+                        <td>
+                          <input className="section-input" value={editData.institution || ""} placeholder="Учреждение" onChange={e => setEditData(p => ({ ...p, institution: e.target.value }))} />
+                        </td>
+                        <td>
+                          <input className="section-input" value={editData.level_education || ""} placeholder="Уровень образования" onChange={e => setEditData(p => ({ ...p, level_education: e.target.value }))} />
+                        </td>
+                        <td>
+                          <input className="section-input" value={editData.selected_case || ""} placeholder="Кейс" onChange={e => setEditData(p => ({ ...p, selected_case: e.target.value }))} />
+                        </td>
+                        <td>{team.amount_participants}</td>
+                        <td>{formatDate(team.created_at)}</td>
+                      </>
+                    )}
 
-            {(search || levelFilter || caseFilter) && (
-              <button
-                className="participants-reset-btn"
-                onClick={() => {
-                  setSearch('');
-                  setLevelFilter('');
-                  setCaseFilter('');
-                }}
-              >
-                <XMarkIcon style={{ width: 14, height: 14 }} /> сбросить
-              </button>
-            )}
-          </div>
-
-          {registrations.length === 0 ? (
-            <p className="participants-empty">Нет команд</p>
-          ) : (
-            <div className="participants-table-wrap">
-              <table className="participants-table">
-                <thead>
-                  <tr>
-                    <th>№</th>
-                    {SORT_COLUMNS.map(({ key, label }) => (
-                      <th key={key} className="participants-th-sort" onClick={() => toggleSort(key)}>
-                        {label}
-                        <span className="participants-sort-icon">
-                          {sort.key === key ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                        </span>
-                      </th>
-                    ))}
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {registrations.map((team, idx) => (
-                    <Fragment key={team.id}>
-                      <tr
-                        className={`participants-row ${expanded === team.id ? "participants-row--open" : ""}`}
-                        onClick={() => toggleExpand(team.id)}
-                      >
-                        <td>{idx + 1}</td>
-                        {editingTeam !== team.id ? (
-                          <>
-                            <td>{team.name}</td>
-                            <td>{team.institution}</td>
-                            <td>{team.level_education || "—"}</td>
-                            <td>{team.selected_case}</td>
-                            <td>{team.amount_participants}</td>
-                            <td>{formatDate(team.created_at)}</td>
-                          </>
+                    <td className="participants-actions" onClick={e => e.stopPropagation()}>
+                      <button className="participants-expand-btn" onClick={() => toggleExpand(team.id)}>
+                        {expanded === team.id ? (
+                          <ChevronUpIcon style={{ width: 16 }} />
                         ) : (
-                          <>
-                            <td>
-                              <input className="section-input" value={editData.name || ""} placeholder="Название команды"
-                                onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} />
-                            </td>
-                            <td>
-                              <input className="section-input" value={editData.institution || ""} placeholder="Учреждение"
-                                onChange={e => setEditData(p => ({ ...p, institution: e.target.value }))} />
-                            </td>
-                            <td>
-                              <input className="section-input" value={editData.level_education || ""} placeholder="Уровень образования"
-                                onChange={e => setEditData(p => ({ ...p, level_education: e.target.value }))} />
-                            </td>
-                            <td>
-                              <input className="section-input" value={editData.selected_case || ""} placeholder="Кейс"
-                                onChange={e => setEditData(p => ({ ...p, selected_case: e.target.value }))} />
-                            </td>
-                            <td>{team.amount_participants}</td>
-                            <td>{formatDate(team.created_at)}</td>
-                          </>
+                          <ChevronDownIcon style={{ width: 16 }} />
                         )}
+                      </button>
 
-                        <td className="participants-actions" onClick={e => e.stopPropagation()}>
-                          <button className="participants-expand-btn" onClick={() => toggleExpand(team.id)}>
-                            {expanded === team.id
-                              ? <ChevronUpIcon style={{ width: 16 }} />
-                              : <ChevronDownIcon style={{ width: 16 }} />}
-                          </button>
+                      {!isArchive && (
+                        <>
                           <button className="participants-delete-btn" onClick={() => startEdit(team)}>
                             <PencilIcon style={{ width: 15, height: 15 }} />
                           </button>
+
                           <button className="participants-delete-btn" onClick={() => handleDelete(team.id)}>
                             <TrashIcon style={{ width: 16 }} />
                           </button>
-                        </td>
-                      </tr>
-
-                      {expanded === team.id && (
-                        <tr className="participants-detail-row">
-                          <td colSpan={8}>
-                            <div className="participants-detail">
-                              {editingTeam === team.id && (
-                                <div className="section-row-actions" style={{ marginBottom: 12 }}>
-                                  <button className="section-save-btn" onClick={saveEdit}>сохранить</button>
-                                  <button className="section-cancel-btn" onClick={() => {
-                                    setEditingTeam(null);
-                                    setEditData(null);
-                                  }}>отмена</button>
-                                  <button className="section-add-btn" onClick={handleAddParticipant}>+ участник</button>
-                                </div>
-                              )}
-
-                              {editingTeam === team.id && editData ? (
-                                <div className="participants-detail-cols">
-                                  <div className="participants-detail-block">
-                                    <p className="participants-detail-label">Запасной кейс</p>
-                                    <input className="section-input" value={editData.spare_case || ""} placeholder="Запасной кейс"
-                                      onChange={e => setEditData(p => ({ ...p, spare_case: e.target.value }))} />
-                                  </div>
-                                  <div className="participants-detail-block">
-                                    <p className="participants-detail-label">Контакты капитана</p>
-                                    <input className="section-input" value={editData.captain_phone || ""} placeholder="Телефон капитана"
-                                      onChange={e => setEditData(p => ({ ...p, captain_phone: e.target.value }))} />
-                                    <input className="section-input" value={editData.captain_email || ""} placeholder="Email капитана"
-                                      onChange={e => setEditData(p => ({ ...p, captain_email: e.target.value }))} />
-                                  </div>
-                                  {team.curator_data && (
-                                    <div className="participants-detail-block">
-                                      <p className="participants-detail-label">Куратор</p>
-                                      <input className="section-input" value={editData.curator_data.fio || ""} placeholder="ФИО куратора"
-                                        onChange={e => setEditData(p => ({ ...p, curator_data: { ...p.curator_data, fio: e.target.value } }))} />
-                                      <input className="section-input" value={editData.curator_data.phone || ""} placeholder="Телефон куратора"
-                                        onChange={e => setEditData(p => ({ ...p, curator_data: { ...p.curator_data, phone: e.target.value } }))} />
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="participants-detail-cols">
-                                  <div className="participants-detail-block">
-                                    <p className="participants-detail-label">Запасной кейс</p>
-                                    <p>{team.spare_case || "—"}</p>
-                                  </div>
-                                  <div className="participants-detail-block">
-                                    <p className="participants-detail-label">Контакты капитана</p>
-                                    <p>{team.captain_phone || "—"}</p>
-                                    <p>{team.captain_email || "—"}</p>
-                                  </div>
-                                  {team.curator_data && (
-                                    <div className="participants-detail-block">
-                                      <p className="participants-detail-label">Куратор</p>
-                                      <p>{team.curator_data.fio || "—"}</p>
-                                      <p>{team.curator_data.phone || "—"}</p>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
-                              {team.participants?.length > 0 && (
-                                <table className="participants-inner-table">
-                                  <thead>
-                                    <tr>
-                                      <th>ФИО</th>
-                                      <th>Роль</th>
-                                      <th>Курс</th>
-                                      {editingTeam === team.id && <th></th>}
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {(editingTeam === team.id ? editData?.participants : team.participants).map((p, index) => (
-                                      <tr key={p.id}>
-                                        <td>
-                                          {editingTeam === team.id ? (
-                                            <input value={p.fio}
-                                              onChange={e => setEditData(prev => ({
-                                                ...prev,
-                                                participants: prev.participants.map((p, i) =>
-                                                  i === index ? { ...p, fio: e.target.value } : p
-                                                ),
-                                              }))}
-                                            />
-                                          ) : p.fio}
-                                        </td>
-                                        <td>
-                                          {editingTeam === team.id ? (
-                                            <input value={p.role}
-                                              onChange={e => setEditData(prev => ({
-                                                ...prev,
-                                                participants: prev.participants.map((p, i) =>
-                                                  i === index ? { ...p, role: e.target.value } : p
-                                                ),
-                                              }))}
-                                            />
-                                          ) : (ROLE_LABELS[p.role] || p.role)}
-                                        </td>
-                                        <td>
-                                          {editingTeam === team.id ? (
-                                            <input value={p.course}
-                                              onChange={e => setEditData(prev => ({
-                                                ...prev,
-                                                participants: prev.participants.map((p, i) =>
-                                                  i === index ? { ...p, course: e.target.value } : p
-                                                ),
-                                              }))}
-                                            />
-                                          ) : p.course}
-                                        </td>
-                                        {editingTeam === team.id && (
-                                          <td>
-                                            <button className="participants-delete-btn" onClick={() => handleDeleteParticipant(p.id)}>
-                                              <TrashIcon style={{ width: 16 }} />
-                                            </button>
-                                          </td>
-                                        )}
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
+                        </>
                       )}
-                    </Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
 
-      {/* ===== АРХИВ ===== */}
-      {activeTab === 'archive' && (
-        <>
-        {/* Фильтры */}
-          <div className="participants-filters">
-            <div className="participants-search-wrap">
-              <MagnifyingGlassIcon className="participants-search-icon" />
-              <input
-                className="participants-search"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Поиск по команде или учреждению..."
-              />
-              {search && (
-                <button className="participants-search-clear" onClick={() => setSearch('')}>
-                  <XMarkIcon style={{ width: 14, height: 14 }} />
-                </button>
-              )}
-            </div>
-            <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
-              <option value="">Образование</option>
-              <option value="спо 9класс">СПО (9 класс)</option>
-              <option value="спо 11класс">СПО (11 класс)</option>
-              <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
-              <option value="магистратура">Магистратура</option>
-            </select>
-            <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
-              <option value="">Все кейсы</option>
-              {[1, 2, 3, 4, 5, 6].map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-
-            {(search || levelFilter || caseFilter) && (
-              <button
-                className="participants-reset-btn"
-                onClick={() => {
-                  setSearch('');
-                  setLevelFilter('');
-                  setCaseFilter('');
-                }}
-              >
-                <XMarkIcon style={{ width: 14, height: 14 }} /> сбросить
-              </button>
-            )}
-          </div>
-        <div className="participants-table-wrap">
-          {archivedLoading ? (
-            <p className="participants-loading">Загрузка...</p>
-          ) : archived.length === 0 ? (
-            <p className="participants-empty">Архив пуст</p>
-          ) : (
-            <table className="participants-table">
-              <thead>
-                <tr>
-                  <th>№</th>
-                  <th>Команда</th>
-                  <th>Учреждение</th>
-                  <th>Образование</th>
-                  <th>Кейс</th>
-                  <th>Участников</th>
-                  <th>Создана</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {archived.map((team, idx) => (
-                  <tr key={team.id} className="participants-row participants-row--archived">
-                    <td>{idx + 1}</td>
-                    <td>{team.name}</td>
-                    <td>{team.institution}</td>
-                    <td>{team.level_education || "—"}</td>
-                    <td>{team.selected_case}</td>
-                    <td>{team.amount_participants}</td>
-                    <td>{formatDate(team.created_at)}</td>
-                    <td className="participants-actions" onClick={e => e.stopPropagation()}>
-                      <button
-                        className="participants-restore-btn"
-                        title="Восстановить"
-                        onClick={() => handleRestore(team.id)}
-                      >
-                        <ArrowUturnLeftIcon style={{ width: 15, height: 15 }} />
-                      </button>
+                      {isArchive && (
+                        <button
+                          className="participants-restore-btn"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await restoreRegistration(team.id);
+                              loadData(true);
+                            } catch (err) {
+                              alert(err.response?.data?.detail || "Ошибка восстановления");
+                            }
+                          }}
+                        >
+                          восстановить
+                        </button>
+                      )}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                  {expanded === team.id && (
+                    <tr className="participants-detail-row">
+                      <td colSpan={8}>
+                        <div className="participants-detail">
+                          {editingTeam === team.id && (
+                            <div className="section-row-actions" style={{ marginBottom: 12 }}>
+                              <button className="section-save-btn" onClick={saveEdit}>сохранить</button>
+                              <button className="section-cancel-btn"
+                                onClick={() => {
+                                  setEditingTeam(null);
+                                  setEditData(null);
+                                }} >отмена</button>
+                              {editingTeam === team.id && !isArchive && (
+                                <button className="section-add-btn" onClick={handleAddParticipant}>+ участник</button>
+                              )}
+                            </div>
+                          )}
+                          {editingTeam === team.id && editData && (
+                            <>
+                              <div className="participants-detail-cols">
+                                <div className="participants-detail-block">
+                                  <p className="participants-detail-label">Запасной кейс</p>
+                                  <input className="section-input" value={editData.spare_case || ""} placeholder="Запасной кейс"
+                                    onChange={e => setEditData(p => ({ ...p, spare_case: e.target.value }))} />
+                                </div>
+                                <div className="participants-detail-block">
+                                  <p className="participants-detail-label">Контакты капитана</p>
+                                  <input className="section-input" value={editData.captain_phone || ""} placeholder="Телефон капитана"
+                                    onChange={e => setEditData(p => ({ ...p, captain_phone: e.target.value }))} />
+                                  <input className="section-input" value={editData.captain_email || ""} placeholder="Email капитана"
+                                    onChange={e => setEditData(p => ({ ...p, captain_email: e.target.value }))} />
+                                </div>
+                                {team.curator_data && (
+                                  <div className="participants-detail-block">
+                                    <p className="participants-detail-label">Куратор</p>
+                                    <input className="section-input" value={editData.curator_data.fio || ""} placeholder="ФИО куратора"
+                                      onChange={e => setEditData(p => ({ ...p, curator_data: { ...p.curator_data, fio: e.target.value }, }))} />
+                                    <input className="section-input" value={editData.curator_data.phone || ""} placeholder="Телефон куратора"
+                                      onChange={e => setEditData(p => ({ ...p, curator_data: { ...p.curator_data, phone: e.target.value }, }))} />
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {editingTeam !== team.id && (
+                            <div className="participants-detail-cols">
+                              <div className="participants-detail-block">
+                                <p className="participants-detail-label">Запасной кейс</p>
+                                <p>{team.spare_case || "—"}</p>
+                              </div>
+                              <div className="participants-detail-block">
+                                <p className="participants-detail-label">Контакты капитана</p>
+                                <p>{team.captain_phone || "—"}</p>
+                                <p>{team.captain_email || "—"}</p>
+                              </div>
+                              {team.curator_data && (
+                                <div className="participants-detail-block">
+                                  <p className="participants-detail-label">Куратор</p>
+                                  <p>{team.curator_data.fio || "—"}</p>
+                                  <p>{team.curator_data.phone || "—"}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {team.participants?.length > 0 && (
+                            <table className="participants-inner-table">
+                              <thead>
+                                <tr>
+                                  <th>ФИО</th>
+                                  <th>Роль</th>
+                                  <th>Курс</th>
+                                  {editingTeam === team.id && <th></th>}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(editingTeam === team.id ? editData?.participants : team.participants).map((p, index) => (
+                                  <tr key={p.id}>
+                                    <td>
+                                      {editingTeam === team.id ? (
+                                        <input value={p.fio}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((p, i) =>
+                                                i === index ? { ...p, fio: e.target.value } : p
+                                              ),
+                                            }));
+                                          }}
+                                        />
+                                      ) : (
+                                        p.fio
+                                      )}
+                                    </td>
+                                    <td>
+                                      {editingTeam === team.id ? (
+                                        <input value={p.role}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((p, i) =>
+                                                i === index ? { ...p, role: e.target.value } : p
+                                              ),
+                                            }));
+                                          }}
+                                        />
+                                      ) : (
+                                        ROLE_LABELS[p.role] || p.role
+                                      )}
+                                    </td>
+                                    <td>
+                                      {editingTeam === team.id ? (
+                                        <input value={p.course}
+                                          onChange={e => {
+                                            setEditData(prev => ({
+                                              ...prev,
+                                              participants: prev.participants.map((p, i) =>
+                                                i === index ? { ...p, course: e.target.value } : p
+                                              ),
+                                            }));
+                                          }}
+                                        />
+                                      ) : (
+                                        p.course
+                                      )}
+                                    </td>
+                                    {editingTeam === team.id && !isArchive && (
+                                      <td>
+                                        <button className="participants-delete-btn" onClick={() => handleDeleteParticipant(p.id)}>
+                                          <TrashIcon style={{ width: 16 }} />
+                                        </button>
+                                      </td>
+                                    )}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
         </div>
-        </>
       )}
     </div>
   );

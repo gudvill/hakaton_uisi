@@ -673,6 +673,12 @@ class RegistrationRepository:
                 cursor.execute("UPDATE registration SET is_available=FALSE WHERE id=%s", (reg_id,))
                 cursor.execute("UPDATE participants SET is_available=FALSE WHERE registration_id=%s", (reg_id,))
 
+    def restore_registration(self, reg_id: int) -> None:
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE registration SET is_available=TRUE WHERE id=%s", (reg_id,))
+                cursor.execute("UPDATE participants SET is_available=TRUE WHERE registration_id=%s", (reg_id,))
+
     def decrement_team_participants(self, team_id: int):
         with self.connection() as conn:
             with conn.cursor() as cursor:

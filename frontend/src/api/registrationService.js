@@ -36,6 +36,11 @@ export const disableRegistration = async (id) => {
   return res.data;
 };
 
+// восстановить регистрацию (команду)
+export const restoreRegistration = async (id) => {
+  await api.post(`/registration/${id}/restore`);
+};
+
 // создать участника
 export const createParticipant = async (regId, data) => {
   const res = await api.post(`/registration/${regId}/participant`, data);
