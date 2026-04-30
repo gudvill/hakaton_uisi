@@ -1,7 +1,7 @@
 import './News.css';
 import { useState, useEffect } from 'react';
 import { getNews, createNews, updateNews, disableNews } from '../../../../api/newsService';
-import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 function formatDate(str) {
   if (!str) return '—';
@@ -12,6 +12,7 @@ export default function News() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [tab, setTab] = useState('active'); // 'active' | 'archive'
 
   const load = () => {
     getNews().then(setItems).catch(console.error);
@@ -21,12 +22,18 @@ export default function News() {
     load();
   }, []);
 
+  // Фильтрация по вкладке
+  const visibleItems = items.filter(i =>
+    tab === 'active' ? i.is_available !== false : i.is_available === false
+  );
+
   const startEdit = (item) => { setEditId(item.id); setForm(item); };
   const startAdd = () => {
     setEditId('new');
     setForm({ name: '', brief_description: '', full_description: '', image: '' });
   };
   const cancel = () => { setEditId(null); setForm({}); };
+
   const save = async () => {
     try {
       if (editId === 'new') {
@@ -40,13 +47,25 @@ export default function News() {
       console.error(e);
     }
   };
+
   const del = async (id) => {
     await disableNews(id);
     load();
   };
 
+  // Восстановить из архива
+  const restore = async (item) => {
+    await updateNews(item.id, { ...item, is_available: true });
+    load();
+  };
+
   const inp = (key, placeholder) => (
-    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
+    <input
+      className="section-input"
+      value={form[key] || ''}
+      placeholder={placeholder}
+      onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+    />
   );
 
   const EditRow = () => (
@@ -70,12 +89,35 @@ export default function News() {
     </tr>
   );
 
+  const archiveCount = items.filter(i => i.is_available === false).length;
+
   return (
     <div className="admin-card">
       <div className="section-header">
         <h3 className="admin-card-title" style={{ marginBottom: 0 }}>НОВОСТИ</h3>
-        <button className="section-add-btn" onClick={startAdd}>
-          <PlusIcon style={{ width: 16, height: 16 }} /> добавить
+        {tab === 'active' && (
+          <button className="section-add-btn" onClick={startAdd}>
+            <PlusIcon style={{ width: 16, height: 16 }} /> добавить
+          </button>
+        )}
+      </div>
+
+      {/* Вкладки */}
+      <div className="news-tabs">
+        <button
+          className={`news-tab ${tab === 'active' ? 'news-tab--active' : ''}`}
+          onClick={() => { setTab('active'); cancel(); }}
+        >
+          Активные
+        </button>
+        <button
+          className={`news-tab ${tab === 'archive' ? 'news-tab--active' : ''}`}
+          onClick={() => { setTab('archive'); cancel(); }}
+        >
+          Архив
+          {archiveCount > 0 && (
+            <span className="news-tab-badge">{archiveCount}</span>
+          )}
         </button>
       </div>
 
@@ -93,17 +135,19 @@ export default function News() {
             </tr>
           </thead>
           <tbody>
-            {editId === 'new' && <EditRow />}
-            {items.length === 0 && editId !== 'new' && (
+            {tab === 'active' && editId === 'new' && <EditRow />}
+            {visibleItems.length === 0 && editId !== 'new' && (
               <tr>
-                <td colSpan={7} className="section-empty">Нет новостей</td>
+                <td colSpan={7} className="section-empty">
+                  {tab === 'active' ? 'Нет новостей' : 'Архив пуст'}
+                </td>
               </tr>
             )}
-            {items.map(item =>
+            {visibleItems.map(item =>
               editId === item.id ? (
                 <EditRow key={item.id} />
               ) : (
-                <tr key={item.id}>
+                <tr key={item.id} className={tab === 'archive' ? 'news-row--archived' : ''}>
                   <td>
                     {item.image && <img className="section-thumbnail" src={item.image} alt="" />}
                   </td>
@@ -116,12 +160,30 @@ export default function News() {
                   </td>
                   <td>
                     <div className="section-row-actions">
-                      <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
-                        <PencilIcon style={{ width: 15, height: 15 }} />
-                      </button>
-                      <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
-                        <TrashIcon style={{ width: 15, height: 15 }} />
-                      </button>
+                      {tab === 'active' ? (
+                        <>
+                          <button
+                            className="section-icon-btn section-icon-btn--edit"
+                            onClick={() => startEdit(item)}
+                          >
+                            <PencilIcon style={{ width: 15, height: 15 }} />
+                          </button>
+                          <button
+                            className="section-icon-btn section-icon-btn--delete"
+                            onClick={() => del(item.id)}
+                          >
+                            <TrashIcon style={{ width: 15, height: 15 }} />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="section-icon-btn section-icon-btn--edit"
+                          title="Восстановить"
+                          onClick={() => restore(item)}
+                        >
+                          <ArchiveBoxIcon style={{ width: 15, height: 15 }} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

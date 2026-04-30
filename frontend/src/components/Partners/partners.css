@@ -36,7 +36,7 @@
   transform: translateY(-5px);
 }
 
-/* Modal */
+/* Модалка партнеров */
 .partner-modal-overlay {
   position: fixed;
   inset: 0;
@@ -49,11 +49,10 @@
 }
 
 .partner-modal {
-  background: #1a1a2e;
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  border-radius: 24px;
+  background: white;
+  border-radius: 30px;
   padding: 40px;
-  max-width: 500px;
+  max-width: 700px;
   width: 100%;
   position: relative;
   color: #fff;
@@ -67,15 +66,15 @@
 
 .partner-modal__close {
   position: absolute;
-  top: 16px;
+  top: 20px;
   right: 20px;
-  background: none;
-  border: none;
-  color: #aaa;
-  font-size: 1.2rem;
   cursor: pointer;
   line-height: 1;
   transition: color 0.2s;
+}
+
+.partner-modal__close img{
+  width: 25px;
 }
 
 .partner-modal__close:hover {
@@ -88,61 +87,49 @@
   padding: 20px;
   margin-bottom: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  margin: 0;
 }
 
 .partner-modal__img-wrap img {
-  max-height: 120px;
+  max-height: 80px;
   max-width: 100%;
-  object-fit: contain;
 }
 
 .partner-modal__name {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 600;
   margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #a78bfa;
+  color: black;
 }
 
 .partner-modal__desc {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #ccc;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  font-weight: 400;
+  margin-bottom: 40px;
+  color: black;
 }
 
-.partner-modal__site {
-  display: inline-block;
-  margin-top: 20px;
-  color: #a78bfa;
-  font-size: 0.95rem;
-  text-decoration: none;
-  border: 1px solid rgba(167, 139, 250, 0.4);
-  border-radius: 8px;
-  padding: 8px 18px;
-  transition: background 0.2s, color 0.2s;
-}
-
-.partner-modal__site:hover {
-  background: rgba(167, 139, 250, 0.15);
-  color: #fff;
+.partner-modal__site{
+  background-color: #2055C7;
+  padding: 10px 15px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 20px;
 }
 
 .partner-card img {
   width: 100%;
   height: auto;
-  object-fit: contain;
   margin-bottom: 1rem;
 }
 
-.partner-description {
+.partner-name {
   font-size: 1.5rem;
   text-align: left;
   color: #434343;
-  line-height: 1.2;
 }
+
 
 @media (max-width: 1200px) {
   .partners-grid {

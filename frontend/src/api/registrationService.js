@@ -41,3 +41,7 @@ export const updateRegistration = async (id, data) => {
   const res = await api.put(`/registration/${id}`, data);
   return res.data;
 };
+
+// вернуть команду из архива???
+export const restoreRegistration = (id) =>
+  api.patch(`/registration/${id}`, { is_available: true }).then(r => r.data);
