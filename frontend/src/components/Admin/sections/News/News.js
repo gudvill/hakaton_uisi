@@ -152,7 +152,7 @@ const toggleSort = (key) => {
       <div className="participants-filters">
         <input className="participants-search" placeholder="Поиск по названию..." value={search} onChange={e => setSearch(e.target.value)} />
         <select className="participants-filter-select" value={year} onChange={e => setYear(e.target.value)} >
-          <option value="">Год</option>
+          <option value="">Год новости</option>
           {years.map(y => (
             <option key={y} value={y}>{y}</option>
           ))}
