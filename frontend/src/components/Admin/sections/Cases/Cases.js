@@ -2,7 +2,7 @@ import './Cases.css';
 import { useState, useEffect } from 'react';
 import { getCases, getArchivedCases, createCase, updateCase, disableCase, restoreCase } from '../../../../api/casesService';
 import { getPartners } from '../../../../api/partnersService';
-import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 const LEVELS = [
   { value: 'standard', label: 'Стартовый' },
