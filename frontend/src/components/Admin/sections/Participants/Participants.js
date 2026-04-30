@@ -79,7 +79,7 @@ export default function Participants() {
   const startEdit = (team) => {
     if (activeTab === 'archive') return; // Блокировка для архива
     setEditingTeam(team.id);
-    setExpanded(team.id);
+    setExpanded(prev => prev === team.id ? prev : team.id);
 
     setEditData({
       name: team.name,
@@ -131,6 +131,27 @@ export default function Participants() {
       alert(e.response?.data?.detail || "Ошибка");
     }
   };
+  const reloadAndRefreshEdit = async () => {
+    const params = {
+      search: search || undefined,
+      level: levelFilter || undefined,
+      case_id: caseFilter ? Number(caseFilter) : undefined,
+      sort_by: sort.key,
+      sort_dir: sort.dir,
+    };
+
+    const data = activeTab === 'archive'
+      ? await getArchivedRegistrations(params)
+      : await getRegistrations(params);
+
+    setRegistrations(data);
+
+    const updatedTeam = data.find(t => t.id === editingTeam);
+
+    if (updatedTeam) {
+      startEdit(updatedTeam);
+    }
+  };
 
   const handleDeleteParticipant = async (participantId) => {
     if (!participantId) {
@@ -140,7 +161,7 @@ export default function Participants() {
 
     if (!window.confirm("Удалить участника?")) return;
     await deleteParticipant(participantId);
-    loadData(true);
+    await reloadAndRefreshEdit();
   };
 
   const handleAddParticipant = async () => {
@@ -150,8 +171,12 @@ export default function Participants() {
 
     if (!fio || !course || !role) return;
 
-    await createParticipant(editingTeam, { fio, course: Number(course), role });
-    loadData(true);
+    await createParticipant(editingTeam, {
+      fio,
+      course: Number(course),
+      role
+    });
+    await reloadAndRefreshEdit();
   };
 
   const handleRestore = async (id) => {
