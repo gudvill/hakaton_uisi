@@ -1,6 +1,6 @@
 import './Account.css';
 import { useState, useEffect } from 'react';
-import { requestPasswordReset, updateProfile } from '../../../api/authService';
+import { requestPasswordReset, updateProfile } from '../../../../api/authService';
 
 export default function Account({ admin }) {
   const [form, setForm] = useState({ email: '', login: '' });
