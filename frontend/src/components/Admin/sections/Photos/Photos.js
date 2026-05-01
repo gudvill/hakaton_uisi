@@ -21,7 +21,7 @@ export default function Photos() {
 
   const startEdit = (item) => {
     setEditId(item.id);
-    setForm(item);
+    setForm({ name: item.name });
   };
 
   const startAdd = () => {
@@ -35,13 +35,17 @@ export default function Photos() {
   };
 
   const save = async () => {
-    if (editId === 'new') {
-      await createPhotoAlbum(form);
-    } else {
-      await updatePhotoAlbum(editId, form);
+    try {
+      if (editId === 'new') {
+        await createPhotoAlbum(form);
+      } else {
+        await updatePhotoAlbum(editId, form);
+      }
+      await load();
+      cancel();
+    } catch (e) {
+      console.error(e);
     }
-    await load();
-    cancel();
   };
 
   const del = async (id) => {
@@ -52,11 +56,7 @@ export default function Photos() {
   const handleUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (!selected) return;
-
-    for (const file of files) {
-      await uploadPhoto(selected.id, file);
-    }
-
+    await Promise.all(files.map(file => uploadPhoto(selected.id, file)));
     await load();
   };
 
@@ -75,7 +75,7 @@ export default function Photos() {
           {album.photos?.map(photo => (
             <div key={photo.id}>
               <img src={`${API_URL}${photo.path}`} alt="" />
-              <button onClick={() => deletePhoto(photo.id).then(load)}>удалить</button>
+              <button onClick={async () => { await deletePhoto(photo.id); await load(); }}>удалить</button>
             </div>
           ))}
         </div>
@@ -89,10 +89,11 @@ export default function Photos() {
         <h3>ФОТОАЛЬБОМЫ</h3>
         <button onClick={startAdd}><PlusIcon /> альбом </button>
       </div>
-      {editId === 'new' && (
+      {editId && (
         <div>
-          <input value={form.name || ''} onChange={e => setForm({ name: e.target.value })} placeholder="Название" />
+          <input value={form.name || ''} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Название" />
           <button onClick={save}>сохранить</button>
+          <button onClick={cancel}>отмена</button>
         </div>
       )}
       <div className="albums-grid">
@@ -100,8 +101,8 @@ export default function Photos() {
           <div key={album.id} onClick={() => setSelected(album)}>
             <PhotoIcon />
             <p>{album.name}</p>
-            <button onClick={(e) => { e.stopPropagation(); startEdit(album); }} >edit</button>
-            <button onClick={(e) => { e.stopPropagation(); del(album.id); }} >delete</button>
+            <button onClick={(e) => { e.stopPropagation(); startEdit(album); }} >изменить</button>
+            <button onClick={(e) => { e.stopPropagation(); del(album.id); }} >удалить</button>
           </div>
         ))}
       </div>
