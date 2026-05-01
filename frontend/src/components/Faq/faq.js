@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './faq.css';
-import { getFaq } from '../../../api/faqService';
+import { getFaq } from '../../api/faqService';
 
 export default function Faq() {
   const [items, setItems] = useState([]);
