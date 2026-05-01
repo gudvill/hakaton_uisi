@@ -31,6 +31,12 @@ class AdminRepository:
             with conn.cursor() as cursor:
                 cursor.execute(query, (email,))
                 return cursor.fetchone()
+        
+    def update_profile(self, admin_id: int, login: str, email: str):
+        query = "UPDATE admins SET login=%s, email=%s WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (login, email, admin_id))
     
     def save_password_reset_token(self, admin_id: int, token: str, expires_at: datetime):
         query = "INSERT INTO password_reset_tokens (admin_id, token, expires_at, used) VALUES (%s, %s, %s, FALSE)"

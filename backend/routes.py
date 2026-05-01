@@ -5,7 +5,7 @@ from security import create_access_token, create_refresh_token, SECRET_KEY, ALGO
 from utils import send_reset_email
 from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from serializers import (PasswordResetRequest,ResetPasswordRequest,
-                         LoginRequest, RefreshRequest,
+                         LoginRequest, RefreshRequest, UpdateProfileRequest,
                          AcquaintanceSerializer, AcquaintanceCreateSerializer,
                          FaqSerializer, FaqCreateSerializer, 
                          ProgramSerializer, ProgramCreateSerializer,
@@ -46,6 +46,10 @@ registration_router = APIRouter(prefix="/registration", tags=["registration"])
 def get_me(current_admin=Depends(get_current_admin), use_case: AdminUseCase = Depends(get_admin_usecase)):
     return use_case.get_me(int(current_admin))
 
+@admin_router.put("/update-profile")
+def update_profile(data: UpdateProfileRequest, current_admin=Depends(get_current_admin), use_case: AdminUseCase = Depends(get_admin_usecase)):
+    return use_case.update_profile(int(current_admin), data)
+
 @admin_router.post("/login")
 def login(admin_data: LoginRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     user = use_case.login(admin_data.login, admin_data.password)
@@ -74,15 +78,15 @@ def request_password_reset(request: PasswordResetRequest, use_case: AdminUseCase
         reset_link = f"http://hakaton1.bizml.ru/reset-password?token={token}"
         send_reset_email(request.email, reset_link)
     return {"message": "Если такой e-mail существует, ссылка отправлена"}
-
+    
 @admin_router.post("/reset-password")
 def reset_password(request: ResetPasswordRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     try:
-        use_case.reset_password(request.token, request.new_password)
+        use_case.reset_password(request.token, request.new_password, request.confirm_password)
         return {"message": "Пароль успешно изменён"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
 
 # Эндпоинты для Ознакомлений
 @acquaintance_router.post("/", response_model=AcquaintanceSerializer)

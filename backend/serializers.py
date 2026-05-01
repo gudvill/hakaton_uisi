@@ -21,6 +21,12 @@ class PasswordResetRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+    confirm_password: str
+
+# админ
+class UpdateProfileRequest(BaseModel):
+    login: Optional[str] = None
+    email: Optional[str] = None
 
 
 class AcquaintanceCreateSerializer(BaseModel):
