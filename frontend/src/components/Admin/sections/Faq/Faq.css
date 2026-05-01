@@ -48,6 +48,10 @@
   line-height: 1.6;
 }
 
+.admin-content .faq-answer p {
+  font-size: 13px;
+}
+
 .admin-content .faq-edit-card {
   display: flex;
   flex-direction: column;
