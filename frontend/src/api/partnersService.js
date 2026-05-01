@@ -35,3 +35,8 @@ export const disablePartner = async (id) => {
   const res = await api.delete(`/partners/${id}`);
   return res.data;
 };
+
+// восстановить партнёра
+export const restorePartner = async (id) => {
+  await api.post(`/partners/${id}/restore`);
+};

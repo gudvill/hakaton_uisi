@@ -35,3 +35,8 @@ export const disableReview = async (id) => {
   const res = await api.delete(`/reviews/${id}`);
   return res.data;
 };
+
+// восстановить отзыв 
+export const restoreReview = async (id) => {
+  await api.post(`/reviews/${id}/restore`);
+};
