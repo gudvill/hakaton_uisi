@@ -68,6 +68,14 @@ class FaqRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="faq", entity_class=Faq,
             columns=["question", "answer"])
+        
+    def get_all(self):
+        query = "SELECT id, question, answer FROM faq ORDER BY id"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+        return [self.entity_class(*row) for row in rows]
 
     def delete(self, faq_id: int) -> None:
         query = "DELETE FROM faq WHERE id=%s"
