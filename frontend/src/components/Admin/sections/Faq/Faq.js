@@ -136,7 +136,11 @@ export default function Faq() {
                 </div>
               </div>
               {openId === item.id && (
-                <div className="faq-answer">{item.answer}</div>
+                <div className="faq-answer">
+                  {(item.answer || '').split('\n').map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
               )}
             </div>
           )
