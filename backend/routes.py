@@ -1,8 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
 from utils import send_reset_email
+import uuid
+import os
+from datetime import datetime
+from pathlib import Path
+UPLOAD_DIR = "media/albums"
 from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from serializers import (PasswordResetRequest,ResetPasswordRequest,
                          LoginRequest, RefreshRequest, UpdateProfileRequest,
@@ -381,92 +386,61 @@ def restore_review(review_id: int, usecase: ReviewsUseCase = Depends(get_reviews
 
 # Эндпоинты для ФотоАльбомов
 @photoalbums_router.post("/", response_model=PhotoAlbumSerializer)
-def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
+def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)):
     photoalbum = PhotoAlbum(id=0, name=photoalbum_data.name, is_available=True)
     photoalbum_id = use_case.create(photoalbum)
     photoalbum.id = photoalbum_id
     return PhotoAlbumSerializer.from_entity(photoalbum)
 
 @photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
-def get_photoalbums(use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> List[PhotoAlbumSerializer]:
+def get_photoalbums(use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase)):
     data = use_case.get_all()
-    return [PhotoAlbumSerializer.from_entity(item.album, item.photos) for item in data]
+    return [PhotoAlbumSerializer.from_entity(i.album, i.photos) for i in data]
 
-@photoalbums_router.get("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
-def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)) -> PhotoAlbumSerializer:
+@photoalbums_router.get("/{photoalbum_id}")
+def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase)):
     item = use_case.get_by_id(photoalbum_id)
-    if not item: raise HTTPException(status_code=404, detail="Фотоальбом не найден")
+    if not item: raise HTTPException(404)
     return PhotoAlbumSerializer.from_entity(item.album, item.photos)
 
-@photoalbums_router.put("/{photoalbum_id}", response_model=PhotoAlbumSerializer)
-def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> PhotoAlbumSerializer:
-    photoalbum = PhotoAlbum(id=photoalbum_id, image=photoalbum_data.image)
+@photoalbums_router.put("/{photoalbum_id}")
+def update_photoalbum(photoalbum_id: int, photoalbum_data: PhotoAlbumCreateSerializer, use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)):
+    photoalbum = PhotoAlbum(id=photoalbum_id, name=photoalbum_data.name, is_available=True)
     use_case.update(photoalbum_id, photoalbum)
-    updated_photoalbum = use_case.get_by_id(photoalbum_id)
-    return PhotoAlbumSerializer.from_entity(updated_photoalbum.album, updated_photoalbum.photos)
+    updated = use_case.get_by_id(photoalbum_id)
+    return PhotoAlbumSerializer.from_entity(updated.album, updated.photos)
 
 @photoalbums_router.delete("/{photoalbum_id}")
-def disable_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)) -> dict:
-    use_case.disable(photoalbum_id)
-    return {"message": "Фотоальбом отключён"}
+def delete_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase), admin=Depends(get_current_admin)):
+    use_case.delete(photoalbum_id)
+    return {"message": "deleted"}
 
 
 # Эндпоинты для Фото
-import os
-from fastapi import UploadFile, File
-
-UPLOAD_DIR = "media/albums"
-
-@photos_router.post("/upload/{photo_album_id}")
-async def upload_photo(photo_album_id: int, file: UploadFile = File(...), use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)):
-    album_dir = f"{UPLOAD_DIR}/{photo_album_id}"
-    os.makedirs(album_dir, exist_ok=True)
-    file_path = f"{album_dir}/{file.filename}"
-    with open(file_path, "wb") as buffer:
-        content = await file.read()
-        buffer.write(content)
-    photo = Photo(id=0, photo_album_id=photo_album_id, path=file_path, created_at=None, is_available=True)
-    photo_id = use_case.create(photo)
-    photo.id = photo_id
+@photos_router.post("/upload/{album_id}", response_model=PhotoSerializer)
+async def upload_photo(album_id: int, file: UploadFile = File(...), use_case: PhotosUseCase=Depends(get_photos_usecase), admin=Depends(get_current_admin)):
+    album_dir = Path(UPLOAD_DIR) / f"album_{album_id}"
+    album_dir.mkdir(parents=True, exist_ok=True)
+    ext = file.filename.split(".")[-1]
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    path = album_dir / filename
+    with open(path, "wb") as f:
+        f.write(await file.read())
+    db_path = f"/media/albums/album_{album_id}/{filename}"
+    photo = Photo(0, album_id, db_path, datetime.utcnow(), True)
+    photo.id = use_case.create(photo)
     return PhotoSerializer.from_entity(photo)
 
-@photos_router.post("/", response_model=PhotoSerializer)
-def create_photo(photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> PhotoSerializer:
-    photo = Photo(
-        id=0,
-        photo_album_id=photo_data.photo_album_id,
-        path=photo_data.path,
-        created_at=photo_data.created_at,
-        is_available=True)
-    photo_id = use_case.create(photo)
-    photo.id = photo_id
+@photos_router.get("/{id}", response_model=PhotoSerializer)
+def get(id: int, use_case: PhotosUseCase = Depends(get_photos_usecase)):
+    photo = use_case.get_by_id(id)
+    if not photo: raise HTTPException(404)
     return PhotoSerializer.from_entity(photo)
 
-@photos_router.get("/", response_model=List[PhotoSerializer])
-def get_photos(use_case: PhotosUseCase = Depends(get_photos_usecase)):
-    return [PhotoSerializer.from_entity(c) for c in use_case.get_all()]
-
-@photos_router.get("/{photo_id}", response_model=PhotoSerializer)
-def get_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_usecase)) -> PhotoSerializer:
-    photo = use_case.get_by_id(photo_id)
-    if not photo: raise HTTPException(status_code=404, detail="Фото не найдено")
-    return PhotoSerializer.from_entity(photo)
-
-@photos_router.put("/{photo_id}", response_model=PhotoSerializer)
-def update_photo(photo_id: int, photo_data: PhotoCreateSerializer, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> PhotoSerializer:
-    photo = Photo(
-        id=photo_id,
-        photo_album_id=photo_data.photo_album_id,
-        path=photo_data.path,
-        created_at=photo_data.created_at)
-    use_case.update(photo_id, photo)
-    updated_photo = use_case.get_by_id(photo_id)
-    return PhotoSerializer.from_entity(updated_photo)
-
-@photos_router.delete("/{photo_id}")
-def disable_photo(photo_id: int, use_case: PhotosUseCase = Depends(get_photos_usecase), admin=Depends(get_current_admin)) -> dict:
-    use_case.disable(photo_id)
-    return {"message": "Фото отключено"}
+@photos_router.delete("/{id}")
+def delete(id: int, use_case: PhotosUseCase = Depends(get_photos_usecase)):
+    use_case.delete(id)
+    return {"message": "deleted"}
 
 
 # Эндпоинты для Регистрации

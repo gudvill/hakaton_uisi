@@ -622,57 +622,50 @@ class ReviewsRepository(BaseRepository):
 
 class PhotoAlbumsRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="photoalbums", entity_class=PhotoAlbum,
-            columns=["name", "is_available"])
-        
-    def get_all_with_photos(self) -> List[Dict[str, Any]]:
-        query = """SELECT pa.id, pa.name, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
-                FROM photoalbums pa LEFT JOIN photos p ON pa.id = p.photoalbum_id WHERE pa.is_available = TRUE ORDER BY pa.id"""
+        super().__init__(connection=connection,
+            table_name="photoalbums", entity_class=PhotoAlbum, columns=["name", "is_available"])
+
+    def get_all_with_photos(self):
+        query = "SELECT id, name, created_at, is_available FROM photoalbums ORDER BY id"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 rows = cursor.fetchall()
-        albums = {}
-        for row in rows:
-            pa_id, name, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
-            if pa_id not in albums:
-                albums[pa_id] = PhotoAlbumWithPhotos(album=PhotoAlbum(pa_id, name, created_at, is_available), photos=[])
-            if p_id:
-                albums[pa_id].photos.append(Photo(p_id, p_album_id, path, p_created_at, p_is_available))
-        return list(albums.values())
-    
-    def get_by_id_with_photos(self, photoalbum_id: int) -> Optional[Dict[str, Any]]:
-        query = """SELECT pa.id, pa.name, pa.created_at, pa.is_available, p.id, p.photoalbum_id, p.path, p.created_at, p.is_available
-                FROM photoalbums pa LEFT JOIN photos p ON pa.id = p.photoalbum_id WHERE pa.id = %s"""
+        return [PhotoAlbum(r[0], r[1], r[2], r[3]) for r in rows]
+
+    def get_by_id_with_photos(self, album_id: int):
+        query = " SELECT id, name, created_at, is_available FROM photoalbums WHERE id=%s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query, (photoalbum_id,))
-                rows = cursor.fetchall()
-        if not rows: return None
-        album = None
-        photos = []
-        for row in rows:
-            pa_id, name, created_at, is_available, p_id, p_album_id, path, p_created_at, p_is_available = row
-            if not album:
-                album = PhotoAlbum(pa_id, name, created_at, is_available)
-            if p_id:
-                photos.append(Photo(p_id, p_album_id, path, p_created_at, p_is_available))
-        return PhotoAlbumWithPhotos(album=album, photos=photos)
+                cursor.execute(query, (album_id,))
+                row = cursor.fetchone()
+        if not row: return None
+        return PhotoAlbum(row[0], row[1], row[2], row[3])
+
+    def delete(self, album_id: int):
+        query = "DELETE FROM photoalbums WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (album_id,))
 
 
 class PhotosRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(
-            connection=connection, table_name="photos", entity_class=Photo,
-            columns=["photoalbum_id", "path", "created_at", "is_available"])
-    
-    def update(self, photo_id: int, photo: Photo) -> None:
-        query = """UPDATE photos SET photoalbum_id=%s, path=%s, created_at=%s WHERE id=%s"""
-        values = [photo.photo_album_id, photo.path, photo.created_at, photo_id]
+        super().__init__(connection=connection, table_name="photos", entity_class=Photo, columns=["photoalbum_id", "path", "created_at", "is_available"])
+
+    def get_by_album(self, album_id: int):
+        query = "SELECT id, photoalbum_id, path, created_at, is_available FROM photos WHERE photoalbum_id=%s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query, values)
+                cursor.execute(query, (album_id,))
+                rows = cursor.fetchall()
+        return [Photo(r[0], r[1], r[2], r[3], r[4]) for r in rows]
+
+    def delete(self, photo_id: int):
+        query = "DELETE FROM photos WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (photo_id,))
 
 
 class RegistrationRepository:

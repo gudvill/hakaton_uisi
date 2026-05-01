@@ -5,6 +5,7 @@ from security import verify_password, hash_password
 import secrets
 from datetime import datetime, timedelta
 import re
+import os
 
 
 class AdminUseCase:
@@ -238,43 +239,59 @@ class ReviewsUseCase:
 
 
 class PhotoAlbumsUseCase:
-    def __init__(self, repository: PhotoAlbumsRepository):
+    def __init__(self, repository: PhotoAlbumsRepository, photos_repository: PhotosRepository):
         self.repository = repository
+        self.photos_repository = photos_repository
 
-    def create(self, photoalbum: PhotoAlbum) -> int:
-        return self.repository.create(photoalbum)
+    def create(self, album):
+        return self.repository.create(album)
 
-    def get_all(self) -> List[Dict[str, Any]]:
-        return self.repository.get_all_with_photos()
+    def get_all(self):
+        albums = self.repository.get_all_with_photos()
+        result = []
+        for a in albums:
+            photos = self.photos_repository.get_by_album(a.id)
+            result.append(PhotoAlbumWithPhotos(album=a, photos=photos))
+        return result
 
-    def get_by_id(self, photoalbum_id: int) -> Optional[Dict[str, Any]]:
-        return self.repository.get_by_id_with_photos(photoalbum_id)
+    def get_by_id(self, album_id):
+        album = self.repository.get_by_id_with_photos(album_id)
+        if not album: return None
+        photos = self.photos_repository.get_by_album(album_id)
+        return PhotoAlbumWithPhotos(album=album, photos=photos)
 
-    def update(self, photoalbum_id: int, photoalbum: PhotoAlbum) -> None:
-        self.repository.update(photoalbum_id, photoalbum)
+    def update(self, album_id, album):
+        self.repository.update(album_id, album)
 
-    def disable(self, photoalbum_id: int) -> None:
-        self.repository.disable(photoalbum_id)
+    def delete(self, album_id):
+        photos = self.photos_repository.get_by_album(album_id)
+        for p in photos:
+            try:
+                os.remove(p.path.replace("/media", "media"))
+            except:
+                pass
+            self.photos_repository.delete(p.id)
+        self.repository.delete(album_id)
         
 
 class PhotosUseCase:
     def __init__(self, repository: PhotosRepository):
         self.repository = repository
 
-    def create(self, photo: Photo) -> int:
+    def create(self, photo):
         return self.repository.create(photo)
 
-    def get_all(self) -> List[Photo]:
-        return self.repository.get_all()
-
-    def get_by_id(self, photo_id: int) -> Optional[Photo]:
+    def get_by_id(self, photo_id):
         return self.repository.get_by_id(photo_id)
 
-    def update(self, photo_id: int, photo: Photo) -> None:
-        self.repository.update(photo_id, photo)
-
-    def disable(self, photo_id: int) -> None:
-        self.repository.disable(photo_id)
+    def delete(self, photo_id):
+        photo = self.repository.get_by_id(photo_id)
+        if photo:
+            try:
+                os.remove(photo.path.replace("/media", "media"))
+            except:
+                pass
+        self.repository.delete(photo_id)
 
 
 class RegistrationUseCase:

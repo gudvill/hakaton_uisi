@@ -8,10 +8,12 @@ app = FastAPI(root_path="/api")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
 
-if not os.path.exists("media"):
-    os.makedirs("media")
-
-app.mount("/media", StaticFiles(directory="media"), name="media")
+BASE_MEDIA = "media"
+MEDIA_FOLDERS = ["news", "partners", "reviews", "about", "albums"]
+os.makedirs(BASE_MEDIA, exist_ok=True)
+for folder in MEDIA_FOLDERS:
+    os.makedirs(os.path.join(BASE_MEDIA, folder), exist_ok=True)
+app.mount("/media", StaticFiles(directory=BASE_MEDIA), name="media")
 
 app.include_router(admin_router)
 app.include_router(acquaintance_router)

@@ -198,10 +198,10 @@ class PhotoAlbumSerializer(BaseModel):
     photos: List["PhotoSerializer"] = Field(default_factory=list)
 
     @classmethod
-    def from_entity(cls, entity: PhotoAlbum, photos: List["Photo"] | None = None):
+    def from_entity(cls, entity: PhotoAlbum, photos=None):
         return cls(
             id=entity.id,
-            image=entity.image,
+            name=entity.name,
             created_at=entity.created_at,
             is_available=entity.is_available,
             photos=[PhotoSerializer.from_entity(p) for p in (photos or [])])

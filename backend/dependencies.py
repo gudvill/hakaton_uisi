@@ -56,8 +56,9 @@ def get_partners_usecase() -> PartnersUseCase:
     return PartnersUseCase(repository)
 
 def get_photoalbums_usecase() -> PhotoAlbumsUseCase:
-    repository = PhotoAlbumsRepository(get_connection)
-    return PhotoAlbumsUseCase(repository)
+    photoalbums_repository = PhotoAlbumsRepository(get_connection)
+    photos_repository = PhotosRepository(get_connection)
+    return PhotoAlbumsUseCase(photoalbums_repository, photos_repository)
 
 def get_photos_usecase() -> PhotosUseCase:
     repository = PhotosRepository(get_connection)
@@ -68,6 +69,6 @@ def get_reviews_usecase() -> ReviewsUseCase:
     return ReviewsUseCase(repository)
 
 def get_registration_usecase() -> RegistrationUseCase:
-    registration_repo = RegistrationRepository(get_connection)
-    cases_repo = CasesRepository(get_connection)
-    return RegistrationUseCase(registration_repo, cases_repo)
+    registration_repository = RegistrationRepository(get_connection)
+    cases_repository = CasesRepository(get_connection)
+    return RegistrationUseCase(registration_repository, cases_repository)
