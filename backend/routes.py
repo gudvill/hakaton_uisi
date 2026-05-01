@@ -48,7 +48,7 @@ def get_me(current_admin=Depends(get_current_admin), use_case: AdminUseCase = De
 
 @admin_router.put("/update-profile")
 def update_profile(data: UpdateProfileRequest, current_admin=Depends(get_current_admin), use_case: AdminUseCase = Depends(get_admin_usecase)):
-    return use_case.update_profile(int(current_admin), data)
+    return use_case.update_profile(int(current_admin), data.login, data.email)
 
 @admin_router.post("/login")
 def login(admin_data: LoginRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):

@@ -5,11 +5,12 @@ from typing import Optional, List
 from datetime import datetime, date
 from entities import Acquaintance, Faq, PhotoAlbum, Photo, Registration, Participant
 
-
+# вход
 class LoginRequest(BaseModel):
     login: str
     password: str
 
+# обновление токена доступа
 class RefreshRequest(BaseModel):
     refresh_token: str
 
@@ -23,7 +24,7 @@ class ResetPasswordRequest(BaseModel):
     new_password: str
     confirm_password: str
 
-# админ
+# обновление данных админа
 class UpdateProfileRequest(BaseModel):
     login: Optional[str] = None
     email: Optional[str] = None

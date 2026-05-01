@@ -1,6 +1,5 @@
 from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from repositories import AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
-from serializers import UpdateProfileRequest
 from typing import List, Optional, Dict, Any
 from security import verify_password, hash_password
 import secrets
@@ -18,8 +17,8 @@ class AdminUseCase:
         user_id, login, email = user
         return { "id": user_id, "login": login, "email": email }
 
-    def update_profile(self, admin_id: int, data: UpdateProfileRequest):
-        self.repository.update_profile(admin_id, data.login, data.email)
+    def update_profile(self, admin_id: int, login: str, email: str):
+        self.repository.update_profile(admin_id, login, email)
         return {"message": "Данные обновлены"}
 
     def login(self, login: str, password: str):
