@@ -1,18 +1,35 @@
 import './photo.css';
-import { useRef, useEffect } from 'react';
-
-const photos = Array(9).fill('/images/photo.png');
+import { useRef, useEffect, useState } from 'react';
+import { getPhotoAlbums } from '../../api/photoAlbumsService';
 
 const SLIDE_INTERVAL = 2500;
 const DRAG_THRESHOLD = 30;
 
 export default function Photo() {
+  const [photos, setPhotos] = useState([]);
   const trackRef = useRef(null);
   const autoTimer = useRef(null);
   const currentIndex = useRef(0);
   const dragStartX = useRef(0);
   const dragDelta = useRef(0);
   const isDragging = useRef(false);
+
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  useEffect(() => {
+    loadPhotos();
+  }, []);
+
+  const loadPhotos = async () => {
+    const albums = await getPhotoAlbums();
+    if (!albums.length) return;
+
+    const firstAlbum = albums[0];
+
+    const mapped = (firstAlbum.photos || []).map(p => `${API_URL}${p.path}`);
+
+    setPhotos(mapped);
+  };
 
   const getItemWidth = () => {
     const track = trackRef.current;
@@ -42,9 +59,11 @@ export default function Photo() {
   const stopAuto = () => clearInterval(autoTimer.current);
 
   useEffect(() => {
-    startAuto();
+    if (photos.length) {
+      startAuto();
+    }
     return stopAuto;
-  }, []);
+  }, [photos]);
 
   const onPointerDown = (e) => {
     e.currentTarget.setPointerCapture(e.pointerId);
