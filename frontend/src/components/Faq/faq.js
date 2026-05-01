@@ -1,60 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './faq.css';
-
-const FAQ_ITEMS = [
-  {
-    question: 'Когда состоится хакатон? Что нужно сделать, чтобы принять участие?',
-    answer: 'Даты проведения Всероссийского хакатона связи в 2025 году:\nПодача заявок от команд - до 6 ноября 2025 года включительно\n14 ноября 2025г в 12.00 - открытие хакатона\n14 - 16 ноября - решение заданий командами, консультации с экспертами от предприятий\n16 ноября 2025г до 22.00 - отправка итоговых проектов командами\n17 ноября 2025г - защита проектов и подведение итогов',
-  },
-  {
-    question: 'Кто придумывает задания для хакатона?',
-    answer: 'Кейсы предоставляют партнеры-предприятия отрасли телекоммуникаций Российской Федерации.\nЗадания основаны на реальных ситуациях и задачах, возникающих на предприятиях.\nДля Всероссийского хакатона связи в 2025 году подготовлены кейсы двух уровней сложности. \nСтартовый уровень - 3 кейса для команд из студентов 1-2 курсов.\nПродвинутый уровень (пометка PRO) - 3 кейса для команд из студентов 3-5 курса и студентов магистратуры.',
-  },
-  {
-    question: 'Есть ли какой-то чат для общения всех участников?',
-    answer: 'Да, в телеграме есть чат участников хакатона https://t.me/+igokew0Mc-43OWIy\nПриглашаем команды в него!',
-  },
-  {
-    question: 'Что такое Хакатон Связи?',
-    answer: 'Это соревнование для студентов отрасли инфокоммуникаций, где команды решают кейсы от предприятий телекоммуникаций.',
-  },
-  {
-    question: 'Как стать участником Хакатона Связи?',
-    answer: 'Зарегистрировать команду на нашем сайте во вкладке "Регистрация"\nКоманда может состоять из 3-5 студентов\nНа кейсы уровня "Стартовый" могут заявиться студенты 1-2 курса\nНа кейсы уровня "Продвинутый" студенты 3 курса и старше',
-  },
-  {
-    question: 'Есть ли ограничения по возрасту и гражданству участников?',
-    answer: 'Нет',
-  },
-  {
-    question: 'Есть какие-то ограничения по использованию ПО?',
-    answer: 'Можно использовать любое лицензированное в РФ ПО',
-  },
-];
+import { getFaq } from '../../../../api/faqService';
 
 export default function Faq() {
+  const [items, setItems] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
 
-  const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
+  const load = async () => {
+    try {
+      const data = await getFaq();
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const toggle = (i) => {
+    setOpenIndex(openIndex === i ? null : i);
+  };
 
   return (
     <section id="faq" className="faq container">
       <h2>FAQ</h2>
       <div className="faq-list">
-        {FAQ_ITEMS.map((item, i) => {
+        {items.length === 0 && (
+          <p style={{ opacity: 0.6 }}>Нет данных</p>
+        )}
+        {items.map((item, i) => {
           const isOpen = openIndex === i;
           return (
-            <div
-              key={i}
-              className={`faq-item${isOpen ? ' faq-item--open' : ''}`}
-            >
-              <button className="faq-header" onClick={() => toggle(i)}>
-                <span className="faq-question">{item.question}</span>
+            <div key={item.id || i} className={`faq-item${isOpen ? ' faq-item--open' : ''}`} >
+              <button className="faq-header" onClick={() => toggle(i)} >
+                <span className="faq-question">
+                  {item.question}
+                </span>
                 <span className={`faq-btn${isOpen ? ' faq-btn--open' : ''}`}>+</span>
               </button>
               <div className={`faq-answer${isOpen ? ' faq-answer--open' : ''}`}>
                 <div className="faq-answer-inner">
-                  {item.answer.split('\n').map((line, j) => (
+                  {(item.answer || '').split('\n').map((line, j) => (
                     <p key={j}>{line}</p>
                   ))}
                 </div>
