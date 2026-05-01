@@ -3,10 +3,11 @@ from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
 from utils import send_reset_email
-from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
+from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
 from serializers import (PasswordResetRequest,ResetPasswordRequest,
                          LoginRequest, RefreshRequest,
                          AcquaintanceSerializer, AcquaintanceCreateSerializer,
+                         FaqSerializer, FaqCreateSerializer, 
                          ProgramSerializer, ProgramCreateSerializer,
                          AboutSerializer, AboutCreateSerializer,
                          CaseSerializer, CaseCreateSerializer,
@@ -17,9 +18,9 @@ from serializers import (PasswordResetRequest,ResetPasswordRequest,
                          ReviewSerializer, ReviewCreateSerializer,
                          RegistrationSerializer, RegistrationRequestSerializer,
                          ParticipantsCreateSerializer)
-from use_cases import AdminUseCase, AcquaintanceUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
+from use_cases import AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 from dependencies import (get_current_admin, get_admin_usecase,
-                          get_acquaintance_usecase,
+                          get_acquaintance_usecase, get_faq_usecase,
                           get_program_usecase, get_about_usecase,
                           get_cases_usecase, get_news_usecase,
                           get_partners_usecase, get_photoalbums_usecase,
@@ -28,6 +29,7 @@ from dependencies import (get_current_admin, get_admin_usecase,
 
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 acquaintance_router = APIRouter(prefix="/acquaintance", tags=["acquaintance"])
+faq_router = APIRouter(prefix="/faq", tags=["faq"])
 program_router = APIRouter(prefix="/program", tags=["program"])
 about_router = APIRouter(prefix="/about", tags=["about"])
 cases_router = APIRouter(prefix="/cases", tags=["cases"])
@@ -106,6 +108,37 @@ def update_acquaintance(item_id: int, item_data: AcquaintanceCreateSerializer, u
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
     return AcquaintanceSerializer.from_entity(updated)
+
+
+# Эндпоинты для Faq
+@faq_router.post("/", response_model=FaqSerializer)
+def create_faq(item_data: FaqCreateSerializer, use_case: FaqUseCase = Depends(get_faq_usecase), admin=Depends(get_current_admin)):
+    item = Faq(id=0, question=item_data.question, answer=item_data.answer)
+    item_id = use_case.create(item)
+    created = use_case.get_by_id(item_id)
+    return FaqSerializer.from_entity(created)
+
+@faq_router.get("/", response_model=List[FaqSerializer])
+def get_faq(use_case: FaqUseCase = Depends(get_faq_usecase)):
+    return [FaqSerializer.from_entity(x) for x in use_case.get_all()]
+
+@faq_router.get("/{item_id}", response_model=FaqSerializer)
+def get_faq(item_id: int, use_case: FaqUseCase = Depends(get_faq_usecase)):
+    item = use_case.get_by_id(item_id)
+    if not item: raise HTTPException(status_code=404, detail="Не найдено")
+    return FaqSerializer.from_entity(item)
+
+@faq_router.put("/{item_id}", response_model=FaqSerializer)
+def update_faq(item_id: int, item_data: FaqCreateSerializer, use_case: FaqUseCase = Depends(get_faq_usecase), admin=Depends(get_current_admin)):
+    item = Faq(id=item_id, question=item_data.question, answer=item_data.answer)
+    use_case.update(item_id, item)
+    updated = use_case.get_by_id(item_id)
+    return FaqSerializer.from_entity(updated)
+
+@faq_router.delete("/{item_id}")
+def delete_faq(item_id: int, use_case: FaqUseCase = Depends(get_faq_usecase), admin=Depends(get_current_admin)):
+    use_case.delete(item_id)
+    return {"message": "Удалено"}
 
 
 # Эндпоинты для Описания
@@ -191,7 +224,7 @@ def get_news(search: str = None, year: int = None, sort_by: str = "created_at", 
 def get_archived_news(search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc", usecase: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> List[NewsSerializer]:
     return usecase.get_filtered_archived(search, year, sort_by, sort_dir)
 
-@news_router.get("/by-year/{year}", response_model=List[NewsSerializer]) # надо будет делать поиск по году среди действующих и среди активных #НУЖЕН ЛИ ВООБЩЕ ЭТОТ ЗАПРОС??
+@news_router.get("/by-year/{year}", response_model=List[NewsSerializer]) # НУЖЕН ЛИ ВООБЩЕ ЭТОТ ЗАПРОС, ИЛИ ЗАМЕНИТЬ НА ОБЩИЙ?
 def get_news_by_year(year: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
     return [NewsSerializer(**row) for row in use_case.get_by_year(year)]
 
@@ -234,7 +267,7 @@ def get_cases(search: str = None, year: int = None, level: str = None, sort_by: 
 def get_archived_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
     return [CaseSerializer(**row) for row in use_case.get_filtered_archived(search, year, level, sort_by, sort_dir)]
 
-@cases_router.get("/by-year/{year}", response_model=List[CaseSerializer])
+@cases_router.get("/by-year/{year}", response_model=List[CaseSerializer]) # НУЖЕН ЛИ ВООБЩЕ ЭТОТ ЗАПРОС?
 def get_cases_by_year(year: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
     return [CaseSerializer(**row) for row in use_case.get_by_year(year)]
 

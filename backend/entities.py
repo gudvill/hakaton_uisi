@@ -28,6 +28,12 @@ class Acquaintance:
     text: Optional[str] = None
 
 @dataclass
+class Faq:
+    id: int = None
+    question: Optional[str] = None
+    answer: Optional[str] = None
+
+@dataclass
 class Program:
     id: int = None
     start_date: Optional[date] = None

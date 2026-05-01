@@ -1,8 +1,6 @@
 import './About.css';
 import { useState, useEffect } from 'react';
-import { getAbout, createAbout, updateAbout, deleteAbout
-} from '../../../../api/aboutService';
-
+import { getAbout, createAbout, updateAbout, deleteAbout } from '../../../../api/aboutService';
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 export default function About() {

@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, date
-from entities import Acquaintance, PhotoAlbum, Photo, Registration, Participant
+from entities import Acquaintance, Faq, PhotoAlbum, Photo, Registration, Participant
 
 
 class LoginRequest(BaseModel):
@@ -38,6 +38,23 @@ class AcquaintanceSerializer(BaseModel):
             id=entity.id,
             title=entity.title,
             text=entity.text)
+
+
+class FaqCreateSerializer(BaseModel):
+    question: Optional[str] = None
+    answer: Optional[str] = None
+
+class FaqSerializer(BaseModel):
+    id: int
+    question: Optional[str] = None
+    answer: Optional[str] = None
+
+    @classmethod
+    def from_entity(cls, entity: Faq):
+        return cls(
+            id=entity.id,
+            question=entity.question,
+            answer=entity.answer)
     
 
 class ProgramCreateSerializer(BaseModel):

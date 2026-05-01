@@ -1,5 +1,5 @@
-from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
-from repositories import AdminRepository, AcquaintanceRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
+from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
+from repositories import AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from typing import List, Optional, Dict, Any
 from security import verify_password, hash_password
 import secrets
@@ -14,7 +14,7 @@ class AdminUseCase:
     def get_me(self, admin_id: int):
         user = self.repository.get_by_id(admin_id)
         if not user: return None
-        user_id, login, password_hash, email = user
+        user_id, login, email = user
         return { "id": user_id, "login": login, "email": email }
 
     def login(self, login: str, password: str):
@@ -45,6 +45,7 @@ class AdminUseCase:
         self.repository.update_password(admin_id, password_hash)
         self.repository.mark_token_used(token_id)
 
+
 class AcquaintanceUseCase:
     def __init__(self, repository: AcquaintanceRepository):
         self.repository = repository
@@ -58,11 +59,28 @@ class AcquaintanceUseCase:
     def get_by_id(self, item_id: int) -> Optional[Acquaintance]:
         return self.repository.get_by_id(item_id)
     
-    def get_by_title(self, title: str) -> Optional[Acquaintance]:
-        return self.repository.get_by_title(title)
-
     def update(self, item_id: int, item: Acquaintance) -> None:
         self.repository.update(item_id, item)
+
+
+class FaqUseCase:
+    def __init__(self, repository: FaqRepository):
+        self.repository = repository
+
+    def create(self, item: Faq) -> int:
+        return self.repository.create(item)
+
+    def get_all(self) -> List[Faq]:
+        return self.repository.get_all()
+
+    def get_by_id(self, item_id: int) -> Optional[Faq]:
+        return self.repository.get_by_id(item_id)
+
+    def update(self, item_id: int, item: Faq) -> None:
+        self.repository.update(item_id, item)
+
+    def delete(self, item_id: int) -> None:
+        self.repository.delete(item_id)
 
 
 class AboutUseCase:

@@ -1,7 +1,7 @@
 # Репозиторий для работы с базой данных (SQL запросы к БД)
 
 from base_repository import BaseRepository
-from entities import Admin, Acquaintance, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
+from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import json
@@ -12,7 +12,7 @@ class AdminRepository:
         self.connection = connection
 
     def get_by_id(self, admin_id: int):
-        query = "SELECT id, login, password_hash, email FROM admins WHERE id = %s"
+        query = "SELECT id, login, email FROM admins WHERE id = %s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (admin_id,))
@@ -62,6 +62,18 @@ class AcquaintanceRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="acquaintance", entity_class=Acquaintance,
             columns=["title", "text"])
+        
+
+class FaqRepository(BaseRepository):
+    def __init__(self, connection):
+        super().__init__(connection=connection, table_name="faq", entity_class=Faq,
+            columns=["question", "answer"])
+
+    def delete(self, faq_id: int) -> None:
+        query = "DELETE FROM faq WHERE id=%s"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (faq_id,))
         
 
 class AboutRepository(BaseRepository):
