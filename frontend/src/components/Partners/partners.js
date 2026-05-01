@@ -17,11 +17,7 @@ export default function Partners() {
       <h2>ПАРТНЕРЫ</h2>
       <div className="partners-grid">
         {partnersData.map((partner) => (
-          <div
-            className="partner-card"
-            key={partner.id}
-            onClick={() => setSelected(partner)}
-          >
+          <div className="partner-card" key={partner.id} onClick={() => setSelected(partner)} >
             <img src={partner.image} alt={partner.name} />
             <p className="partner-name">{partner.name}</p>
           </div>
@@ -37,7 +33,7 @@ export default function Partners() {
             </div>
             <h3 className="partner-modal__name">{selected.name}</h3>
             <p className="partner-modal__desc">{selected.description}Уральский банк реконструкции и развития входит в список 30 крупнейших банков России, составленный ЦБ РФ, и в топ-100  самых надёжных кредитных учреждений России, по версии журнала Forbes.</p>
-            <a className="partner-modal__site" href="#" target="_blank" rel="noreferrer">Перейти на сайт</a>
+            <a className="partner-modal__site" href={selected.site_link || '#'} target="_blank"rel="noreferrer" >Перейти на сайт</a>
           </div>
         </div>
       )}
