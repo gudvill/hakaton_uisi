@@ -43,6 +43,7 @@ export default function NewsDetailPage() {
           <article className="news-detail__article">
             <p className="news-detail__date">{formatDate(item.created_at)}</p>
             <h1 className="news-detail__title">{item.name}</h1>
+            {/* src={item.image} — тот путь, который указан в БД */}
             {item.image && (
               <img className="news-detail__img" src={`${API_URL}${item.image}`} alt={item.name} />
             )}

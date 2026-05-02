@@ -51,7 +51,7 @@ export default function CaseDetailPage() {
 
               {item.partner_name && (
                 <div className="case-detail__partner-card">
-                    <img src={item.partner_image} alt={item.partner_name} className="case-detail__partner-img" />
+                    <img src={`${API_URL}${item.partner_image}`} alt={item.partner_name} className="case-detail__partner-img" />
                   <span className="case-detail__partner-name">{item.partner_name}</span>
                 </div>
               )}

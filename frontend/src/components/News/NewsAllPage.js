@@ -92,7 +92,7 @@ export default function NewsAllPage() {
                 <div key={item.id} className="news-card-wrapper">
                   <Link className="news-card" to={`/news/${item.id}`}>
                     <div className="news-card__img-wrap">
-                      <img className="news-card__img" src={item.image} alt={item.name} />
+                      <img className="news-card__img" src={`${API_URL}${item.image}`} alt={item.name} /> {/* src={item.image} - тот путь, который указан в БД*/}
                     </div>
                     <div className="news-card__body">
                       <p className="news-card__date">{formatDate(item.created_at)}</p>
