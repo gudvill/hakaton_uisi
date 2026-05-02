@@ -194,7 +194,7 @@ export default function Participants() {
     <div className="participants-wrap">
       <div className="participants-header">
         <h3 className="admin-card-title">УЧАСТНИКИ</h3>
-        <span className="participants-count">
+        <span className="count-items">
           {activeTab === 'active' ? registrations.length : registrations.length} команд
         </span>
       </div>

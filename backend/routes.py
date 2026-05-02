@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Form
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
@@ -6,6 +6,7 @@ from utils import send_reset_email
 import uuid
 import os
 from datetime import datetime
+from typing import Optional
 from pathlib import Path
 UPLOAD_DIR = "media/albums"
 from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, Review, Registration, Participant
@@ -152,8 +153,16 @@ def delete_faq(item_id: int, use_case: FaqUseCase = Depends(get_faq_usecase), ad
 
 # Эндпоинты для Описания
 @about_router.post("/", response_model=AboutSerializer)
-def create_about(item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    item = About(id=0, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
+async def create_about(row: Optional[int] = Form(None), col: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    icon_path = None
+    if file:
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/about") / filename
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        icon_path = f"/media/about/{filename}"
+    item = About(id=0, row=row, col=col, title=title, text=text, icon=icon_path)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
     return AboutSerializer(**created)
@@ -169,14 +178,36 @@ def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usec
     return AboutSerializer(**item)
 
 @about_router.put("/{item_id}", response_model=AboutSerializer)
-def update_about(item_id: int, item_data: AboutCreateSerializer, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
-    item = About(id=item_id, row=item_data.row, col=item_data.col, title=item_data.title, text=item_data.text, icon=item_data.icon)
+async def update_about(item_id: int, row: Optional[int] = Form(None), col: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    existing = use_case.get_by_id(item_id)
+    if not existing: raise HTTPException(404)
+    icon_path = existing["icon"]
+    if file:
+        if icon_path:
+            try:
+                os.remove(icon_path.replace("/media", "media"))
+            except:
+                pass
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/about") / filename
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        icon_path = f"/media/about/{filename}"
+    item = About(id=item_id, row=row, col=col, title=title, text=text, icon=icon_path)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
     return AboutSerializer(**updated)
 
 @about_router.delete("/{item_id}")
 def delete_about(item_id: int, use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+    item = use_case.get_by_id(item_id)
+    if not item: raise HTTPException(404)
+    if item.get("icon"):
+        try:
+            os.remove(item["icon"].replace("/media", "media"))
+        except:
+            pass
     use_case.delete(item_id)
     return {"message": "Удалено"}
 

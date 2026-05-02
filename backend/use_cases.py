@@ -6,6 +6,8 @@ import secrets
 from datetime import datetime, timedelta
 import re
 import os
+import shutil
+from pathlib import Path
 
 
 class AdminUseCase:
@@ -271,8 +273,11 @@ class PhotoAlbumsUseCase:
             except:
                 pass
             self.photos_repository.delete(p.id)
+        album_dir = Path("media/albums") / f"album_{album_id}"
+        if album_dir.exists():
+            shutil.rmtree(album_dir)
         self.repository.delete(album_id)
-        
+            
 
 class PhotosUseCase:
     def __init__(self, repository: PhotosRepository):

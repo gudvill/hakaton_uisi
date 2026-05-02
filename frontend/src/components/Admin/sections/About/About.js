@@ -7,8 +7,9 @@ export default function About() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [file, setFile] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
-  // загрузка данных
   const load = async () => {
     try {
       const data = await getAbout();
@@ -26,36 +27,42 @@ export default function About() {
     load();
   }, []);
 
-  // редактирование
   const startEdit = (item) => {
     setEditId(item.id);
     setForm(item);
+    setFile(null);
   };
 
-  // добавление
   const startAdd = () => {
     setEditId('new');
-    setForm({
-      row: '',
-      col: '',
-      title: '',
-      text: '',
-      icon: ''
-    });
+    setForm({ row: '', col: '', title: '', text: '' });
+    setFile(null);
   };
 
   const cancel = () => {
     setEditId(null);
     setForm({});
+    setFile(null);
   };
 
-  // сохранение
   const save = async () => {
+    const formData = new FormData();
+
+    Object.keys(form).forEach(k => {
+      if (form[k] !== '' && form[k] !== null && form[k] !== undefined) {
+        formData.append(k, form[k]);
+      }
+    });
+
+    if (file) {
+      formData.append("file", file);
+    }
+
     try {
       if (editId === 'new') {
-        await createAbout(form);
+        await createAbout(formData);
       } else {
-        await updateAbout(editId, form);
+        await updateAbout(editId, formData);
       }
 
       await load();
@@ -65,7 +72,6 @@ export default function About() {
     }
   };
 
-  // удаление
   const del = async (id) => {
     try {
       await deleteAbout(id);
@@ -89,13 +95,10 @@ export default function About() {
   const EditRow = () => (
     <tr className="section-edit-row">
       <td>
-        {form.icon ? (
-          <img
-            className="section-thumbnail"
-            src={form.icon}
-            alt=""
-            style={{ objectFit: 'contain', background: '#f3f0ff' }}
-          />
+        {file ? (
+          <img className="section-thumbnail" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : form.icon ? (
+          <img className="section-thumbnail" src={`${API_URL}${form.icon}`} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
         ) : (
           <div
             style={{
@@ -108,7 +111,10 @@ export default function About() {
         )}
       </td>
 
-      <td>{inp('icon', 'URL иконки')}</td>
+      <td>
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+      </td>
+
       <td>{inp('title', 'Заголовок')}</td>
 
       <td>
@@ -181,55 +187,27 @@ export default function About() {
                 <tr key={item.id}>
                   <td>
                     {item.icon ? (
-                      <img
-                        className="section-thumbnail"
-                        src={item.icon}
-                        alt=""
-                        style={{
-                          objectFit: 'contain',
-                          background: '#f3f0ff'
-                        }}
-                      />
+                      <img className="section-thumbnail" src={`${API_URL}${item.icon}`} alt="" />
                     ) : (
                       <span style={{ color: '#ccc', fontSize: 12 }}>
                         нет
                       </span>
                     )}
                   </td>
-
                   <td
-                    style={{
-                      fontSize: 11,
-                      color: '#aaa',
-                      maxWidth: 100,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
+                    style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} >
                     {item.icon || '—'}
                   </td>
-
                   <td style={{ fontWeight: 600 }}>{item.title}</td>
-
                   <td className="about-text-cell">{item.text}</td>
-
                   <td>{item.row ?? '—'}</td>
                   <td>{item.col ?? '—'}</td>
-
                   <td>
                     <div className="section-row-actions">
-                      <button
-                        className="section-icon-btn section-icon-btn--edit"
-                        onClick={() => startEdit(item)}
-                      >
+                      <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
                         <PencilIcon style={{ width: 15, height: 15 }} />
                       </button>
-
-                      <button
-                        className="section-icon-btn section-icon-btn--delete"
-                        onClick={() => del(item.id)}
-                      >
+                      <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
                         <TrashIcon style={{ width: 15, height: 15 }} />
                       </button>
                     </div>

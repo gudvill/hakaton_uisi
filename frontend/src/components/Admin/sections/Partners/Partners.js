@@ -129,6 +129,9 @@ export default function Partners() {
     <div className="admin-card">
       <div className="section-header">
         <h3 className="admin-card-title" style={{ marginBottom: 0 }}>ПАРТНЁРЫ</h3>
+        <span className="count-items">
+          {tab === 'active' ? items.length : items.length} партнёров
+        </span>
         {tab === 'active' && (
           <button className="section-add-btn" onClick={startAdd}>
             <PlusIcon style={{ width: 16, height: 16 }} /> добавить

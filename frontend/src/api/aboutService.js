@@ -13,14 +13,14 @@ export const getAboutById = async (id) => {
 };
 
 // создать запись описания
-export const createAbout = async (data) => {
-  const res = await api.post("/about/", data);
+export const createAbout = async (formData) => {
+  const res = await api.post("/about/", formData);
   return res.data;
 };
 
 // обновить запись описания
-export const updateAbout = async (id, data) => {
-  const res = await api.put(`/about/${id}`, data);
+export const updateAbout = async (id, formData) => {
+  const res = await api.put(`/about/${id}`, formData);
   return res.data;
 };
 
