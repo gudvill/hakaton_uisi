@@ -5,6 +5,7 @@ import './about.css';
 export default function About() {
   // row: 1-3, col: 1-3
   const [steps, setSteps] = useState([]);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
     getAbout()
@@ -51,7 +52,7 @@ export default function About() {
               className="roadmap-cell"
               style={{ gridRow: s.row, gridColumn: s.col }}
             >
-              <div className="roadmap-circle"><img src={s.icon} alt={s.title} /></div>
+              <div className="roadmap-circle"><img src={s.icon.startsWith('/media') ? s.icon : `${API_URL}${s.icon}`} alt={s.title} /></div>
               <div className="roadmap-label">
                 <h3>{s.title}</h3>
                 <p>{s.text}</p>
