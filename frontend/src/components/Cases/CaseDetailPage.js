@@ -10,6 +10,7 @@ export default function CaseDetailPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
     getCaseById(id)
