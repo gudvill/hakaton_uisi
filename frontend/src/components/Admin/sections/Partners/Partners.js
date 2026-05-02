@@ -9,9 +9,11 @@ export default function Partners() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [file, setFile] = useState(null);
   const [tab, setTab] = useState('active');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState({ key: "name", dir: "asc" });
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   const load = async (silent = false) => {
     try {
@@ -56,30 +58,40 @@ export default function Partners() {
   const startEdit = (item) => {
     setEditId(item.id);
     setForm(item);
+    setFile(null);
   };
 
   const startAdd = () => {
     setEditId('new');
-    setForm({ 
-      name: '', 
-      description: '', 
-      full_description: '', 
-      site_link: '', 
-      image: '' 
-    });
+    setForm({ name: '', description: '', full_description: '', site_link: '' });
+    setFile(null);
   };
 
   const cancel = () => {
     setEditId(null);
     setForm({});
+    setFile(null);
   };
 
   const save = async () => {
+    const formData = new FormData();
+    const allowedKeys = ['name', 'description', 'full_description', 'site_link'];
+    allowedKeys.forEach(key => {
+      const v = form[key];
+      if (v !== '' && v !== null && v !== undefined) {
+        formData.append(key, v);
+      }
+    });
+
+    if (file) {
+      formData.append("file", file);
+    }
+
     try {
       if (editId === 'new') {
-        await createPartner(form);
+        await createPartner(formData);
       } else {
-        await updatePartner(editId, form);
+        await updatePartner(editId, formData);
       }
 
       await load();
@@ -90,13 +102,21 @@ export default function Partners() {
   };
 
   const del = async (id) => {
-    await disablePartner(id);
-    load();
+    try {
+      await disablePartner(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const restore = async (id) => {
-    await restorePartner(id);
-    load();
+    try {
+      await restorePartner(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const inp = (key, placeholder) => (
@@ -106,12 +126,15 @@ export default function Partners() {
   const EditRow = () => (
     <tr className="section-edit-row">
       <td style={{ width: 56 }}>
-        {form.image
-          ? <img className="section-thumbnail partner-logo" src={form.image} alt="" />
-          : <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
-        }
+        {file ? (
+          <img className="section-thumbnail partner-logo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : form.image ? (
+          <img className="section-thumbnail partner-logo" src={`${API_URL}${form.image}`} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : (
+          <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
+        )}
       </td>
-      <td>{inp('image', 'URL логотипа')}</td>
+      <td><input type="file" onChange={e => setFile(e.target.files[0])} /></td>
       <td>{inp('name', 'Название')}</td>
       <td>{inp('description', 'Описание')}</td>
       <td>{inp('full_description', 'Полное описание')}</td>
@@ -194,7 +217,7 @@ export default function Partners() {
               <tr key={item.id}>
                 <td>
                   {item.image && (
-                    <img className="section-thumbnail partner-logo" src={item.image} alt="" />
+                    <img className="section-thumbnail partner-logo" src={`${API_URL}${item.image}`} alt="" />
                   )}
                 </td>
                 <td style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

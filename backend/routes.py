@@ -250,8 +250,16 @@ def delete_program(item_id: int, use_case: ProgramUseCase = Depends(get_program_
 
 # Эндпоинты для Новостей
 @news_router.post("/", response_model=NewsSerializer)
-def create_news(news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
-    news = News(name=news_data.name, image=news_data.image, brief_description=news_data.brief_description, full_description=news_data.full_description, is_available=True)
+async def create_news(name: Optional[str] = Form(None), brief_description: Optional[str] = Form(None), full_description: Optional[str] = Form(None), file: UploadFile = File(None), use_case: NewsUseCase = Depends(get_news_usecase), admin = Depends(get_current_admin)) -> NewsSerializer:
+    image_path = None
+    if file:
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/news") / filename
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        image_path = f"/media/news/{filename}"
+    news = News(name=name, image=image_path, brief_description=brief_description, full_description=full_description, is_available=True)
     news_id = use_case.create(news)
     created = use_case.get_by_id(news_id)
     return NewsSerializer(**created)
@@ -275,8 +283,24 @@ def get_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) ->
     return NewsSerializer(**row)
 
 @news_router.put("/{news_id}", response_model=NewsSerializer)
-def update_news(news_id: int, news_data: NewsCreateSerializer, use_case: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> NewsSerializer:
-    news = News(id=news_id, name=news_data.name, image=news_data.image, brief_description=news_data.brief_description, full_description=news_data.full_description)
+async def update_news(news_id: int, name: Optional[str] = Form(None), brief_description: Optional[str] = Form(None), full_description: Optional[str] = Form(None), file: UploadFile = File(None), use_case: NewsUseCase = Depends(get_news_usecase), admin = Depends(get_current_admin)) -> NewsSerializer:
+    existing = use_case.get_by_id(news_id)
+    if not existing: raise HTTPException(status_code=404, detail="Новость не найдена")
+    image_path = existing["image"]
+    if file:
+        if image_path:
+            physical_path = image_path.replace("/media", "media", 1)
+            try:
+                os.remove(physical_path)
+            except (OSError, FileNotFoundError):
+                pass
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/news") / filename
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        image_path = f"/media/news/{filename}"
+    news = News(id=news_id, name=name, image=image_path, brief_description=brief_description, full_description=full_description)
     use_case.update(news_id, news)
     updated = use_case.get_by_id(news_id)
     return NewsSerializer(**updated)
@@ -290,6 +314,7 @@ def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)
 def restore_news(news_id: int, usecase: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)):
     usecase.restore_news(news_id)
     return {"message": "Новость восстановлена"}
+
 
 # Эндпоинты для Кейсов
 @cases_router.post("/", response_model=CaseSerializer)
@@ -337,18 +362,27 @@ def restore_case(case_id: int, usecase: CasesUseCase = Depends(get_cases_usecase
 
 # Эндпоинты для Партнёров
 @partners_router.post("/", response_model=PartnerSerializer)
-def create_partner(partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
-    partner = Partner(id=0, name=partner_data.name, image=partner_data.image, description=partner_data.description, full_description=partner_data.full_description, site_link=partner_data.site_link, is_available=True)
+async def create_partner(name: Optional[str] = Form(None), description: Optional[str] = Form(None), full_description: Optional[str] = Form(None), site_link: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: PartnersUseCase = Depends(get_partners_usecase), admin = Depends(get_current_admin)) -> PartnerSerializer:
+    image_path = None
+    if file:
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/partners") / filename
+        os.makedirs("media/partners", exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        image_path = f"/media/partners/{filename}"
+    partner = Partner(id=0, name=name, image=image_path, description=description, full_description=full_description, site_link=site_link, is_available=True)
     partner_id = use_case.create(partner)
     created = use_case.get_by_id(partner_id)
     return PartnerSerializer(**created)
 
 @partners_router.get("/", response_model=List[PartnerSerializer])
-def get_partners(search: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: PartnersUseCase = Depends(get_partners_usecase)):
+def get_partners(search: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: PartnersUseCase = Depends(get_partners_usecase)) -> List[PartnerSerializer]:
     return [PartnerSerializer(**row) for row in use_case.get_filtered(search, sort_by, sort_dir)]
 
 @partners_router.get("/archived/", response_model=List[PartnerSerializer])
-def get_archived_partners(search: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)):
+def get_archived_partners(search: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> List[PartnerSerializer]:
     return [PartnerSerializer(**row) for row in use_case.get_filtered_archived(search, sort_by, sort_dir)]
 
 @partners_router.get("/{partner_id}", response_model=PartnerSerializer)
@@ -358,8 +392,25 @@ def get_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partner
     return PartnerSerializer(**row)
 
 @partners_router.put("/{partner_id}", response_model=PartnerSerializer)
-def update_partner(partner_id: int, partner_data: PartnerCreateSerializer, use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
-    partner = Partner(id=partner_id, name=partner_data.name, image=partner_data.image, description=partner_data.description, full_description=partner_data.full_description, site_link=partner_data.site_link)
+async def update_partner(partner_id: int, name: Optional[str] = Form(None), description: Optional[str] = Form(None), full_description: Optional[str] = Form(None), site_link: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
+    existing = use_case.get_by_id(partner_id)
+    if not existing: raise HTTPException(status_code=404, detail="Партнёр не найден")
+    image_path = existing.get("image")
+    if file:
+        if image_path:
+            physical_path = image_path.replace("/media", "media", 1)
+            try:
+                os.remove(physical_path)
+            except OSError:
+                pass
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/partners") / filename
+        os.makedirs("media/partners", exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        image_path = f"/media/partners/{filename}"
+    partner = Partner(id=partner_id, name=name, image=image_path, description=description, full_description=full_description, site_link=site_link)
     use_case.update(partner_id, partner)
     updated = use_case.get_by_id(partner_id)
     return PartnerSerializer(**updated)
@@ -377,8 +428,17 @@ def restore_partner(partner_id: int, usecase: PartnersUseCase = Depends(get_part
 
 # Эндпоинты для Отзывов
 @reviews_router.post("/", response_model=ReviewSerializer)
-def create_review(review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
-    review = Review(id=0, name=review_data.name, content=review_data.content, image=review_data.image, is_available=True)
+async def create_review(name: Optional[str] = Form(None), content: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin = Depends(get_current_admin)) -> ReviewSerializer:
+    image_path = None
+    if file:
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/reviews") / filename
+        os.makedirs("media/reviews", exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        image_path = f"/media/reviews/{filename}"
+    review = Review(id=0, name=name, content=content, image=image_path, is_available=True)
     review_id = use_case.create(review)
     created = use_case.get_by_id(review_id)
     return ReviewSerializer(**created)
@@ -398,8 +458,25 @@ def get_review(review_id: int, use_case: ReviewsUseCase = Depends(get_reviews_us
     return ReviewSerializer(**row)
 
 @reviews_router.put("/{review_id}", response_model=ReviewSerializer)
-def update_review(review_id: int, review_data: ReviewCreateSerializer, use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)) -> ReviewSerializer:
-    review = Review(id=review_id, name=review_data.name, content=review_data.content, image=review_data.image)
+async def update_review(review_id: int, name: Optional[str] = Form(None), content: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: ReviewsUseCase = Depends(get_reviews_usecase), admin = Depends(get_current_admin)) -> ReviewSerializer:
+    existing = use_case.get_by_id(review_id)
+    if not existing: raise HTTPException(status_code=404, detail="Отзыв не найден")
+    image_path = existing.get("image")
+    if file:
+        if image_path:
+            physical_path = image_path.replace("/media", "media", 1)
+            try:
+                os.remove(physical_path)
+            except OSError:
+                pass
+        ext = file.filename.split(".")[-1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        file_path = Path("media/reviews") / filename
+        os.makedirs("media/reviews", exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        image_path = f"/media/reviews/{filename}"
+    review = Review(id=review_id, name=name, content=content, image=image_path)
     use_case.update(review_id, review)
     updated = use_case.get_by_id(review_id)
     return ReviewSerializer(**updated)

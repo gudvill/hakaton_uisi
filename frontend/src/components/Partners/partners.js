@@ -5,6 +5,7 @@ import { getPartners } from '../../api/partnersService';
 export default function Partners() {
   const [partnersData, setPartnersData] = useState([]);
   const [selected, setSelected] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
     getPartners()
@@ -18,7 +19,7 @@ export default function Partners() {
       <div className="partners-grid">
         {partnersData.map((partner) => (
           <div className="partner-card" key={partner.id} onClick={() => setSelected(partner)} >
-            <img src={partner.image} alt={partner.name} />
+            <img src={`${API_URL}${partner.image}`} alt={partner.name} />
             <p className="partner-name">{partner.name}</p>
           </div>
         ))}
@@ -29,7 +30,7 @@ export default function Partners() {
           <div className="partner-modal" onClick={e => e.stopPropagation()}>
             <button className="partner-modal__close" onClick={() => setSelected(null)}><img src='images/close.svg'></img></button>
             <div className="partner-modal__img-wrap">
-              <img src={selected.image} alt={selected.name} />
+              <img src={`${API_URL}${selected.image}`} alt={selected.name} />
             </div>
             <h3 className="partner-modal__name">{selected.name}</h3>
             <p className="partner-modal__desc">{selected.description}Уральский банк реконструкции и развития входит в список 30 крупнейших банков России, составленный ЦБ РФ, и в топ-100  самых надёжных кредитных учреждений России, по версии журнала Forbes.</p>

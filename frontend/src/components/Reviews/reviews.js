@@ -4,6 +4,7 @@ import { getReviews } from '../../api/reviewsService';
 
 export default function Reviews() {
   const [reviewsData, setReviewsData] = useState([]);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
     getReviews()
@@ -18,7 +19,7 @@ export default function Reviews() {
         {reviewsData.map((review) => (
           <div className="folder-card" key={review.id}>
             <img className="folder-back" src="/images/papka_back.svg" alt="" />
-            <img className="folder-photo" src={review.image} alt="фото отзыва"/>
+            <img className="folder-photo" src={`${API_URL}${review.image}`} alt="фото отзыва"/>
             <img className="folder-front" src="/images/papka_front.svg" alt="" />
             <p className="folder-text">{review.content}</p>
           </div>

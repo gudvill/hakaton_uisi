@@ -12,9 +12,11 @@ export default function Reviews() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [file, setFile] = useState(null);
   const [tab, setTab] = useState('active');
   const [year, setYear] = useState('');
   const years = Array.from({ length: 5 }, (_, i) => 2022 + i);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   const load = async (silent = false) => {
     try {
@@ -48,24 +50,40 @@ export default function Reviews() {
   const startEdit = (item) => {
     setEditId(item.id);
     setForm(item);
+    setFile(null);
   };
 
   const startAdd = () => {
     setEditId('new');
-    setForm({ name: '', content: '', image: '' });
+    setForm({ name: '', content: '' });
+    setFile(null);
   };
 
   const cancel = () => {
     setEditId(null);
     setForm({});
+    setFile(null);
   };
 
   const save = async () => {
+    const formData = new FormData();
+
+    Object.keys(form).forEach(k => {
+      const v = form[k];
+      if (v !== '' && v !== null && v !== undefined) {
+        formData.append(k, v);
+      }
+    });
+
+    if (file) {
+      formData.append("file", file);
+    }
+
     try {
       if (editId === 'new') {
-        await createReviews(form);
+        await createReviews(formData);
       } else {
-        await updateReviews(editId, form);
+        await updateReviews(editId, formData);
       }
 
       await load();
@@ -76,21 +94,38 @@ export default function Reviews() {
   };
 
   const del = async (id) => {
-    await disableReview(id);
-    load();
+    try {
+      await disableReview(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const restore = async (id) => {
-    await restoreReview(id);
-    load();
+    try {
+      await restoreReview(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const EditCard = ({ id }) => (
     <div key={id} className="review-edit-card">
       <input className="section-input" value={form.name || ''} placeholder="Название отзыва"
         onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
-      <input className="section-input" value={form.image || ''} placeholder="URL фотографии"
-        onChange={e => setForm(p => ({ ...p, image: e.target.value }))} />
+      <div className="review-photo-preview-wrap">
+        {file ? (
+          <img className="review-photo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'cover', maxWidth: 120 }} />
+        ) : form.image ? (
+          <img className="review-photo" src={`${API_URL}${form.image}`} alt="" style={{ objectFit: 'cover', maxWidth: 120 }} />
+        ) : (
+          <div style={{ width: 80, height: 80, background: '#f3f0ff', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>нет фото
+          </div>
+        )}
+      </div>
+      <input type="file" onChange={e => setFile(e.target.files[0])} />
       <textarea className="section-textarea" value={form.content || ''} placeholder="Текст отзыва"
         onChange={e => setForm(p => ({ ...p, content: e.target.value }))} />
       <div className="section-row-actions" style={{ marginTop: 4 }}>
@@ -144,7 +179,7 @@ export default function Reviews() {
         ) : (
           <div key={item.id} className="review-card">
             {item.image && (
-              <img className="review-photo" src={item.image} alt="" />
+              <img className="review-photo" src={`${API_URL}${item.image}`} alt="" />
             )}
             <p style={{ fontWeight: 600 }}>{item.name || '—'}</p>
             <p className="review-content">{item.content}</p>

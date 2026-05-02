@@ -5,6 +5,7 @@ import './news.css';
 
 export default function News() {
   const [news, setNews] = useState([]);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
     getNews()
@@ -36,7 +37,7 @@ export default function News() {
           <div key={item.id} className="news-card-wrapper">
             <Link className="news-card" to={`/news/${item.id}`}>
               <div className="news-card__img-wrap">
-                <img className="news-card__img" src={item.image} alt={item.name} />
+                <img className="news-card__img" src={`${API_URL}${item.image}`} alt={item.name} />
               </div>
               <div className="news-card__body">
                 <p className="news-card__date">{formatDate(item.created_at)}</p>

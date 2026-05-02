@@ -10,6 +10,7 @@ export default function NewsDetailPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
     getNewsById(id)
@@ -43,7 +44,7 @@ export default function NewsDetailPage() {
             <p className="news-detail__date">{formatDate(item.created_at)}</p>
             <h1 className="news-detail__title">{item.name}</h1>
             {item.image && (
-              <img className="news-detail__img" src={item.image} alt={item.name} />
+              <img className="news-detail__img" src={`${API_URL}${item.image}`} alt={item.name} />
             )}
             <div className="news-detail__content">
               {item.full_description.split('\n').map((line, i) => (

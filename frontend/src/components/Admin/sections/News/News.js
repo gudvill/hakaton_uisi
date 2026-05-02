@@ -12,11 +12,13 @@ export default function News() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [file, setFile] = useState(null);
   const [tab, setTab] = useState('active'); // 'active' | 'archive'
   const [search, setSearch] = useState('');
   const [year, setYear] = useState('');
   const [sort, setSort] = useState({ key: 'created_at', dir: 'desc' });
   const years = Array.from({ length: 5 }, (_, i) => 2022 + i);
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   const load = async (silent = false) => {
     try {
@@ -61,29 +63,37 @@ const toggleSort = (key) => {
   const startEdit = (item) => {
     setEditId(item.id);
     setForm(item);
+    setFile(null);
   };
 
   const startAdd = () => {
     setEditId('new');
-    setForm({
-      name: '',
-      brief_description: '',
-      full_description: '',
-      image: ''
-    });
+    setForm({ name: '', brief_description: '', full_description: '' });
+    setFile(null);
   };
 
   const cancel = () => {
     setEditId(null);
     setForm({});
+    setFile(null);
   };
 
   const save = async () => {
+    const formData = new FormData();
+    Object.keys(form).forEach(k => {
+      const v = form[k];
+      if (v !== '' && v !== null && v !== undefined) {
+        formData.append(k, v);
+      }
+    });
+    if (file) {
+      formData.append("file", file);
+    }
     try {
       if (editId === 'new') {
-        await createNews(form);
+        await createNews(formData);
       } else {
-        await updateNews(editId, form);
+        await updateNews(editId, formData);
       }
       await load();
       cancel();
@@ -93,13 +103,21 @@ const toggleSort = (key) => {
   };
 
   const del = async (id) => {
-    await disableNews(id);
-    load();
+    try {
+      await disableNews(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const restore = async (id) => {
-    await restoreNews(id);
-    load();
+    try {
+      await restoreNews(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const inp = (key, placeholder) => (
@@ -110,12 +128,17 @@ const toggleSort = (key) => {
   const EditRow = () => (
     <tr className="section-edit-row">
       <td>
-        {form.image
-          ? <img className="section-thumbnail" src={form.image} alt="" />
-          : <div className="news-img-placeholder" />
-        }
+        {file ? (
+          <img className="section-thumbnail" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'cover', background: '#f3f0ff' }} />
+        ) : form.image ? (
+          <img className="section-thumbnail" src={`${API_URL}${form.image}`} alt="" style={{ objectFit: 'cover', background: '#f3f0ff' }} />
+        ) : (
+          <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
+        )}
       </td>
-      <td>{inp('image', 'Путь к фото')}</td>
+      <td>
+        <input type="file" onChange={e => setFile(e.target.files[0])} />
+      </td>
       <td>{inp('name', 'Заголовок')}</td>
       <td>{inp('brief_description', 'Краткое описание')}</td>
       <td>{inp('full_description', 'Полное описание')}</td>
@@ -201,7 +224,7 @@ const toggleSort = (key) => {
                 <tr key={item.id}>
                   <td>
                     {item.image && (
-                      <img className="section-thumbnail" src={item.image} alt="" />
+                      <img className="section-thumbnail" src={`${API_URL}${item.image}`} alt="" />
                     )}
                   </td>
                   <td className="news-url">{item.image || '—'}</td>
