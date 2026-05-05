@@ -16,26 +16,26 @@ export default function NewsAllPage() {
   const API_URL = process.env.REACT_APP_API_URL || '';
   
   useEffect(() => {
-    getNews()
+    setLoading(true);
+
+    getNews({
+      year: activeYear || undefined
+    })
       .then(setNews)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+
+  }, [activeYear]);
 
   const years = useMemo(() => {
     const set = new Set(news.map(n => new Date(n.created_at).getFullYear()));
     return [...set].sort((a, b) => b - a);
   }, [news]);
 
-  const filtered = useMemo(() => {
-    const result = activeYear
-      ? news.filter(n => new Date(n.created_at).getFullYear() === activeYear)
-      : news;
-    return result;
-  }, [news, activeYear]);
-
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const totalPages = Math.ceil(news.length / PER_PAGE);
+  const paginated = useMemo(() => {
+    return news.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  }, [news, page]);
 
   const setYear = (year) => { setActiveYear(year); setPage(1); };
   const goTo = (p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -52,7 +52,8 @@ export default function NewsAllPage() {
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (page <= 4) return [1, 2, 3, 4, 5, '...', totalPages];
-    if (page >= totalPages - 3) return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    if (page >= totalPages - 3)
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     return [1, '...', page - 1, page, page + 1, '...', totalPages];
   }, [page, totalPages]);
 
@@ -64,20 +65,12 @@ export default function NewsAllPage() {
           <h2>НОВОСТИ</h2>
           {!loading && years.length > 0 && (
             <div className="news-all__years">
-              <button
-                className={`news-all__year-btn ${activeYear === null ? 'news-all__year-btn--active' : ''}`}
-                onClick={() => setYear(null)}
-              >
-                Все
-              </button>
+              <button className={`news-all__year-btn ${activeYear === null ? 'news-all__year-btn--active' : ''}`}
+                onClick={() => setYear(null)} >Все</button>
               {years.map(year => (
-                <button
-                  key={year}
+                <button key={year}
                   className={`news-all__year-btn ${activeYear === year ? 'news-all__year-btn--active' : ''}`}
-                  onClick={() => setYear(year)}
-                >
-                  {year}
-                </button>
+                  onClick={() => setYear(year)} >{year}</button>
               ))}
             </div>
           )}
@@ -107,35 +100,19 @@ export default function NewsAllPage() {
 
             {totalPages > 1 && (
               <div className="news-all__pagination">
-                <button
-                  className="news-all__page-btn news-all__page-arrow"
-                  onClick={() => goTo(page - 1)}
-                  disabled={page === 1}
-                >
-                  ←
-                </button>
-
+                <button className="news-all__page-btn news-all__page-arrow" onClick={() => goTo(page - 1)} disabled={page === 1} >←</button>
                 {pageNumbers.map((p, i) =>
                   p === '...' ? (
                     <span key={`ellipsis-${i}`} className="news-all__page-ellipsis">…</span>
                   ) : (
-                    <button
-                      key={p}
+                    <button key={p}
                       className={`news-all__page-btn ${page === p ? 'news-all__page-btn--active' : ''}`}
-                      onClick={() => goTo(p)}
-                    >
-                      {p}
-                    </button>
+                      onClick={() => goTo(p)} >{p}</button>
                   )
                 )}
 
-                <button
-                  className="news-all__page-btn news-all__page-arrow"
-                  onClick={() => goTo(page + 1)}
-                  disabled={page === totalPages}
-                >
-                  →
-                </button>
+                <button className="news-all__page-btn news-all__page-arrow"
+                  onClick={() => goTo(page + 1)} disabled={page === totalPages} >→</button>
               </div>
             )}
           </>
