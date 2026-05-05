@@ -341,7 +341,8 @@ class CasesRepository(BaseRepository):
         allowed_sort = {
             "name": "c.name",
             "partner": "p.name",
-            "created_at": "c.created_at"
+            "created_at": "c.created_at",
+            "case_number": "c.case_number"
         }
 
         sort_column = allowed_sort.get(sort_by, "c.created_at")
@@ -392,7 +393,8 @@ class CasesRepository(BaseRepository):
         allowed_sort = {
             "name": "c.name",
             "partner": "p.name",
-            "created_at": "c.created_at"
+            "created_at": "c.created_at",
+             "case_number": "c.case_number"
         }
 
         sort_column = allowed_sort.get(sort_by, "c.created_at")

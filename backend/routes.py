@@ -325,11 +325,11 @@ def create_case(case_data: CaseCreateSerializer, use_case: CasesUseCase = Depend
     return CaseSerializer(**created)
 
 @cases_router.get("/", response_model=List[CaseSerializer])
-def get_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: CasesUseCase = Depends(get_cases_usecase)):
+def get_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "case_number", sort_dir: str = "asc", use_case: CasesUseCase = Depends(get_cases_usecase)):
     return [CaseSerializer(**row) for row in use_case.get_filtered(search, year, level, sort_by, sort_dir)]
 
 @cases_router.get("/archived/", response_model=List[CaseSerializer])
-def get_archived_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "created_at", sort_dir: str = "desc", use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
+def get_archived_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "case_number", sort_dir: str = "asc", use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
     return [CaseSerializer(**row) for row in use_case.get_filtered_archived(search, year, level, sort_by, sort_dir)]
 
 @cases_router.get("/by-year/{year}", response_model=List[CaseSerializer]) # НУЖЕН ЛИ ВООБЩЕ ЭТОТ ЗАПРОС?
