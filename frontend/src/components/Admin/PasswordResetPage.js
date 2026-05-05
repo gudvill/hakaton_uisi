@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import api from "../../api/axios";
+import { resetPassword } from "../../api/authService";
 import './login.css';
 
 export default function PasswordResetPage() {
@@ -22,8 +22,8 @@ export default function PasswordResetPage() {
       return;
     }
     try {
-      const res = await api.post("/admin/reset-password", { token, new_password: newPassword });
-      setMessage(res.data.message || "Пароль успешно изменён");
+      const res = await resetPassword(token, newPassword, confirm);
+      setMessage(res?.message || "Пароль успешно изменён");
       setIsError(false);
       setDone(true);
       setTimeout(() => navigate("/admin/login"), 2500);

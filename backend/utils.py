@@ -1,6 +1,7 @@
+import os
 import resend
 
-resend.api_key = "re_Q5xonnYt_3y4dacoYGzQmdT6SBN86HNjG"
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 def send_reset_email(to_email: str, reset_link: str):
     response = resend.Emails.send({

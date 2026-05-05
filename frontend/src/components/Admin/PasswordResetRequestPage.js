@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../../api/axios";
+import { requestPasswordReset } from "../../api/authService";
 import './login.css';
 
 export default function PasswordResetRequestPage() {
@@ -12,8 +12,8 @@ export default function PasswordResetRequestPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/admin/request-password-reset", { email });
-      setMessage(res.data.message || "Ссылка отправлена на почту");
+      const res = await requestPasswordReset(email);
+      setMessage(res?.message || "Ссылка отправлена на почту");
       setIsError(false);
       setSent(true);
     } catch (err) {
