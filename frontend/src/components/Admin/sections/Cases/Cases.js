@@ -5,8 +5,8 @@ import { getPartners } from '../../../../api/partnersService';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 const LEVELS = [
-  { value: 'standard', label: 'Стартовый' },
-  { value: 'advanced', label: 'Продвинутый' },
+  { value: 'стартовый', label: 'Стартовый' },
+  { value: 'продвинутый', label: 'Продвинутый' },
 ];
 
 const SORTABLE_KEYS = ['name', 'partner', 'created_at'];

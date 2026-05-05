@@ -267,13 +267,6 @@ class NewsRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(query, (news_id,))
                 return self._fetch_one_dict(cursor)
-
-    def get_by_year(self, year: int):
-        query = """ SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE EXTRACT(YEAR FROM created_at) = %s AND is_available = TRUE ORDER BY created_at DESC"""
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, (year,))
-                return self._fetch_all_dict(cursor)
             
     def restore_news(self, news_id: int):
         with self.connection() as conn:
@@ -321,15 +314,6 @@ class CasesRepository(BaseRepository):
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-    
-    def get_by_year(self, year: int) -> List[Dict[str, Any]]:
-        query = """SELECT c.id, c.name, c.case_number, c.level, c.description, c.partner_id, c.teams_count, c.created_at, p.name as partner_name, p.image as partner_image, c.is_available, COUNT(r.id) as registered_teams_count
-            FROM cases c LEFT JOIN partners p ON c.partner_id = p.id LEFT JOIN registration r ON r.selected_case = c.id AND r.is_available = TRUE
-            WHERE EXTRACT(YEAR FROM c.created_at) = %s GROUP BY c.id, p.name, p.image ORDER BY c.case_number"""
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, (year,))
                 return self._fetch_all_dict(cursor)
             
     def restore_case(self, case_id: int):

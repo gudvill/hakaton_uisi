@@ -18,13 +18,6 @@ export const getCaseById = async (id) => {
   return res.data;
 };
 
-// получить кейсы за определённый год
-export const getCasesByYear = async (year) => {
-  if (!year) return getCases();
-  const res = await api.get(`/cases/by-year/${year}`);
-  return res.data;
-};
-
 // создать кейс
 export const createCase = async (data) => {
   const res = await api.post("/cases/", data);

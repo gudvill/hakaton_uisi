@@ -147,9 +147,6 @@ class NewsUseCase:
     def get_by_id(self, news_id: int) -> Optional[News]:
         return self.repository.get_by_id(news_id)
 
-    def get_by_year(self, year: int) -> List[News]:
-        return self.repository.get_by_year(year)
-
     def update(self, news_id: int, news: News) -> None:
         self.repository.update(news_id, news)
 
@@ -175,9 +172,6 @@ class CasesUseCase:
     
     def get_by_id(self, case_id: int) -> Optional[Dict[str, Any]]:
         return self.repository.get_by_id(case_id)
-
-    def get_by_year(self, year: int):
-        return self.repository.get_by_year(year)
 
     def update(self, case_id: int, case: Case) -> None:
         self.repository.update(case_id, case)
@@ -389,10 +383,10 @@ class RegistrationUseCase:
         # проверка уровня для основного кейса
         case_level = (case["level"] or "").lower()
         level = (data.level_education or "").lower()
-        if case_level == "standard":
+        if case_level == "стартовый":
             if any(c > 2 for c in courses) or level == "магистратура":
                 raise Exception("Этот кейс только для 1-2 курса")
-        if case_level == "advanced":
+        if case_level == "продвинутый":
             if any(c < 3 for c in courses) and level != "магистратура":
                 raise Exception("Этот кейс только для 3+ курса и магистрантов")
         return self.repository.create_registration(data, participants)
@@ -462,9 +456,9 @@ class RegistrationUseCase:
         if not case: raise Exception("Кейс не найден")
         case_level = (case["level"] or "").lower()
         level = (team["level_education"] or "").lower()
-        if case_level == "standard" and (course > 2 or level == "магистратура"):
+        if case_level == "стартовый" and (course > 2 or level == "магистратура"):
             raise Exception("Этот кейс только для 1-2 курса")
-        if case_level == "advanced" and course < 3 and level != "магистратура":
+        if case_level == "продвинутый" and course < 3 and level != "магистратура":
             raise Exception("Этот кейс только для 3+ курса и магистрантов")
         fio = p["fio"].strip().lower()
         key = (fio, course)
@@ -542,10 +536,10 @@ class RegistrationUseCase:
         # проверка уровня для основного кейса
         case_level = (case["level"] or "").lower()
         level = (data.level_education or "").lower()
-        if case_level == "standard":
+        if case_level == "стартовый":
             if any(c > 2 for c in courses) or level == "магистратура":
                 raise Exception("Этот кейс только для 1-2 курса")
-        if case_level == "advanced":
+        if case_level == "продвинутый":
             if any(c < 3 for c in courses) and level != "магистратура":
                 raise Exception("Этот кейс только для 3+ курса и магистрантов")
         self.repository.update_registration(reg_id, data, participants)

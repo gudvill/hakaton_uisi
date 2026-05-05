@@ -18,13 +18,6 @@ export const getNewsById = async (id) => {
   return res.data;
 };
 
-// получить новости за определённый год
-export const getNewsByYear = async (year) => {
-  if (!year) return getNews();
-  const res = await api.get(`/news/by-year/${year}`);
-  return res.data;
-};
-
 // создать новость
 export const createNews = async (data) => {
   const res = await api.post("/news/", data);

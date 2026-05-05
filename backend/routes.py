@@ -272,10 +272,6 @@ def get_news(search: str = None, year: int = None, sort_by: str = "created_at", 
 def get_archived_news(search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc", usecase: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)) -> List[NewsSerializer]:
     return usecase.get_filtered_archived(search, year, sort_by, sort_dir)
 
-@news_router.get("/by-year/{year}", response_model=List[NewsSerializer]) # НУЖЕН ЛИ ВООБЩЕ ЭТОТ ЗАПРОС, ИЛИ ЗАМЕНИТЬ НА ОБЩИЙ?
-def get_news_by_year(year: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> List[NewsSerializer]:
-    return [NewsSerializer(**row) for row in use_case.get_by_year(year)]
-
 @news_router.get("/{news_id}", response_model=NewsSerializer)
 def get_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)) -> NewsSerializer:
     row = use_case.get_by_id(news_id)
@@ -331,10 +327,6 @@ def get_cases(search: str = None, year: int = None, level: str = None, sort_by: 
 @cases_router.get("/archived/", response_model=List[CaseSerializer])
 def get_archived_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "case_number", sort_dir: str = "asc", use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
     return [CaseSerializer(**row) for row in use_case.get_filtered_archived(search, year, level, sort_by, sort_dir)]
-
-@cases_router.get("/by-year/{year}", response_model=List[CaseSerializer]) # НУЖЕН ЛИ ВООБЩЕ ЭТОТ ЗАПРОС?
-def get_cases_by_year(year: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
-    return [CaseSerializer(**row) for row in use_case.get_by_year(year)]
 
 @cases_router.get("/{case_id}", response_model=CaseSerializer)
 def get_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecase)):
