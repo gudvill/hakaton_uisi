@@ -29,7 +29,7 @@ export default function Cases() {
   const [search, setSearch] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
-  const [sort, setSort] = useState(null);
+  const [sort, setSort] = useState({ key: "case_number", dir: "asc" });
   const [loading, setLoading] = useState(true);
 
   const load = async (silent = false) => {
@@ -40,8 +40,8 @@ export default function Cases() {
         search: search || undefined,
         year: yearFilter ? Number(yearFilter) : undefined,
         level: levelFilter || undefined,
-        sort_by: sort?.key,
-        sort_dir: sort?.dir,
+        sort_by: sort.key,
+        sort_dir: sort.dir,
       };
 
       const data =
