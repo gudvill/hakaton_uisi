@@ -24,7 +24,7 @@ class StatsRepository:
 
     # 1. кол-во команд
     def count_teams(self):
-        query = "SELECT COUNT(*) as count FROM registrations WHERE is_available = TRUE"
+        query = "SELECT COUNT(*) as count FROM registration WHERE is_available = TRUE"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
@@ -41,7 +41,7 @@ class StatsRepository:
     # 3. участники по уровню образования и курсу
     def participants_by_level_and_course(self):
         query = """SELECT r.level_education, p.course, COUNT(*) as count
-        FROM participants p JOIN registrations r ON p.registration_id = r.id
+        FROM participants p JOIN registration r ON p.registration_id = r.id
         WHERE p.is_available = TRUE AND r.is_available = TRUE GROUP BY r.level_education, p.course"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
@@ -67,7 +67,7 @@ class StatsRepository:
     # 6. команды по годам
     def teams_by_year(self):
         query = """SELECT EXTRACT(YEAR FROM created_at) as year, COUNT(*) as count
-        FROM registrations WHERE is_available = TRUE GROUP BY year ORDER BY year"""
+        FROM registration WHERE is_available = TRUE GROUP BY year ORDER BY year"""
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
