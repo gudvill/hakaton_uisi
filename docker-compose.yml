@@ -34,13 +34,9 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     ports:
-      - "5173:3000"
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-    command: npm start
+      - "5173:80"
+    restart: always
 
   nginx:
     image: nginx:alpine
