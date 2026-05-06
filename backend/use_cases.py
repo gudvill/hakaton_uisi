@@ -34,12 +34,16 @@ class StatsUseCase:
                 "participants": participants,
                 "partners": partners,
                 "cases": cases,
+                "avg_team_size": round(self.repository.average_team_size() or 0, 2)
             },
             "participants_matrix": matrix,
             "teams_by_year": self.repository.teams_by_year(),
-            "top_partners": self.repository.top_partners()
+            "top_partners": self.repository.top_partners(),
+            "participation_forms": self.repository.participation_form_stats(),
+            "registrations_dynamics": self.repository.registrations_dynamics(),
+            "top_institutions": self.repository.top_institutions()
         }
-    
+        
 
 class AdminUseCase:
     def __init__(self, repository: AdminRepository):
