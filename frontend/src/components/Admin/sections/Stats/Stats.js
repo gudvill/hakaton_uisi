@@ -1,8 +1,9 @@
 import './Stats.css';
 import { useEffect, useState } from 'react';
 import { getStats } from '../../../../api/statsService';
-import { UserGroupIcon, UsersIcon, AcademicCapIcon, BookOpenIcon, BuildingLibraryIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { UserGroupIcon, UsersIcon, AcademicCapIcon, BookOpenIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from 'recharts';
 
 const CARDS_CONFIG = [
   { key: 'teams',    label: 'Команд',       Icon: UserGroupIcon,   color: '#6a35cc', bg: '#f3f0ff' },
@@ -27,7 +28,6 @@ export default function Stats() {
   if (loading) return <p style={{ color: '#999', fontSize: 14 }}>Загрузка...</p>;
   if (!data) return <p>Ошибка загрузки</p>;
 
-  // Карточки
   const matrix = data.participants_matrix || {};
 
   const sumLevel = (level) =>
@@ -44,12 +44,9 @@ export default function Stats() {
     spo11: sumLevel('спо 11класс'),
   };
 
-  // График по годам
   const yearData = data.teams_by_year || [];
 
-  // Heatmap
   const heatmapData = [];
-
   Object.entries(matrix).forEach(([level, courses]) => {
     Object.entries(courses).forEach(([course, count]) => {
       heatmapData.push({
@@ -60,8 +57,13 @@ export default function Stats() {
     });
   });
 
-  // Топ партнёров
   const partnersData = data.top_partners || [];
+
+  const tooltipStyle = {
+    borderRadius: 8,
+    border: 'none',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+  };
 
   return (
     <div className="admin-card">
@@ -83,24 +85,25 @@ export default function Stats() {
         <h4>Команды по годам</h4>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={yearData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid stroke="#eee" />
             <XAxis dataKey="year" />
             <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" />
+            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+            <Bar dataKey="count" fill="#6a35cc" radius={[6, 6, 0, 0]} maxBarSize={40} name="Команды" />
           </BarChart>
         </ResponsiveContainer>
       </div>
-      {/* График: участники (образование/курс) */}
+      {/* График: участники */}
       <div style={{ marginTop: 40 }}>
         <h4>Участники по уровню и курсу</h4>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={heatmapData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="level" />
+            <CartesianGrid stroke="#eee" />
+            <XAxis dataKey="course" />
             <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Legend />
+            <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={30} name="Участники" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -109,11 +112,11 @@ export default function Stats() {
         <h4>Топ партнёров</h4>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={partnersData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid stroke="#eee" />
             <XAxis dataKey="name" />
             <YAxis />
-            <Tooltip />
-            <Bar dataKey="cases_count" />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Bar dataKey="cases_count" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={40} name="Кейсы" />
           </BarChart>
         </ResponsiveContainer>
       </div>
