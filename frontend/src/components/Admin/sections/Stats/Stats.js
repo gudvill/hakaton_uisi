@@ -67,7 +67,7 @@ export default function Stats() {
   const levelColors = {
     'бакалавриат/специалитет': '#10b981',
     'магистратура': '#f59e0b',
-    'спо 9класс': '#ec4899',
+    'спо 9класс': '#3b82f6',
     'спо 11класс': '#f43f5e',
   };
 
@@ -90,10 +90,10 @@ export default function Stats() {
       <div style={{ marginTop: 40 }}>
         <h4>Команды по годам</h4>
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={yearData} margin={{ bottom: 30 }}>
+          <BarChart data={yearData} margin={{ bottom: 60, left: 50, right: 20 }} >
             <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="year" label={{ value: 'Год', position: 'insideBottom', offset: -5 }} />
-            <YAxis label={{ value: 'Количество команд', angle: -90, position: 'insideLeft' }} />
+            <XAxis dataKey="year" label={{ value: 'Год', position: 'insideBottom', offset: -5 }} tick={{ angle: -20, textAnchor: 'end' }} />
+            <YAxis width={110} label={{ value: 'Кол-во команд', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Bar dataKey="count" fill="#6a35cc" radius={[6, 6, 0, 0]} maxBarSize={40} />
           </BarChart>
@@ -103,10 +103,10 @@ export default function Stats() {
       <div style={{ marginTop: 40 }}>
         <h4>Динамика регистраций</h4>
         <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={data.registrations_dynamics} margin={{ bottom: 30 }}>
+          <LineChart data={data.registrations_dynamics} margin={{ bottom: 60, left: 50, right: 20 }} >
             <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="date" label={{ value: 'Дата', position: 'insideBottom', offset: -5 }} />
-            <YAxis label={{ value: 'Количество регистраций', angle: -90, position: 'insideLeft' }} />
+            <XAxis dataKey="date" label={{ value: 'Дата', position: 'insideBottom', offset: -5 }} tick={{ angle: -20, textAnchor: 'end' }} />
+            <YAxis width={110} label={{ value: 'Кол-во регистраций', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Line type="monotone" dataKey="count" stroke="#6a35cc" strokeWidth={3} />
           </LineChart>
@@ -116,10 +116,10 @@ export default function Stats() {
       <div style={{ marginTop: 40 }}>
         <h4>Форма участия</h4>
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data.participation_forms} margin={{ bottom: 30 }}>
+          <BarChart data={data.participation_forms} margin={{ bottom: 60, left: 50, right: 20 }} >
             <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="participation_form" />
-            <YAxis label={{ value: 'Количество команд', angle: -90, position: 'insideLeft' }} />
+            <XAxis dataKey="participation_form" tick={{ angle: -20, textAnchor: 'end' }} />
+            <YAxis width={110} label={{ value: 'Кол-во команд', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Bar dataKey="count" fill="#3b82f6" maxBarSize={50} radius={[6,6,0,0]} />
           </BarChart>
@@ -129,10 +129,10 @@ export default function Stats() {
       <div style={{ marginTop: 40 }}>
         <h4>Топ учебных заведений</h4>
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data.top_institutions} margin={{ bottom: 30 }}>
+          <BarChart data={data.top_institutions} margin={{ bottom: 60, left: 50, right: 20 }} >
             <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="institution" />
-            <YAxis label={{ value: 'Количество команд', angle: -90, position: 'insideLeft' }} />
+            <XAxis dataKey="institution" tick={{ angle: -20, textAnchor: 'end' }} />
+            <YAxis width={110} label={{ value: 'Кол-во команд', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Bar dataKey="count" fill="#10b981" maxBarSize={50} radius={[6,6,0,0]} />
           </BarChart>
@@ -142,31 +142,26 @@ export default function Stats() {
       <div style={{ marginTop: 40 }}>
         <h4>Участники по уровню и курсу</h4>
         <ResponsiveContainer width="100%" height={350}>
-          <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
+          <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }} >
             <CartesianGrid />
-            <XAxis type="number" dataKey="x" name="Курс" />
-            <YAxis type="number" dataKey="y" name="Количество участников" />
+            <XAxis type="number" dataKey="x" domain={[1, 6]} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
+            <YAxis type="number" dataKey="y" name="Кол-во участников" width={110} label={{ value: 'Кол-во участников', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-            <Legend verticalAlign="top" height={40} />
+            <Legend verticalAlign="top" align="right" layout="vertical" />
             {Object.keys(levelColors).map(level => (
-              <Scatter
-                key={level}
-                name={level}
-                data={scatterData.filter(d => d.level === level)}
-                fill={levelColors[level]}
-              />
+              <Scatter shape="circle" fillOpacity={0.85} line={false} key={level} name={level} data={scatterData.filter(d => d.level === level)} fill={levelColors[level]} />
             ))}
           </ScatterChart>
         </ResponsiveContainer>
       </div>
-      {/* Партнёры */}
+      {/* Топ партнёров */}
       <div style={{ marginTop: 40 }}>
         <h4>Топ партнёров</h4>
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data.top_partners} margin={{ bottom: 30 }}>
+          <BarChart data={data.top_partners} margin={{ bottom: 60, left: 50, right: 20 }} >
             <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="name" />
-            <YAxis label={{ value: 'Количество кейсов', angle: -90, position: 'insideLeft' }} />
+            <XAxis dataKey="name" tick={{ angle: -20, textAnchor: 'end' }} />
+            <YAxis width={110} label={{ value: 'Кол-во кейсов', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Bar dataKey="cases_count" fill="#10b981" maxBarSize={40} radius={[6,6,0,0]} />
           </BarChart>
