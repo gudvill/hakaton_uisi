@@ -15,24 +15,23 @@ from serializers import (PasswordResetRequest,ResetPasswordRequest,
                          AcquaintanceSerializer, AcquaintanceCreateSerializer,
                          FaqSerializer, FaqCreateSerializer, 
                          ProgramSerializer, ProgramCreateSerializer,
-                         AboutSerializer, AboutCreateSerializer,
+                         AboutSerializer, NewsSerializer,
                          CaseSerializer, CaseCreateSerializer,
-                         NewsSerializer, NewsCreateSerializer,
-                         PartnerSerializer, PartnerCreateSerializer,
+                         PartnerSerializer, ReviewSerializer,
                          PhotoAlbumSerializer, PhotoAlbumCreateSerializer,
                          PhotoSerializer, PhotoCreateSerializer,
-                         ReviewSerializer, ReviewCreateSerializer,
                          RegistrationSerializer, RegistrationRequestSerializer,
                          ParticipantsCreateSerializer)
-from use_cases import AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
+from use_cases import StatsUseCase, AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 from dependencies import (get_current_admin, get_admin_usecase,
                           get_acquaintance_usecase, get_faq_usecase,
                           get_program_usecase, get_about_usecase,
                           get_cases_usecase, get_news_usecase,
                           get_partners_usecase, get_photoalbums_usecase,
                           get_photos_usecase, get_reviews_usecase,
-                          get_registration_usecase)
+                          get_registration_usecase, get_stats_usecase)
 
+stats_router = APIRouter(prefix="/stats", tags=["stats"])
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 acquaintance_router = APIRouter(prefix="/acquaintance", tags=["acquaintance"])
 faq_router = APIRouter(prefix="/faq", tags=["faq"])
@@ -46,6 +45,11 @@ photos_router = APIRouter(prefix="/photos", tags=["photos"])
 reviews_router = APIRouter(prefix="/reviews", tags=["reviews"])
 registration_router = APIRouter(prefix="/registration", tags=["registration"])
 
+
+# Эндпоинты для статистики
+@stats_router.get("/", summary="Получить статистику")
+def get_stats(usecase: StatsUseCase = Depends(get_stats_usecase), admin=Depends(get_current_admin)):
+    return usecase.get_stats()
 
 # Эндпоинты для Админа
 @admin_router.get("/me")

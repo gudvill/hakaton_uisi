@@ -4,8 +4,8 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from jose import jwt, JWTError
 from security import SECRET_KEY, ALGORITHM
-from repositories import AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
-from use_cases import AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
+from repositories import StatsRepository, AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
+from use_cases import StatsUseCase, AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 
 security = HTTPBearer()
 
@@ -22,6 +22,10 @@ def get_current_admin(token=Depends(security)):
 def get_connection():
     conn = psycopg2.connect(settings.database_connection_string)
     return conn
+
+def get_stats_usecase() -> StatsUseCase:
+    repository = StatsRepository(get_connection)
+    return StatsUseCase(repository)
 
 def get_admin_usecase() -> AdminUseCase:
     repository = AdminRepository(get_connection)

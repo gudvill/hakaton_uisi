@@ -7,6 +7,83 @@ from datetime import datetime
 import json
 
 
+class StatsRepository:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def _fetch_all_dict(self, cursor):
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def _fetch_one_dict(self, cursor):
+        row = cursor.fetchone()
+        if not row:
+            return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
+    # 1. кол-во команд
+    def count_teams(self):
+        query = "SELECT COUNT(*) as count FROM registrations WHERE is_available = TRUE"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchone()[0]
+
+    # 2. кол-во участников
+    def count_participants(self):
+        query = "SELECT COUNT(*) FROM participants WHERE is_available = TRUE"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchone()[0]
+
+    # 3. участники по уровню образования и курсу
+    def participants_by_level_and_course(self):
+        query = """SELECT r.level_education, p.course, COUNT(*) as count
+        FROM participants p JOIN registrations r ON p.registration_id = r.id
+        WHERE p.is_available = TRUE AND r.is_available = TRUE GROUP BY r.level_education, p.course"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+
+    # 4. кол-во партнёров
+    def count_partners(self):
+        query = "SELECT COUNT(*) FROM partners WHERE is_available = TRUE"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchone()[0]
+
+    # 5. кол-во кейсов
+    def count_cases(self):
+        query = "SELECT COUNT(*) FROM cases WHERE is_available = TRUE"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchone()[0]
+
+    # 6. команды по годам
+    def teams_by_year(self):
+        query = """SELECT EXTRACT(YEAR FROM created_at) as year, COUNT(*) as count
+        FROM registrations WHERE is_available = TRUE GROUP BY year ORDER BY year"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+
+    # 7. ТОП партнёров по кол-ву кейсов
+    def top_partners(self):
+        query = """SELECT p.name, COUNT(c.id) as cases_count
+        FROM partners p LEFT JOIN cases c ON c.partner_id = p.id AND c.is_available = TRUE
+        WHERE p.is_available = TRUE GROUP BY p.id ORDER BY cases_count DESC"""
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
+
 class AdminRepository:
     def __init__(self, connection):
         self.connection = connection
@@ -184,20 +261,6 @@ class NewsRepository(BaseRepository):
         if not row: return None
         columns = [col[0] for col in cursor.description]
         return dict(zip(columns, row))
-
-    def get_all_true(self):
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = TRUE ORDER BY created_at DESC"""
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-            
-    def get_all_false(self):
-        query = """SELECT id, name, image, created_at, brief_description, full_description, is_available FROM news WHERE is_available = FALSE ORDER BY created_at DESC"""
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
     
     def get_filtered(self, search: str = None, year: int = None, sort_by: str = "created_at", sort_dir: str = "desc"):
 

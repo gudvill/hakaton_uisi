@@ -1,5 +1,5 @@
 from entities import Admin, Acquaintance, Faq, Program, About, Case, News, Partner, PhotoAlbum, Photo, PhotoAlbumWithPhotos, Review, Registration, Participant
-from repositories import AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
+from repositories import StatsRepository, AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from typing import List, Optional, Dict, Any
 from security import verify_password, hash_password
 import secrets
@@ -9,6 +9,37 @@ import os
 import shutil
 from pathlib import Path
 
+
+class StatsUseCase:
+    def __init__(self, repository: StatsRepository):
+        self.repository = repository
+
+    def get_stats(self):
+        teams = self.repository.count_teams()
+        participants = self.repository.count_participants()
+        partners = self.repository.count_partners()
+        cases = self.repository.count_cases()
+        raw_matrix = self.repository.participants_by_level_and_course()
+        matrix = {}
+        for row in raw_matrix:
+            level = row["level_education"]
+            course = row["course"]
+            count = row["count"]
+            if level not in matrix:
+                matrix[level] = {}
+            matrix[level][course] = count
+        return {
+            "totals": {
+                "teams": teams,
+                "participants": participants,
+                "partners": partners,
+                "cases": cases,
+            },
+            "participants_matrix": matrix,
+            "teams_by_year": self.repository.teams_by_year(),
+            "top_partners": self.repository.top_partners()
+        }
+    
 
 class AdminUseCase:
     def __init__(self, repository: AdminRepository):

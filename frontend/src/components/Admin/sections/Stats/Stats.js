@@ -1,45 +1,72 @@
 import './Stats.css';
 import { useEffect, useState } from 'react';
-import { getRegistrations } from '../../../../api/registrationService';
+import { getStats } from '../../../../api/statsService';
 import { UserGroupIcon, UsersIcon, AcademicCapIcon, BookOpenIcon, BuildingLibraryIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 const CARDS_CONFIG = [
-  { key: 'teams',      label: 'Команд',       Icon: UserGroupIcon,       color: '#6a35cc', bg: '#f3f0ff' },
-  { key: 'members',    label: 'Участников',   Icon: UsersIcon,           color: '#3b82f6', bg: '#eff6ff' },
-  { key: 'bachelor',   label: 'Бакалавриат',  Icon: AcademicCapIcon,     color: '#10b981', bg: '#f0fdf4' },
-  { key: 'master',     label: 'Магистратура', Icon: BookOpenIcon,        color: '#f59e0b', bg: '#fffbeb' },
-  { key: 'specialist', label: 'Специалитет',  Icon: BuildingLibraryIcon, color: '#8b5cf6', bg: '#f5f3ff' },
-  { key: 'college',    label: 'Колледж',      Icon: BuildingOfficeIcon,  color: '#ec4899', bg: '#fdf2f8' },
+  { key: 'teams',    label: 'Команд',       Icon: UserGroupIcon,   color: '#6a35cc', bg: '#f3f0ff' },
+  { key: 'members',  label: 'Участников',   Icon: UsersIcon,       color: '#3b82f6', bg: '#eff6ff' },
+  { key: 'bachelor', label: 'Бакалавриат/Специалитет', Icon: AcademicCapIcon, color: '#10b981', bg: '#f0fdf4' },
+  { key: 'master',   label: 'Магистратура', Icon: BookOpenIcon,    color: '#f59e0b', bg: '#fffbeb' },
+  { key: 'spo9',     label: 'СПО (после 9)',  Icon: BuildingOfficeIcon, color: '#ec4899', bg: '#fdf2f8' },
+  { key: 'spo11',    label: 'СПО (после 11)', Icon: BuildingOfficeIcon, color: '#f43f5e', bg: '#fff1f2' },
 ];
 
 export default function Stats() {
-  const [regs, setRegs] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getRegistrations().then(setRegs).catch(console.error).finally(() => setLoading(false));
+    getStats()
+      .then(setData)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const byLevel = regs.reduce((acc, r) => {
-    const l = r.level_education || 'other';
-    acc[l] = (acc[l] || 0) + 1;
-    return acc;
-  }, {});
+  if (loading) return <p style={{ color: '#999', fontSize: 14 }}>Загрузка...</p>;
+  if (!data) return <p>Ошибка загрузки</p>;
+
+  // Карточки
+  const matrix = data.participants_matrix || {};
+
+  const sumLevel = (level) =>
+    matrix[level]
+      ? Object.values(matrix[level]).reduce((a, b) => a + b, 0)
+      : 0;
 
   const values = {
-    teams:      regs.length,
-    members:    regs.reduce((s, r) => s + (r.participants?.length || 0), 0),
-    bachelor:   byLevel['bachelor']   || 0,
-    master:     byLevel['master']     || 0,
-    specialist: byLevel['specialist'] || 0,
-    college:    byLevel['college']    || 0,
+    teams: data.totals?.teams || 0,
+    members: data.totals?.participants || 0,
+    bachelor: sumLevel('бакалавриат/специалитет'),
+    master: sumLevel('магистратура'),
+    spo9: sumLevel('спо 9класс'),
+    spo11: sumLevel('спо 11класс'),
   };
 
-  if (loading) return <p style={{ color: '#999', fontSize: 14 }}>Загрузка...</p>;
+  // График по годам
+  const yearData = data.teams_by_year || [];
+
+  // Heatmap
+  const heatmapData = [];
+
+  Object.entries(matrix).forEach(([level, courses]) => {
+    Object.entries(courses).forEach(([course, count]) => {
+      heatmapData.push({
+        level,
+        course: `Курс ${course}`,
+        count
+      });
+    });
+  });
+
+  // Топ партнёров
+  const partnersData = data.top_partners || [];
 
   return (
     <div className="admin-card">
       <h3 className="admin-card-title">СТАТИСТИКА</h3>
+      {/* Карточки */}
       <div className="stats-grid">
         {CARDS_CONFIG.map(({ key, label, Icon, color, bg }) => (
           <div key={key} className="stat-card" style={{ background: bg }}>
@@ -50,6 +77,45 @@ export default function Stats() {
             <span className="stat-label">{label}</span>
           </div>
         ))}
+      </div>
+      {/* График: команды по годам */}
+      <div style={{ marginTop: 40 }}>
+        <h4>Команды по годам</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={yearData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="year" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      {/* График: участники (образование/курс) */}
+      <div style={{ marginTop: 40 }}>
+        <h4>Участники по уровню и курсу</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={heatmapData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="level" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      {/* Топ партнёров */}
+      <div style={{ marginTop: 40 }}>
+        <h4>Топ партнёров</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={partnersData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="cases_count" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
