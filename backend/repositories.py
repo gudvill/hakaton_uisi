@@ -37,16 +37,8 @@ class StatsRepository:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return cursor.fetchone()[0]
-
-    # 3. участники по уровню образования и курсу
-    def participants_by_level_and_course(self):
-        query = "SELECT r.level_education, p.course, COUNT(*) as count FROM participants p JOIN registration r ON p.registration_id = r.id GROUP BY r.level_education, p.course"
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-
-    # 4. кол-во партнёров
+            
+    # 3. кол-во партнёров
     def count_partners(self):
         query = "SELECT COUNT(*) FROM partners"
         with self.connection() as conn:
@@ -54,49 +46,15 @@ class StatsRepository:
                 cursor.execute(query)
                 return cursor.fetchone()[0]
 
-    # 5. кол-во кейсов
+    # 4. кол-во кейсов
     def count_cases(self):
         query = "SELECT COUNT(*) FROM cases"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 return cursor.fetchone()[0]
-
-    # 6. команды по годам
-    def teams_by_year(self):
-        query = "SELECT EXTRACT(YEAR FROM created_at) as year, COUNT(*) as count FROM registration GROUP BY year ORDER BY year"
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-
-    # 7. ТОП партнёров по кол-ву кейсов
-    def top_partners(self):
-        query = "SELECT p.name, COUNT(c.id) as cases_count FROM partners p LEFT JOIN cases c ON c.partner_id = p.id GROUP BY p.id ORDER BY cases_count DESC"
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-    
-    # 8. форма участия (офлайн/онлайн)
-    def participation_form_stats(self):
-        query = "SELECT participation_form, COUNT(*) as count FROM registration GROUP BY participation_form"
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-
-
-    # 9. динамика регистраций (по датам)
-    def registrations_dynamics(self):
-        query = "SELECT DATE(created_at) as date, COUNT(*) as count FROM registration GROUP BY DATE(created_at) ORDER BY date"
-        with self.connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                return self._fetch_all_dict(cursor)
-
-
-    # 10. средний размер команды
+            
+    # 5. средний размер команды
     def average_team_size(self):
         query = "SELECT AVG(amount_participants) as avg_size FROM registration"
         with self.connection() as conn:
@@ -104,10 +62,49 @@ class StatsRepository:
                 cursor.execute(query)
                 return cursor.fetchone()[0]
 
+    # 6. кол-во участников по уровню образования и по курсу
+    def participants_by_level_and_course(self):
+        query = "SELECT r.level_education, p.course, COUNT(*) as count FROM participants p JOIN registration r ON p.registration_id = r.id GROUP BY r.level_education, p.course"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
 
-    # 11. ТОП учебных заведений
+    # 7. кол-во команд по годам
+    def teams_by_year(self):
+        query = "SELECT EXTRACT(YEAR FROM created_at) as year, COUNT(*) as count FROM registration GROUP BY year ORDER BY year"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
+    # 8. динамика регистраций по датам
+    def registrations_dynamics(self):
+        query = "SELECT DATE(created_at) as date, COUNT(*) as count FROM registration GROUP BY DATE(created_at) ORDER BY date"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
+    # 9. кол-во команд на форму участия (офлайн/онлайн)
+    def participation_form_stats(self):
+        query = "SELECT participation_form, COUNT(*) as count FROM registration GROUP BY participation_form"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+
+    # 10. топ учебных заведений (кол-во команд на учебное заведение)
     def top_institutions(self):
         query = "SELECT institution, COUNT(*) as count FROM registration GROUP BY institution ORDER BY count DESC LIMIT 10"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
+    # 11. топ партнёров (кол-во кейсов на партнёра)
+    def top_partners(self):
+        query = "SELECT p.name, COUNT(c.id) as cases_count FROM partners p LEFT JOIN cases c ON c.partner_id = p.id GROUP BY p.id ORDER BY cases_count DESC"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)

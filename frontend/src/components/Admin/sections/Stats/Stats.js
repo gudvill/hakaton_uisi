@@ -7,6 +7,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContaine
 const CARDS_CONFIG = [
   { key: 'teams', label: 'Команд', Icon: UserGroupIcon, color: '#6a35cc', bg: '#f3f0ff' },
   { key: 'members', label: 'Участников', Icon: UsersIcon, color: '#3b82f6', bg: '#eff6ff' },
+  { key: 'partners', label: 'Партнёров', Icon: BuildingOfficeIcon, color: '#6366f1', bg: '#eef2ff' },
+  { key: 'cases', label: 'Кейсов', Icon: BookOpenIcon, color: '#f97316', bg: '#fff7ed' },
   { key: 'avg_team', label: 'Средний размер команды', Icon: UsersIcon, color: '#14b8a6', bg: '#f0fdfa' },
   { key: 'bachelor', label: 'Бакалавриат/Специалитет', Icon: AcademicCapIcon, color: '#10b981', bg: '#f0fdf4' },
   { key: 'master', label: 'Магистратура', Icon: BookOpenIcon, color: '#f59e0b', bg: '#fffbeb' },
@@ -38,6 +40,8 @@ export default function Stats() {
   const values = {
     teams: data.totals?.teams || 0,
     members: data.totals?.participants || 0,
+    partners: data.totals?.partners || 0,
+    cases: data.totals?.cases || 0,
     avg_team: data.totals?.avg_team_size || 0,
     bachelor: sumLevel('бакалавриат/специалитет'),
     master: sumLevel('магистратура'),
