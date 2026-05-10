@@ -146,12 +146,13 @@ export default function Registration({ isOpen, onClose }) {
       if (!p.course) missing.push(`Курс участника ${i + 1}`);
     });
 
-    const fioList = formData.participants.map(p => p.fio.trim().toLowerCase()).filter(Boolean);
-    const fioDuplicates = fioList.filter((fio, i) => fioList.indexOf(fio) !== i);
-    if (fioDuplicates.length > 0) {
-      const names = [...new Set(fioDuplicates)].map(f =>
-        formData.participants.find(p => p.fio.trim().toLowerCase() === f)?.fio
-      );
+    const participantKeys = formData.participants.map(p => ({
+      key: `${p.fio.trim().toLowerCase()}_${p.course}`,
+      label: `${p.fio} (${p.course} курс)`
+    }));
+    const duplicates = participantKeys.filter((p, i, arr) => arr.findIndex(x => x.key === p.key) !== i);
+    if (duplicates.length > 0) {
+      const names = [...new Set(duplicates.map(d => d.label))];
       missing.push(`Дублирующиеся участники в команде: ${names.join(', ')}`);
     }
 
