@@ -61,6 +61,29 @@ export default function Registration({ isOpen, onClose }) {
     setAlertAfterClose(null);
   };
 
+  const formatPhone = (value) => {
+    let digits = value.replace(/\D/g, '');
+    if (digits.startsWith('8')) {
+      digits = '7' + digits.slice(1);
+    }
+    if (digits.startsWith('7')) {
+      digits = digits.slice(0, 11);
+    } else {
+      digits = ('7' + digits).slice(0, 11);
+    }
+    const code = digits.slice(1, 4);
+    const part1 = digits.slice(4, 7);
+    const part2 = digits.slice(7, 9);
+    const part3 = digits.slice(9, 11);
+    let result = '+7';
+    if (code) { result += ` (${code}`; }
+    if (code.length === 3) { result += ')'; }
+    if (part1) { result += ` ${part1}`; }
+    if (part2) { result += `-${part2}`; }
+    if (part3) { result += `-${part3}`; }
+    return result;
+  };
+
   const handleInputChange = (e) => {
     const { name, type, value, checked } = e.target;
 
@@ -80,9 +103,13 @@ export default function Registration({ isOpen, onClose }) {
       return;
     }
 
+    let finalValue = type === 'checkbox' ? checked : value;
+    if (name === 'captain_phone' || name === 'curator_phone') {
+      finalValue = formatPhone(value);
+    }
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: finalValue
     }));
   };
 
@@ -108,13 +135,13 @@ export default function Registration({ isOpen, onClose }) {
     if (!formData.level_education) missing.push('Ступень образования');
     if (!formData.selected_case) missing.push('Основной кейс');
 
-    const phoneRe = /^(\+7|8)[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/;
+    const phoneRe = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.captain_phone.trim()) {
       missing.push('Телефон капитана');
     } else if (!phoneRe.test(formData.captain_phone.trim())) {
-      missing.push('Телефон капитана — неверный формат (пример: +79991234567)');
+      missing.push('Телефон капитана — неверный формат (пример: +7 (999) 123-45-67)');
     }
 
     if (!formData.captain_email.trim()) {
@@ -128,7 +155,7 @@ export default function Registration({ isOpen, onClose }) {
     if (!formData.curator_phone.trim()) {
       missing.push('Телефон куратора');
     } else if (!phoneRe.test(formData.curator_phone.trim())) {
-      missing.push('Телефон куратора — неверный формат (пример: +79991234567)');
+      missing.push('Телефон куратора — неверный формат (пример: +7 (999) 123-45-67)');
     }
 
     if (
@@ -274,10 +301,10 @@ export default function Registration({ isOpen, onClose }) {
                 level_education: 'бакалавриат/специалитет',
                 selected_case: '1',
                 spare_case: '2',
-                captain_phone: '+79991234567',
+                captain_phone: '+7 (999) 123-45-67',
                 captain_email: 'test@mail.ru',
                 curator_fio: 'Иванов Иван Иванович',
-                curator_phone: '+79991234568',
+                curator_phone: '+7 (999) 123-45-68',
                 agreement: true,
                 acquaintance: true,
                 participants: [
@@ -367,7 +394,7 @@ export default function Registration({ isOpen, onClose }) {
 
             <p className='form-subtitle'>Контакты</p>
             <label>
-              <input type="tel" placeholder="Телефон капитана" name="captain_phone"
+              <input type="tel" placeholder="Телефон капитана (+7 (999) 123-45-67)" name="captain_phone"
                 value={formData.captain_phone} onChange={handleInputChange} />
               <input type="text" placeholder="E-mail капитана" name="captain_email"
                 value={formData.captain_email} onChange={handleInputChange} />
@@ -375,7 +402,7 @@ export default function Registration({ isOpen, onClose }) {
             <label>
               <input type="text" placeholder="ФИО куратора" name="curator_fio"
                 value={formData.curator_fio} onChange={handleInputChange} />
-              <input type="tel" placeholder="Телефон куратора" name="curator_phone"
+              <input type="tel" placeholder="Телефон куратора (+7 (999) 123-45-67)" name="curator_phone"
                 value={formData.curator_phone} onChange={handleInputChange} />
             </label>
 

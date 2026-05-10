@@ -338,8 +338,7 @@ class RegistrationUseCase:
         return re.match(pattern, email) is not None
 
     def _validate_phone(self, phone: str) -> bool:
-        # базовая проверка (подходит для большинства форматов)
-        pattern = r"^\+?\d{10,15}$"
+        pattern = r"^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$"
         return re.match(pattern, phone) is not None
 
     def _validate_curator(self, curator_data):
