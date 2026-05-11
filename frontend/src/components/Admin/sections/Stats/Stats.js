@@ -177,6 +177,8 @@ export default function Stats() {
           <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }} >
             <CartesianGrid />
             <XAxis type="number" dataKey="x" domain={[1, 6]} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
+            <XAxis type="number" dataKey="x" domain={[0.5, 5.5]} ticks={[1, 2, 3, 4, 5]} tickFormatter={(value) => Math.round(value)} 
+            allowDecimals={false} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
             <YAxis type="number" dataKey="y" name="Кол-во участников" width={110} label={{ value: 'Кол-во участников', angle: -90, position: 'insideLeft', dx: -5 }} />
             <Tooltip content={<CustomScatterTooltip />} />
             <Legend verticalAlign="top" align="right" layout="vertical" />
