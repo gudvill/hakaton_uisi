@@ -60,6 +60,13 @@ class BaseRepository:
         if not row: return None
         return self.entity_class(*row)
     
+    def get_all_dict(self) -> List[Dict[str, Any]]:
+        query = f"SELECT id,{','.join(self.columns)} FROM {self.table_name}"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+    
     def get_by_id_dict(self, entity_id: int):
         query = f"SELECT id,{','.join(self.columns)} FROM {self.table_name} WHERE id = %s"
         with self.connection() as conn:
