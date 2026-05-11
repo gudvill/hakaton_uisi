@@ -65,11 +65,29 @@ export default function Stats() {
     'спо 11класс': 0.15,
   };
 
+  const collisionMap = {};
+
   Object.entries(matrix).forEach(([level, courses]) => {
     Object.entries(courses).forEach(([course, count]) => {
+      const key = `${course}_${count}`;
+
+      if (!collisionMap[key]) {
+        collisionMap[key] = [];
+      }
+
+      collisionMap[key].push(level);
+    });
+  });
+
+  Object.entries(matrix).forEach(([level, courses]) => {
+    Object.entries(courses).forEach(([course, count]) => {
+      const key = `${course}_${count}`;
+
+      const hasCollision = collisionMap[key].length > 1;
+
       scatterData.push({
         level,
-        x: Number(course) + (levelOffsets[level] || 0),
+        x: Number(course) + (hasCollision ? (levelOffsets[level] || 0) : 0),
         y: count,
         realCourse: Number(course),
       });
@@ -176,7 +194,6 @@ export default function Stats() {
         <ResponsiveContainer width="100%" height={350}>
           <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }} >
             <CartesianGrid />
-            <XAxis type="number" dataKey="x" domain={[1, 6]} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
             <XAxis type="number" dataKey="x" domain={[0.5, 5.5]} ticks={[1, 2, 3, 4, 5]} tickFormatter={(value) => Math.round(value)} 
             allowDecimals={false} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
             <YAxis type="number" dataKey="y" name="Кол-во участников" width={110} label={{ value: 'Кол-во участников', angle: -90, position: 'insideLeft', dx: -5 }} />
