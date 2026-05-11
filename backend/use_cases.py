@@ -422,7 +422,7 @@ class RegistrationUseCase:
                 raise Exception("Этот кейс только для 1-2 курса")
         if case_level == "продвинутый":
             if any(c < 3 for c in courses) and level != "магистратура":
-                raise Exception("Этот кейс только для 3+ курса и магистрантов")
+                raise Exception("Этот кейс только для 3+ курса или магистрантов")
         return self.repository.create_registration(data, participants)
 
     def get_all(self) -> List[Dict[str, Any]]:
@@ -493,7 +493,7 @@ class RegistrationUseCase:
         if case_level == "стартовый" and (course > 2 or level == "магистратура"):
             raise Exception("Этот кейс только для 1-2 курса")
         if case_level == "продвинутый" and course < 3 and level != "магистратура":
-            raise Exception("Этот кейс только для 3+ курса и магистрантов")
+            raise Exception("Этот кейс только для 3+ курса или магистрантов")
         fio = p["fio"].strip().lower()
         key = (fio, course)
         participants = self.repository.get_participants_by_registration(reg_id)
@@ -575,5 +575,5 @@ class RegistrationUseCase:
                 raise Exception("Этот кейс только для 1-2 курса")
         if case_level == "продвинутый":
             if any(c < 3 for c in courses) and level != "магистратура":
-                raise Exception("Этот кейс только для 3+ курса и магистрантов")
+                raise Exception("Этот кейс только для 3+ курса или магистрантов")
         self.repository.update_registration(reg_id, data, participants)

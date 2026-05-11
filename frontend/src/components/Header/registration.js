@@ -224,7 +224,7 @@ export default function Registration({ isOpen, onClose }) {
     }
     if (caseNum >= 4 && caseNum <= 6) {
       if (!isMagistracy && courseNumbers.some(c => c < 3)) {
-        showAlert('Кейсы 4–6 (продвинутый уровень) доступны только для 3+ курса и магистрантов');
+        showAlert('Кейсы 4–6 (продвинутый уровень) доступны только для 3+ курса или магистрантов');
         return;
       }
     }
