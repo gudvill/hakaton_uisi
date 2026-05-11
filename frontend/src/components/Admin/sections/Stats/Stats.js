@@ -58,12 +58,20 @@ export default function Stats() {
   const yearData = data.teams_by_year || [];
   const scatterData = [];
 
+  const levelOffsets = {
+    'бакалавриат/специалитет': -0.15,
+    'магистратура': -0.05,
+    'спо 9класс': 0.05,
+    'спо 11класс': 0.15,
+  };
+
   Object.entries(matrix).forEach(([level, courses]) => {
     Object.entries(courses).forEach(([course, count]) => {
       scatterData.push({
         level,
-        x: Number(course),
+        x: Number(course) + (levelOffsets[level] || 0),
         y: count,
+        realCourse: Number(course),
       });
     });
   });
@@ -73,6 +81,26 @@ export default function Stats() {
     'магистратура': '#f59e0b',
     'спо 9класс': '#3b82f6',
     'спо 11класс': '#f43f5e',
+  };
+
+  const CustomScatterTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+
+    return (
+      <div style={{
+        background: 'white',
+        border: '1px solid #ddd',
+        borderRadius: 8,
+        padding: 10,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      }}>
+        <div><b>{data.level}</b></div>
+        <div>Курс: {data.realCourse}</div>
+        <div>Участников: {data.y}</div>
+      </div>
+    );
   };
 
   return (
@@ -150,7 +178,7 @@ export default function Stats() {
             <CartesianGrid />
             <XAxis type="number" dataKey="x" domain={[1, 6]} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
             <YAxis type="number" dataKey="y" name="Кол-во участников" width={110} label={{ value: 'Кол-во участников', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+            <Tooltip content={<CustomScatterTooltip />} />
             <Legend verticalAlign="top" align="right" layout="vertical" />
             {Object.keys(levelColors).map(level => (
               <Scatter shape="circle" fillOpacity={0.85} line={false} key={level} name={level} data={scatterData.filter(d => d.level === level)} fill={levelColors[level]} />
