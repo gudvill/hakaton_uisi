@@ -312,7 +312,7 @@ def disable_news(news_id: int, use_case: NewsUseCase = Depends(get_news_usecase)
 
 @news_router.post("/{news_id}/restore")
 def restore_news(news_id: int, usecase: NewsUseCase = Depends(get_news_usecase), admin=Depends(get_current_admin)):
-    usecase.restore_news(news_id)
+    usecase.restore(news_id)
     return {"message": "Новость восстановлена"}
 
 
@@ -352,7 +352,7 @@ def disable_case(case_id: int, use_case: CasesUseCase = Depends(get_cases_usecas
 
 @cases_router.post("/{case_id}/restore")
 def restore_case(case_id: int, usecase: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
-    usecase.restore_case(case_id)
+    usecase.restore(case_id)
     return {"message": "Кейс восстановлен"}
 
 
@@ -418,7 +418,7 @@ def disable_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_par
 
 @partners_router.post("/{partner_id}/restore")
 def restore_partner(partner_id: int, usecase: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)):
-    usecase.restore_partner(partner_id)
+    usecase.restore(partner_id)
     return {"message": "Партнёр восстановлен"}
 
 
@@ -484,7 +484,7 @@ def disable_review(review_id: int, use_case: ReviewsUseCase = Depends(get_review
 
 @reviews_router.post("/{review_id}/restore")
 def restore_review(review_id: int, usecase: ReviewsUseCase = Depends(get_reviews_usecase), admin=Depends(get_current_admin)):
-    usecase.restore_review(review_id)
+    usecase.restore(review_id)
     return {"message": "Отзыв восстановлен"}
 
 
@@ -498,8 +498,7 @@ def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: Pho
 
 @photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
 def get_photoalbums(use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase)):
-    data = use_case.get_all()
-    return [PhotoAlbumSerializer.from_entity(i.album, i.photos) for i in data]
+    return [PhotoAlbumSerializer.from_entity(i.album, i.photos) for i in use_case.get_all()]
 
 @photoalbums_router.get("/{photoalbum_id}")
 def get_photoalbum(photoalbum_id: int, use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase)):

@@ -134,7 +134,7 @@ class AboutUseCase:
         return self.repository.get_all()
 
     def get_by_id(self, item_id: int) -> Optional[About]:
-        return self.repository.get_by_id(item_id)
+        return self.repository.get_by_id_dict(item_id)
 
     def update(self, item_id: int, item: About) -> None:
         self.repository.update(item_id, item)
@@ -154,7 +154,7 @@ class ProgramUseCase:
         return self.repository.get_all()
 
     def get_by_id(self, item_id: int) -> Optional[Program]:
-        return self.repository.get_by_id(item_id)
+        return self.repository.get_by_id_dict(item_id)
     
     def get_event_date(self):
         return self.repository.get_event_date()
@@ -188,8 +188,8 @@ class NewsUseCase:
     def disable(self, news_id: int) -> None:
         self.repository.disable(news_id)
     
-    def restore_news(self, news_id: int):
-        self.repository.restore_news(news_id)
+    def restore(self, news_id: int):
+        self.repository.restore(news_id)
 
 
 class CasesUseCase:
@@ -214,8 +214,8 @@ class CasesUseCase:
     def disable(self, case_id: int) -> None:
         self.repository.disable(case_id)
     
-    def restore_case(self, case_id: int):
-        self.repository.restore_case(case_id)
+    def restore(self, case_id: int):
+        self.repository.restore(case_id)
 
 
 class PartnersUseCase:
@@ -232,7 +232,7 @@ class PartnersUseCase:
         return self.repository.get_filtered_archived(search, sort_by, sort_dir)
 
     def get_by_id(self, partner_id: int) -> Optional[Partner]:
-        return self.repository.get_by_id(partner_id)
+        return self.repository.get_by_id_dict(partner_id)
 
     def update(self, partner_id: int, partner: Partner) -> None:
         self.repository.update(partner_id, partner)
@@ -240,8 +240,8 @@ class PartnersUseCase:
     def disable(self, partner_id: int) -> None:
         self.repository.disable(partner_id)
 
-    def restore_partner(self, partner_id: int):
-        self.repository.restore_partner(partner_id)
+    def restore(self, partner_id: int):
+        self.repository.restore(partner_id)
 
 class ReviewsUseCase:
     def __init__(self, repository: ReviewsRepository):
@@ -257,7 +257,7 @@ class ReviewsUseCase:
         return self.repository.get_filtered_archived(year)
 
     def get_by_id(self, review_id: int) -> Optional[Review]:
-        return self.repository.get_by_id(review_id)
+        return self.repository.get_by_id_dict(review_id)
 
     def update(self, review_id: int, review: Review) -> None:
         self.repository.update(review_id, review)
@@ -265,8 +265,8 @@ class ReviewsUseCase:
     def disable(self, review_id: int) -> None:
         self.repository.disable(review_id)
 
-    def restore_review(self, review_id: int):
-        self.repository.restore_review(review_id)
+    def restore(self, review_id: int):
+        self.repository.restore(review_id)
 
 
 class PhotoAlbumsUseCase:
@@ -424,9 +424,6 @@ class RegistrationUseCase:
             if any(c < 3 for c in courses) and level != "магистратура":
                 raise Exception("Этот кейс только для 3+ курса или магистрантов")
         return self.repository.create_registration(data, participants)
-
-    def get_all(self) -> List[Dict[str, Any]]:
-        return self.repository.get_all()
     
     def get_filtered(self, search, level, case_id, sort_by, sort_dir):
         return self.repository.get_filtered(search, level, case_id, sort_by, sort_dir)

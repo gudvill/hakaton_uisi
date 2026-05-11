@@ -64,20 +64,6 @@ class FaqSerializer(BaseModel):
             answer=entity.answer)
     
 
-class ProgramCreateSerializer(BaseModel):
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    text: Optional[str] = None
-    order_index: Optional[int] = None
-
-class ProgramSerializer(BaseModel):
-    id: int
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    text: Optional[str] = None
-    order_index: Optional[int] = None
-    created_at: Optional[datetime] = None
-
 class AboutCreateSerializer(BaseModel):
     row: Optional[int] = None
     col: Optional[int] = None
@@ -92,6 +78,21 @@ class AboutSerializer(BaseModel):
     title: Optional[str] = None
     text: Optional[str] = None
     icon: Optional[str] = None
+    created_at: Optional[datetime] = None
+    
+
+class ProgramCreateSerializer(BaseModel):
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    text: Optional[str] = None
+    order_index: Optional[int] = None
+
+class ProgramSerializer(BaseModel):
+    id: int
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    text: Optional[str] = None
+    order_index: Optional[int] = None
     created_at: Optional[datetime] = None
 
 

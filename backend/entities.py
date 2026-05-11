@@ -34,15 +34,6 @@ class Faq:
     answer: Optional[str] = None
 
 @dataclass
-class Program:
-    id: int = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    text: Optional[str] = None
-    order_index: Optional[int] = None
-    created_at: Optional[datetime] = None
-
-@dataclass
 class About:
     id: int = None
     row: Optional[int] = None
@@ -50,6 +41,15 @@ class About:
     title: Optional[str] = None
     text: Optional[str] = None
     icon: Optional[str] = None
+    created_at: Optional[datetime] = None
+    
+@dataclass
+class Program:
+    id: int = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    text: Optional[str] = None
+    order_index: Optional[int] = None
     created_at: Optional[datetime] = None
 
 @dataclass
@@ -86,6 +86,15 @@ class Partner:
     is_available: bool = True
 
 @dataclass
+class Review:
+    id: int = None
+    name: Optional[str] = None
+    content: Optional[str] = None
+    image: Optional[str] = None
+    created_at: datetime = None
+    is_available: bool = True
+
+@dataclass
 class PhotoAlbum:
     id: int = None
     name: Optional[str] = None
@@ -104,15 +113,6 @@ class Photo:
 class PhotoAlbumWithPhotos:
     album: PhotoAlbum
     photos: List[Photo]
-
-@dataclass
-class Review:
-    id: int = None
-    name: Optional[str] = None
-    content: Optional[str] = None
-    image: Optional[str] = None
-    created_at: datetime = None
-    is_available: bool = True
 
 @dataclass
 class Registration:
