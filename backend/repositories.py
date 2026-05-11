@@ -389,9 +389,10 @@ class PhotosRepository(BaseRepository):
         return [Photo(r[0], r[1], r[2], r[3], r[4]) for r in rows]
 
 
-class RegistrationRepository:
+class RegistrationRepository(BaseRepository):
     def __init__(self, connection):
-        self.connection = connection
+        super().__init__(connection=connection, table_name="registration", entity_class=Registration,
+            columns=[ "name", "institution", "amount_participants", "participation_form", "level_education", "selected_case", "spare_case", "captain_phone", "captain_email", "curator_data", "agreement", "acquaintance", "created_at", "is_available"])
 
     def create_registration(self, reg: Registration, participants: list) -> int:
         query = """INSERT INTO registration 
