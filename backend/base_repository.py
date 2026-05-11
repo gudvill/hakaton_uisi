@@ -52,7 +52,7 @@ class BaseRepository:
         return [self.entity_class(*row) for row in rows]
 
     def get_by_id(self, entity_id: int) -> Optional[T]:
-        query = f"SELECT id,{",".join(self.columns)} FROM {self.table_name} WHERE id = %s"
+        query = f"SELECT id,{','.join(self.columns)} FROM {self.table_name} WHERE id = %s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (entity_id,))
@@ -61,7 +61,7 @@ class BaseRepository:
         return self.entity_class(*row)
     
     def get_by_id_dict(self, entity_id: int):
-        query = f"SELECT id,{",".join(self.columns)} FROM {self.table_name} WHERE id = %s"
+        query = f"SELECT id,{','.join(self.columns)} FROM {self.table_name} WHERE id = %s"
         with self.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (entity_id,))
