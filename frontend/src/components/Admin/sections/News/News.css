@@ -1,7 +1,156 @@
-.admin-content .news-title  { font-weight: 600; color: #1a1a2e; min-width: 140px; }
-.admin-content .news-brief  { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; }
-.admin-content .news-url    { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #aaa; font-size: 11px; }
-.admin-content .news-img-placeholder { width: 44px; height: 44px; background: #f3f0ff; border-radius: 8px; }
+/* Таблица новостей: узкая колонка заголовка, ширина под описания — через colgroup + fixed layout */
+
+/* Обёртка таблицы: без внутреннего скролла/обрезки как у общего section-table-wrap */
+.admin-content .news-table-wrap {
+  overflow: visible;
+}
+
+.admin-content .news-admin-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.admin-content .news-admin-table col.news-colgroup-photo {
+  width: 260px;
+}
+
+.admin-content .news-admin-table col.news-colgroup-title {
+  width: 13rem;
+}
+
+/* Краткое — уже, полное — шире (остальное место у даты/кнопок и фото) */
+.admin-content .news-admin-table col.news-colgroup-brief {
+  width: 24%;
+}
+
+.admin-content .news-admin-table col.news-colgroup-full {
+  width: 56%;
+}
+
+.admin-content .news-admin-table col.news-colgroup-created {
+  width: 102px;
+}
+
+.admin-content .news-admin-table col.news-colgroup-actions {
+  width: 96px;
+}
+
+.admin-content .section-table.news-admin-table td {
+  vertical-align: top;
+}
+
+.admin-content .news-edit-photo-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-content .section-edit-row .news-col-photo {
+  overflow: visible;
+}
+
+.admin-content .section-edit-row .news-col-photo .section-thumbnail,
+.admin-content .section-edit-row .news-col-photo .news-img-placeholder {
+  flex-shrink: 0;
+}
+
+.admin-content .news-edit-file-input {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+/* Строка редактирования: заголовок и описания — resize по вертикали */
+.admin-content .section-edit-row .news-edit-textarea--title,
+.admin-content .section-edit-row .news-edit-textarea--brief,
+.admin-content .section-edit-row .news-edit-textarea--full {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.admin-content .section-edit-row .news-edit-textarea--title {
+  min-height: 52px;
+}
+
+.admin-content .section-edit-row .news-edit-textarea--brief,
+.admin-content .section-edit-row .news-edit-textarea--full {
+  min-height: 88px;
+}
+
+.admin-content .news-col-title,
+.admin-content .news-col-brief,
+.admin-content .news-col-full {
+  vertical-align: top;
+}
+
+/* Узкий заголовок только в списке; в строке редактирования — без max-width */
+.admin-content .news-admin-table tbody tr:not(.section-edit-row) td.news-col-title {
+  max-width: 11rem;
+}
+
+.admin-content .section-edit-row .news-col-title {
+  max-width: none;
+}
+
+.admin-content .news-col-brief,
+.admin-content .news-col-full {
+  min-width: 0;
+}
+
+/* Обрезка текста — только на span внутри ячейки */
+.admin-content .news-cell-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  line-height: 1.45;
+  font-size: 13px;
+  color: #555;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.admin-content .news-cell-text--title {
+  color: #1a1a2e;
+  font-weight: 600;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.admin-content .news-col-created {
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.admin-content .news-col-actions {
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: right;
+}
+
+/* Миниатюра в таблице новостей: чуть крупнее общих 44px — лучше видно, строка не раздувается */
+.admin-content .news-admin-table .section-thumbnail,
+.admin-content .news-admin-table .news-img-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+}
+
+.admin-content .news-admin-table .news-img-placeholder {
+  background: #f3f0ff;
+}
+
+.admin-content .news-admin-table .section-thumbnail {
+  object-fit: cover;
+  display: block;
+}
 
 .admin-content .news-tabs {
   display: flex;
@@ -26,7 +175,9 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.admin-content .news-tab:hover { color: #6a35cc; }
+.admin-content .news-tab:hover {
+  color: #6a35cc;
+}
 
 .admin-content .news-tab--active {
   color: #1a1a2e;

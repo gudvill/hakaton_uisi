@@ -6,13 +6,9 @@ export default function Hero({ onOpenRegistration }) {
     <section className="hero">
       <div className="hero-background"></div>
       <div className="hero-container container">
+      <h1 className="hero-title" data-text="HAKATON">HAKATON</h1>
         <div className="hero-grid">
           <div className="hero-content">
-            <h1 className="hero-title">
-              КОДИРУЙ<br />
-              СОЗДАВАЙ<br />
-              ВЗЛАМЫВАЙ ГРАНИЦЫ ВОЗМОЖНОГО
-            </h1>
             <div className="hero-buttons">
               <a href="#hakaton" className="hero-btn hero-btn-outline">
                 подробнее

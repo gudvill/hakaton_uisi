@@ -10,7 +10,6 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 350px;
     border-bottom: 6px solid white;
     margin-bottom: 60px;
     padding-bottom: 25px;
@@ -25,7 +24,7 @@
 }
 
 .program-text{
-    font-size: 30px;
+    font-size: 25px;
     font-weight: 500;
     max-width: 850px;
 }

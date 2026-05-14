@@ -1,8 +1,21 @@
 import './Stats.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getStats } from '../../../../api/statsService';
 import { UserGroupIcon, UsersIcon, AcademicCapIcon, BookOpenIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, LineChart, Line, ScatterChart, Scatter, ZAxis } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+  LineChart,
+  Line,
+  ScatterChart,
+  Scatter,
+} from 'recharts';
 
 const CARDS_CONFIG = [
   { key: 'teams', label: 'Команд', Icon: UserGroupIcon, color: '#6a35cc', bg: '#f3f0ff' },
@@ -16,6 +29,48 @@ const CARDS_CONFIG = [
   { key: 'spo11', label: 'СПО (после 11)', Icon: BuildingOfficeIcon, color: '#f43f5e', bg: '#fff1f2' },
 ];
 
+const GRID_STROKE = '#ede8ff';
+const AXIS_TICK = { fontSize: 11, fill: '#5c4d7a' };
+const CHART_MARGIN = { top: 8, right: 12, bottom: 52, left: 8 };
+
+function formatChartDate(value) {
+  if (value == null || value === '') return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value).slice(0, 10);
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+}
+
+function truncateLabel(value, max = 22) {
+  if (value == null) return '';
+  const s = String(value);
+  if (s.length <= max) return s;
+  return `${s.slice(0, max - 1)}…`;
+}
+
+function ChartCard({ title, description, scatter, children }) {
+  return (
+    <section className="stats-chart-card">
+      <header className="stats-chart-head">
+        <h4 className="stats-chart-title">{title}</h4>
+        {description ? <p className="stats-chart-desc">{description}</p> : null}
+      </header>
+      <div className={scatter ? 'stats-chart-inner stats-chart-inner--scatter' : 'stats-chart-inner'}>{children}</div>
+    </section>
+  );
+}
+
+function ScatterTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null;
+  const row = payload[0].payload;
+  return (
+    <div className="stats-tooltip" style={{ background: '#fff', padding: '10px 12px' }}>
+      <div style={{ fontWeight: 700, color: '#1a1a2e', marginBottom: 4 }}>{row.level}</div>
+      <div style={{ color: '#555', fontSize: 12 }}>Курс: {row.realCourse}</div>
+      <div style={{ color: '#555', fontSize: 12 }}>Участников: {row.y}</div>
+    </div>
+  );
+}
+
 export default function Stats() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,15 +82,74 @@ export default function Stats() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p style={{ color: '#999' }}>Загрузка...</p>;
-  if (!data) return <p>Ошибка загрузки</p>;
+  const yearData = useMemo(() => (Array.isArray(data?.teams_by_year) ? data.teams_by_year : []), [data]);
+  const registrationsData = useMemo(
+    () => (Array.isArray(data?.registrations_dynamics) ? data.registrations_dynamics : []),
+    [data]
+  );
+  const participationData = useMemo(
+    () => (Array.isArray(data?.participation_forms) ? data.participation_forms : []),
+    [data]
+  );
+  const topInstitutions = useMemo(
+    () => (Array.isArray(data?.top_institutions) ? data.top_institutions : []),
+    [data]
+  );
+  const topPartners = useMemo(() => (Array.isArray(data?.top_partners) ? data.top_partners : []), [data]);
+
+  const scatterData = useMemo(() => {
+    const m = data?.participants_matrix;
+    if (!m || typeof m !== 'object') return [];
+    const levelOffsets = {
+      'бакалавриат/специалитет': -0.15,
+      магистратура: -0.05,
+      'спо 9класс': 0.05,
+      'спо 11класс': 0.15,
+    };
+    const collisionMap = {};
+    Object.entries(m).forEach(([level, courses]) => {
+      Object.entries(courses || {}).forEach(([course, count]) => {
+        const key = `${course}_${count}`;
+        if (!collisionMap[key]) collisionMap[key] = [];
+        collisionMap[key].push(level);
+      });
+    });
+    const out = [];
+    Object.entries(m).forEach(([level, courses]) => {
+      Object.entries(courses || {}).forEach(([course, count]) => {
+        const key = `${course}_${count}`;
+        const hasCollision = collisionMap[key].length > 1;
+        out.push({
+          level,
+          x: Number(course) + (hasCollision ? (levelOffsets[level] || 0) : 0),
+          y: count,
+          realCourse: Number(course),
+        });
+      });
+    });
+    return out;
+  }, [data]);
+
+  const levelColors = {
+    'бакалавриат/специалитет': '#10b981',
+    магистратура: '#f59e0b',
+    'спо 9класс': '#3b82f6',
+    'спо 11класс': '#f43f5e',
+  };
+
+  const tooltipStyle = {
+    borderRadius: 10,
+    border: '1px solid #ede8ff',
+    boxShadow: '0 8px 24px rgba(59, 31, 168, 0.12)',
+  };
+
+  if (loading) return <p className="participants-loading">Загрузка...</p>;
+  if (!data) return <p className="section-empty">Не удалось загрузить статистику</p>;
 
   const matrix = data.participants_matrix || {};
 
   const sumLevel = (level) =>
-    matrix[level]
-      ? Object.values(matrix[level]).reduce((a, b) => a + b, 0)
-      : 0;
+    matrix[level] ? Object.values(matrix[level]).reduce((a, b) => a + b, 0) : 0;
 
   const values = {
     teams: data.totals?.teams || 0,
@@ -49,174 +163,249 @@ export default function Stats() {
     spo11: sumLevel('спо 11класс'),
   };
 
-  const tooltipStyle = {
-    borderRadius: 8,
-    border: 'none',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-  };
-
-  const yearData = data.teams_by_year || [];
-  const scatterData = [];
-
-  const levelOffsets = {
-    'бакалавриат/специалитет': -0.15,
-    'магистратура': -0.05,
-    'спо 9класс': 0.05,
-    'спо 11класс': 0.15,
-  };
-
-  const collisionMap = {};
-
-  Object.entries(matrix).forEach(([level, courses]) => {
-    Object.entries(courses).forEach(([course, count]) => {
-      const key = `${course}_${count}`;
-
-      if (!collisionMap[key]) {
-        collisionMap[key] = [];
-      }
-
-      collisionMap[key].push(level);
-    });
-  });
-
-  Object.entries(matrix).forEach(([level, courses]) => {
-    Object.entries(courses).forEach(([course, count]) => {
-      const key = `${course}_${count}`;
-
-      const hasCollision = collisionMap[key].length > 1;
-
-      scatterData.push({
-        level,
-        x: Number(course) + (hasCollision ? (levelOffsets[level] || 0) : 0),
-        y: count,
-        realCourse: Number(course),
-      });
-    });
-  });
-
-  const levelColors = {
-    'бакалавриат/специалитет': '#10b981',
-    'магистратура': '#f59e0b',
-    'спо 9класс': '#3b82f6',
-    'спо 11класс': '#f43f5e',
-  };
-
-  const CustomScatterTooltip = ({ active, payload }) => {
-    if (!active || !payload || !payload.length) return null;
-
-    const data = payload[0].payload;
-
-    return (
-      <div style={{
-        background: 'white',
-        border: '1px solid #ddd',
-        borderRadius: 8,
-        padding: 10,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-      }}>
-        <div><b>{data.level}</b></div>
-        <div>Курс: {data.realCourse}</div>
-        <div>Участников: {data.y}</div>
-      </div>
-    );
-  };
-
   return (
-    <div className="admin-card">
+    <div className="admin-card stats-page">
       <h3 className="admin-card-title">СТАТИСТИКА</h3>
-      {/* Карточки */}
+
       <div className="stats-grid">
         {CARDS_CONFIG.map(({ key, label, Icon, color, bg }) => (
           <div key={key} className="stat-card" style={{ background: bg }}>
             <div className="stat-icon-wrap" style={{ background: color }}>
               <Icon style={{ width: 22, height: 22, color: 'white' }} />
             </div>
-            <span className="stat-value" style={{ color }}>{values[key]}</span>
+            <span className="stat-value" style={{ color }}>
+              {values[key]}
+            </span>
             <span className="stat-label">{label}</span>
           </div>
         ))}
       </div>
-      {/* Команды по годам */}
-      <div style={{ marginTop: 40 }}>
-        <h4>Команды по годам</h4>
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={yearData} margin={{ bottom: 60, left: 50, right: 20 }} >
-            <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="year" label={{ value: 'Год', position: 'insideBottom', offset: -5 }} tick={{ angle: -20, textAnchor: 'end' }} />
-            <YAxis width={110} label={{ value: 'Кол-во команд', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" fill="#6a35cc" radius={[6, 6, 0, 0]} maxBarSize={40} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      {/* Динамика регистраций */}
-      <div style={{ marginTop: 40 }}>
-        <h4>Динамика регистраций</h4>
-        <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={data.registrations_dynamics} margin={{ bottom: 60, left: 50, right: 20 }} >
-            <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="date" label={{ value: 'Дата', position: 'insideBottom', offset: -5 }} tick={{ angle: -20, textAnchor: 'end' }} />
-            <YAxis width={110} label={{ value: 'Кол-во регистраций', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Line type="monotone" dataKey="count" stroke="#6a35cc" strokeWidth={3} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      {/* Форма участия */}
-      <div style={{ marginTop: 40 }}>
-        <h4>Форма участия</h4>
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data.participation_forms} margin={{ bottom: 60, left: 50, right: 20 }} >
-            <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="participation_form" tick={{ angle: -20, textAnchor: 'end' }} />
-            <YAxis width={110} label={{ value: 'Кол-во команд', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" fill="#3b82f6" maxBarSize={50} radius={[6,6,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      {/* Топ учебных заведений */}
-      <div style={{ marginTop: 40 }}>
-        <h4>Топ учебных заведений</h4>
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data.top_institutions} margin={{ bottom: 60, left: 50, right: 20 }} >
-            <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="institution" tick={{ angle: -20, textAnchor: 'end' }} />
-            <YAxis width={110} label={{ value: 'Кол-во команд', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" fill="#10b981" maxBarSize={50} radius={[6,6,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      {/* Участники по уровню и курсу */}
-      <div style={{ marginTop: 40 }}>
-        <h4>Участники по уровню и курсу</h4>
-        <ResponsiveContainer width="100%" height={350}>
-          <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }} >
-            <CartesianGrid />
-            <XAxis type="number" dataKey="x" domain={[0.5, 5.5]} ticks={[1, 2, 3, 4, 5]} tickFormatter={(value) => Math.round(value)} 
-            allowDecimals={false} name="Курс" label={{ value: 'Курс', position: 'insideBottom', offset: -10 }} />
-            <YAxis type="number" dataKey="y" name="Кол-во участников" width={110} label={{ value: 'Кол-во участников', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip content={<CustomScatterTooltip />} />
-            <Legend verticalAlign="top" align="right" layout="vertical" />
-            {Object.keys(levelColors).map(level => (
-              <Scatter shape="circle" fillOpacity={0.85} line={false} key={level} name={level} data={scatterData.filter(d => d.level === level)} fill={levelColors[level]} />
-            ))}
-          </ScatterChart>
-        </ResponsiveContainer>
-      </div>
-      {/* Топ партнёров */}
-      <div style={{ marginTop: 40 }}>
-        <h4>Топ партнёров</h4>
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data.top_partners} margin={{ bottom: 60, left: 50, right: 20 }} >
-            <CartesianGrid stroke="#eee" />
-            <XAxis dataKey="name" tick={{ angle: -20, textAnchor: 'end' }} />
-            <YAxis width={110} label={{ value: 'Кол-во кейсов', angle: -90, position: 'insideLeft', dx: -5 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="cases_count" fill="#10b981" maxBarSize={40} radius={[6,6,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
+
+      <div className="stats-charts">
+        <ChartCard title="Команды по годам" description="Регистрации команд по году создания записи.">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={yearData} margin={CHART_MARGIN}>
+              <defs>
+                <linearGradient id="statsBarTeams" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#9b7df0" />
+                  <stop offset="100%" stopColor="#6a35cc" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                label={{ value: 'Год', position: 'insideBottom', offset: -36, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <YAxis
+                width={44}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{ value: 'Команд', angle: -90, position: 'insideLeft', dx: 10, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(106, 53, 204, 0.06)' }} />
+              <Bar dataKey="count" fill="url(#statsBarTeams)" radius={[8, 8, 0, 0]} maxBarSize={48} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Динамика регистраций" description="Число новых регистраций по календарным датам.">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={registrationsData} margin={CHART_MARGIN}>
+              <defs>
+                <linearGradient id="statsLineReg" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#a78bfa" />
+                  <stop offset="100%" stopColor="#6a35cc" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                tickFormatter={formatChartDate}
+                interval="preserveStartEnd"
+                minTickGap={28}
+                label={{ value: 'Дата', position: 'insideBottom', offset: -36, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <YAxis
+                width={44}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{ value: 'Регистраций', angle: -90, position: 'insideLeft', dx: 10, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <Tooltip labelFormatter={(v) => formatChartDate(v)} contentStyle={tooltipStyle} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="url(#statsLineReg)"
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: '#6a35cc', strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: '#6a35cc', stroke: '#fff', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Форма участия" description="Распределение команд по формату участия.">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={participationData} margin={CHART_MARGIN}>
+              <defs>
+                <linearGradient id="statsBarForm" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#60a5fa" />
+                  <stop offset="100%" stopColor="#2563eb" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="participation_form"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                tickFormatter={(v) => truncateLabel(v, 14)}
+                label={{ value: 'Форма', position: 'insideBottom', offset: -36, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <YAxis
+                width={44}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{ value: 'Команд', angle: -90, position: 'insideLeft', dx: 10, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(59, 130, 246, 0.08)' }} />
+              <Bar dataKey="count" fill="url(#statsBarForm)" maxBarSize={52} radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Топ учебных заведений" description="До 10 учреждений с наибольшим числом зарегистрированных команд.">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={topInstitutions} margin={CHART_MARGIN}>
+              <defs>
+                <linearGradient id="statsBarInst" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34d399" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="institution"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                tickFormatter={(v) => truncateLabel(v, 16)}
+                interval={0}
+                angle={-22}
+                textAnchor="end"
+                height={72}
+              />
+              <YAxis
+                width={44}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{ value: 'Команд', angle: -90, position: 'insideLeft', dx: 10, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(16, 185, 129, 0.08)' }} />
+              <Bar dataKey="count" fill="url(#statsBarInst)" maxBarSize={48} radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard
+          scatter
+          title="Участники по уровню и курсу"
+          description="Точка: курс (ось X) и число участников (ось Y). Цвет — уровень образования."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart margin={{ top: 12, right: 16, bottom: 44, left: 8 }}>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" />
+              <XAxis
+                type="number"
+                dataKey="x"
+                domain={[0.5, 5.5]}
+                ticks={[1, 2, 3, 4, 5]}
+                tickFormatter={(value) => Math.round(value)}
+                allowDecimals={false}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                label={{ value: 'Курс', position: 'insideBottom', offset: -28, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <YAxis
+                type="number"
+                dataKey="y"
+                width={52}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{ value: 'Участников', angle: -90, position: 'insideLeft', dx: 10, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <Tooltip content={<ScatterTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+              <Legend
+                verticalAlign="top"
+                align="right"
+                layout="vertical"
+                wrapperStyle={{ fontSize: 11, color: '#5c4d7a', paddingBottom: 8 }}
+              />
+              {Object.keys(levelColors).map((level) => (
+                <Scatter
+                  shape="circle"
+                  fillOpacity={0.88}
+                  line={false}
+                  key={level}
+                  name={level}
+                  data={scatterData.filter((d) => d.level === level)}
+                  fill={levelColors[level]}
+                />
+              ))}
+            </ScatterChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Топ партнёров" description="Число кейсов, привязанных к каждому партнёру.">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={topPartners} margin={CHART_MARGIN}>
+              <defs>
+                <linearGradient id="statsBarPartners" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#4ade80" />
+                  <stop offset="100%" stopColor="#16a34a" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="name"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                tickFormatter={(v) => truncateLabel(v, 14)}
+                angle={-20}
+                textAnchor="end"
+                height={64}
+              />
+              <YAxis
+                width={44}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{ value: 'Кейсов', angle: -90, position: 'insideLeft', dx: 10, fill: '#6a35cc', fontSize: 12, fontWeight: 600 }}
+              />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(22, 163, 74, 0.08)' }} />
+              <Bar dataKey="cases_count" fill="url(#statsBarPartners)" maxBarSize={44} radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
     </div>
   );

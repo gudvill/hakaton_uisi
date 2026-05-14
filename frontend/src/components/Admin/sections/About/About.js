@@ -3,6 +3,54 @@ import { useState, useEffect } from 'react';
 import { getAbout, createAbout, updateAbout, deleteAbout } from '../../../../api/aboutService';
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
+function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }) {
+  const inp = (key, placeholder) => (
+    <input
+      className="section-input"
+      value={form[key] || ''}
+      placeholder={placeholder}
+      onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
+    />
+  );
+  return (
+    <tr className="section-edit-row">
+      <td>
+        {file ? (
+          <img className="section-thumbnail" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : form.icon ? (
+          <img className="section-thumbnail" src={`${apiUrl}${form.icon}`} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : (
+          <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
+        )}
+      </td>
+      <td>
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+      </td>
+      <td>{inp('title', 'Заголовок')}</td>
+      <td>
+        <textarea
+          className="section-textarea about-textarea"
+          value={form.text || ''}
+          placeholder="Описание"
+          onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
+        />
+      </td>
+      <td>{inp('row', 'Row')}</td>
+      <td>{inp('col', 'Col')}</td>
+      <td>
+        <div className="section-row-actions">
+          <button type="button" className="section-save-btn" onClick={onSave}>
+            сохранить
+          </button>
+          <button type="button" className="section-cancel-btn" onClick={onCancel}>
+            отмена
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 export default function About() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
@@ -81,68 +129,6 @@ export default function About() {
     }
   };
 
-  const inp = (key, placeholder) => (
-    <input
-      className="section-input"
-      value={form[key] || ''}
-      placeholder={placeholder}
-      onChange={(e) =>
-        setForm((p) => ({ ...p, [key]: e.target.value }))
-      }
-    />
-  );
-
-  const EditRow = () => (
-    <tr className="section-edit-row">
-      <td>
-        {file ? (
-          <img className="section-thumbnail" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
-        ) : form.icon ? (
-          <img className="section-thumbnail" src={`${API_URL}${form.icon}`} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
-        ) : (
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              background: '#f3f0ff',
-              borderRadius: 8
-            }}
-          />
-        )}
-      </td>
-
-      <td>
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-      </td>
-
-      <td>{inp('title', 'Заголовок')}</td>
-
-      <td>
-        <textarea
-          className="section-textarea about-textarea"
-          value={form.text || ''}
-          placeholder="Описание"
-          onChange={(e) =>
-            setForm((p) => ({ ...p, text: e.target.value }))
-          }
-        />
-      </td>
-      <td>{inp('row', 'Row')}</td>
-      <td>{inp('col', 'Col')}</td>
-
-      <td>
-        <div className="section-row-actions">
-          <button className="section-save-btn" onClick={save}>
-            сохранить
-          </button>
-          <button className="section-cancel-btn" onClick={cancel}>
-            отмена
-          </button>
-        </div>
-      </td>
-    </tr>
-  );
-
   return (
     <div className="admin-card">
       <div className="section-header">
@@ -170,7 +156,17 @@ export default function About() {
           </thead>
 
           <tbody>
-            {editId === 'new' && <EditRow />}
+            {editId === 'new' && (
+              <AboutEditRow
+                form={form}
+                setForm={setForm}
+                file={file}
+                setFile={setFile}
+                apiUrl={API_URL}
+                onSave={save}
+                onCancel={cancel}
+              />
+            )}
 
             {items.length === 0 && editId !== 'new' && (
               <tr>
@@ -182,7 +178,16 @@ export default function About() {
 
             {items.map((item) =>
               editId === item.id ? (
-                <EditRow key={item.id} />
+                <AboutEditRow
+                  key={item.id}
+                  form={form}
+                  setForm={setForm}
+                  file={file}
+                  setFile={setFile}
+                  apiUrl={API_URL}
+                  onSave={save}
+                  onCancel={cancel}
+                />
               ) : (
                 <tr key={item.id}>
                   <td>

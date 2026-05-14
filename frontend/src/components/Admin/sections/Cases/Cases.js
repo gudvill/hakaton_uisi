@@ -1,8 +1,9 @@
 import './Cases.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { getAdminYearOptions } from '../../yearRange';
 import { getCases, getArchivedCases, createCase, updateCase, disableCase, restoreCase } from '../../../../api/casesService';
 import { getPartners } from '../../../../api/partnersService';
-import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const LEVELS = [
   { value: 'стартовый', label: 'Стартовый' },
@@ -11,14 +12,44 @@ const LEVELS = [
 
 const SORTABLE_KEYS = ['name', 'partner', 'created_at'];
 
-const sel = (key, options, placeholder) => ({ form, setForm }) => (
-  <select className="section-input cases-select" value={form[key] || ''} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} >
-    <option value="">{placeholder}</option>
-    {options.map(o => (
-      <option key={o.value} value={o.value}>{o.label}</option>
-    ))}
-  </select>
-);
+function CasesEditRow({ form, setForm, partnerOptions, onSave, onCancel }) {
+  const inp = (key, placeholder) => (
+    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
+  );
+  return (
+    <tr className="section-edit-row">
+      <td style={{ width: 70 }}>{inp('case_number', '№')}</td>
+      <td>{inp('name', 'Название кейса')}</td>
+      <td style={{ width: 150 }}>
+        <select className="section-input cases-select" value={form.level || ''} onChange={e => setForm(p => ({ ...p, level: e.target.value }))} >
+          <option value="">Уровень</option>
+          {LEVELS.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </td>
+      <td>
+        <select className="section-input cases-select" value={form.partner_id || ''} onChange={e => setForm(p => ({ ...p, partner_id: e.target.value }))} >
+          <option value="">Партнёр</option>
+          {partnerOptions.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </td>
+      <td>{inp('teams_count', 'Кол-во команд')}</td>
+      <td>
+        <textarea className="section-textarea" value={form.description || ''} placeholder="Описание" onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
+      </td>
+      <td></td>
+      <td>
+        <div className="section-row-actions">
+          <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
+          <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function Cases() {
   const [items, setItems] = useState([]);
@@ -31,8 +62,9 @@ export default function Cases() {
   const [levelFilter, setLevelFilter] = useState('');
   const [sort, setSort] = useState({ key: "case_number", dir: "asc" });
   const [loading, setLoading] = useState(true);
+  const years = useMemo(() => getAdminYearOptions(), []);
 
-  const load = async (silent = false) => {
+  const load = useCallback(async (silent = false) => {
     try {
       if (!silent) setLoading(true);
 
@@ -55,7 +87,7 @@ export default function Cases() {
     } finally {
       if (!silent) setLoading(false);
     }
-  };
+  }, [search, yearFilter, levelFilter, sort, tab]);
 
   // debounce
   useEffect(() => {
@@ -63,11 +95,12 @@ export default function Cases() {
       load(true);
     }, 400);
     return () => clearTimeout(delay);
-  }, [search, yearFilter, levelFilter, sort, tab]);
+  }, [load]);
 
   useEffect(() => {
-    load();
+    load(false);
     getPartners().then(setPartners).catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- только при монтировании
   }, []);
 
   const toggleSort = (key) => {
@@ -130,40 +163,8 @@ export default function Cases() {
     load();
   };
 
-
-  const inp = (key, placeholder) => (
-    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
-  );
-
-  const LevelSelect = sel('level', LEVELS, 'Уровень');
-  const PartnerSelect = sel('partner_id', partnerOptions, 'Партнёр');
   const levelLabel = (val) => LEVELS.find(l => l.value === val)?.label || val || '—';
   const formatDate = (date) => date ? new Date(date).toLocaleDateString('ru-RU') : '—';
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
-
-  const EditRow = () => (
-    <tr className="section-edit-row">
-      <td style={{ width: 70 }}>{inp('case_number', '№')}</td>
-      <td>{inp('name', 'Название кейса')}</td>
-      <td style={{ width: 150 }}>
-        <LevelSelect form={form} setForm={setForm} />
-      </td>
-      <td>
-        <PartnerSelect form={form} setForm={setForm} />
-      </td>
-      <td>{inp('teams_count', 'Кол-во команд')}</td>
-      <td>
-        <textarea className="section-textarea" value={form.description || ''} placeholder="Описание" onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
-      </td>
-      <td></td>
-      <td>
-        <div className="section-row-actions">
-          <button className="section-save-btn" onClick={save}>сохранить</button>
-          <button className="section-cancel-btn" onClick={cancel}>отмена</button>
-        </div>
-      </td>
-    </tr>
-  );
 
   if (loading) return <p className="participants-loading">Загрузка...</p>;
 
@@ -195,8 +196,21 @@ export default function Cases() {
         </button>
       </div>
       {/* ФИЛЬТРЫ */}
-      <div className="participants-filters" style={{ marginBottom: 12 }}>
-        <input className="participants-search" placeholder="Поиск по названию кейса..." value={search} onChange={e => setSearch(e.target.value)} />
+      <div className="participants-filters">
+        <div className="participants-search-wrap">
+          <MagnifyingGlassIcon className="participants-search-icon" aria-hidden />
+          <input
+            className="participants-search"
+            placeholder="Поиск по названию кейса..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {search && (
+            <button type="button" className="participants-search-clear" onClick={() => setSearch('')} aria-label="Очистить поиск">
+              <XMarkIcon style={{ width: 14, height: 14 }} />
+            </button>
+          )}
+        </div>
         <select className="participants-filter-select" value={yearFilter} onChange={e => setYearFilter(e.target.value)} >
           <option value="">Год</option>
           {years.map(y => (
@@ -245,14 +259,29 @@ export default function Cases() {
             </tr>
           </thead>
           <tbody>
-            {tab === 'active' && editId === 'new' && <EditRow />}
+            {tab === 'active' && editId === 'new' && (
+              <CasesEditRow
+                form={form}
+                setForm={setForm}
+                partnerOptions={partnerOptions}
+                onSave={save}
+                onCancel={cancel}
+              />
+            )}
             {items.length === 0 && editId !== 'new' && (
               <tr>
                 <td colSpan={8} className="section-empty">Нет кейсов</td>
               </tr>
             )}
             {items.map(item => editId === item.id ? (
-              <EditRow key={item.id} />
+              <CasesEditRow
+                key={item.id}
+                form={form}
+                setForm={setForm}
+                partnerOptions={partnerOptions}
+                onSave={save}
+                onCancel={cancel}
+              />
             ) : (
               <tr key={item.id}>
                 <td><span className="section-badge">{item.case_number || '—'}</span></td>

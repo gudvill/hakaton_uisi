@@ -1,45 +1,135 @@
-.admin-content .program-list {
-  display: flex;
-  flex-direction: column;
-}
+/* Префикс admin-program-* — не пересекается с глобальным components/Program/program.css */
 
-.admin-content .program-card {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 15px 15px;
-  background: #f9f7ff;
-  border-radius: 12px;
-  border-left: 4px solid #6a35cc;
-}
-
-.admin-content .program-date-badge {
-  min-width: 100px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #6a35cc;
-  white-space: nowrap;
-}
-
-.admin-content .program-text {
-  flex: 1;
-  font-size: 13px;
-  color: #333;
-}
-
-.admin-content .program-edit-card {
+.admin-content .admin-program-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px 16px;
+}
+
+.admin-content .admin-program-thead,
+.admin-content .admin-program-row {
+  display: grid;
+  /* период уже, текст события забирает большую долю свободной ширины (~1 : 3.8) */
+  grid-template-columns: minmax(112px, 0.85fr) 76px minmax(0, 3.25fr) 72px;
+  column-gap: 12px;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.admin-content .admin-program-thead {
+  padding: 4px 12px 2px;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5c4d7a;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.admin-content .admin-program-thead-actions {
+  justify-self: end;
+  width: 100%;
+  max-width: 72px;
+}
+
+.admin-content .admin-program-form-wrap {
+  width: 100%;
+}
+
+.admin-content .admin-program-section .section-header {
+  margin-bottom: 12px;
+}
+
+.admin-content .admin-program-row {
+  padding: 10px 12px;
+  margin: 0;
   background: #faf8ff;
   border-radius: 12px;
   border: 1px solid #ede8ff;
+  border-bottom: none;
 }
 
-.admin-content .program-edit-dates {
+.admin-content .admin-program-date {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6a35cc;
+  white-space: nowrap;
+  line-height: 1.3;
+  padding-top: 2px;
+}
+
+.admin-content .admin-program-order {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b4a8c;
+  padding: 2px 8px;
+  background: #ede8ff;
+  border-radius: 6px;
+  line-height: 1.3;
+}
+
+.admin-content .admin-program-desc {
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #333;
+  font-weight: 400;
+}
+
+.admin-content .admin-program-row .section-row-actions {
+  justify-self: end;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.admin-content .admin-program-form {
   display: flex;
+  flex-direction: column;
   gap: 10px;
+  padding: 12px 14px;
+  background: #faf8ff;
+  border-radius: 12px;
+  border: 1px solid #ede8ff;
+  box-sizing: border-box;
 }
 
-.admin-content .program-edit-dates .section-input { flex: 1; }
+.admin-content .admin-program-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-content .admin-program-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .admin-content .admin-program-dates {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-content .admin-program-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5c4d7a;
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.admin-content .admin-program-order-field {
+  max-width: 200px;
+}
+
+.admin-content .admin-program-dates .section-input {
+  width: 100%;
+}
