@@ -27,9 +27,10 @@ export default function Photo() {
       const latestAlbum = [...albums].sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       )[0];
-      const mapped = (latestAlbum.photos || []).map(
-        (p) => `${API_URL}${p.path}`
-      );
+      const mapped = [...(latestAlbum.photos || [])]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 10)
+        .map((p) => `${API_URL}${p.path}`);
       setPhotos(mapped);
     } catch (e) {
       console.error(e);
