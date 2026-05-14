@@ -21,14 +21,19 @@ export default function Photo() {
   }, []);
 
   const loadPhotos = async () => {
-    const albums = await getPhotoAlbums();
-    if (!albums.length) return;
-
-    const firstAlbum = albums[0];
-
-    const mapped = (firstAlbum.photos || []).map(p => `${API_URL}${p.path}`);
-
-    setPhotos(mapped);
+    try {
+      const albums = await getPhotoAlbums({});
+      if (!albums.length) return;
+      const latestAlbum = [...albums].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      )[0];
+      const mapped = (latestAlbum.photos || []).map(
+        (p) => `${API_URL}${p.path}`
+      );
+      setPhotos(mapped);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const getItemWidth = () => {

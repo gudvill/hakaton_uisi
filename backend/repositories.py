@@ -365,11 +365,19 @@ class PhotoAlbumsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="photoalbums", entity_class=PhotoAlbum, columns=["name", "is_available"])
 
-    def get_all_with_photos(self):
-        query = "SELECT id, name, created_at, is_available FROM photoalbums ORDER BY id"
+    def get_all_with_photos(self, search: str = None, year: int = None):
+        query = "SELECT id, name, created_at, is_available FROM photoalbums WHERE is_available = TRUE"
+        params = []
+        if search: # поиск по названию
+            query += " AND LOWER(name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+        if year: # фильтр по году
+            query += " AND EXTRACT(YEAR FROM created_at) = %s"
+            params.append(year)
+        query += " ORDER BY created_at DESC"
         with self.connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query)
+                cursor.execute(query, params)
                 rows = cursor.fetchall()
         return [PhotoAlbum(r[0], r[1], r[2], r[3]) for r in rows]
 

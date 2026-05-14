@@ -17,7 +17,7 @@ export default function PhotoGallery() {
 
   const load = async () => {
     try {
-      const data = await getPhotoAlbums();
+      const data = await getPhotoAlbums({});
       setAlbums(data);
       const allPhotos = data.flatMap(album =>
         (album.photos || []).map(p => ({

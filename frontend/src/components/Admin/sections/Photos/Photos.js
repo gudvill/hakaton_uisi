@@ -4,12 +4,6 @@ import { getPhotoAlbums, createPhotoAlbum, updatePhotoAlbum, deletePhotoAlbum, u
 import { getAdminYearOptions } from '../../yearRange';
 import { PencilIcon, TrashIcon, PlusIcon, PhotoIcon, ChevronLeftIcon, ArrowUpTrayIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
-function albumYear(album) {
-  if (!album?.created_at) return null;
-  const d = new Date(album.created_at);
-  return Number.isNaN(d.getTime()) ? null : d.getFullYear();
-}
-
 export default function Photos() {
   const [albums, setAlbums] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -21,31 +15,33 @@ export default function Photos() {
   const API_URL = process.env.REACT_APP_API_URL || '';
   const years = useMemo(() => getAdminYearOptions(), []);
 
-  const filteredAlbums = useMemo(() => {
-    const q = (search || '').trim().toLowerCase();
-    const y = year ? Number(year) : null;
-    return albums.filter((a) => {
-      if (q && !(a.name || '').toLowerCase().includes(q)) return false;
-      if (y != null && Number.isFinite(y)) {
-        const ay = albumYear(a);
-        if (ay !== y) return false;
-      }
-      return true;
-    });
-  }, [albums, search, year]);
-
   useEffect(() => {
     load();
   }, []);
 
   const load = async () => {
     try {
-      const data = await getPhotoAlbums();
+      const params = {
+        search: search || undefined,
+        year: year ? Number(year) : undefined,
+      };
+
+      const data = await getPhotoAlbums(params);
+
       setAlbums(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    if (search === '' && year === '') return;
+    const delay = setTimeout(() => {
+      load();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [search, year]);
 
   const startEdit = (item) => {
     setEditId(item.id);
@@ -186,8 +182,8 @@ export default function Photos() {
           ФОТОАЛЬБОМЫ
         </h3>
         <span className="count-items">
-          {filteredAlbums.length}{search || year ? ` из ${albums.length}` : ''}{' '}
-          {filteredAlbums.length === 1 ? 'альбом' : 'альбомов'}
+          {albums.length}{' '}
+          {albums.length === 1 ? 'альбом' : 'альбомов'}
         </span>
         <button type="button" className="section-add-btn" onClick={startAdd}>
           <PlusIcon style={{ width: 16, height: 16 }} />
@@ -254,14 +250,19 @@ export default function Photos() {
           </div>
         </div>
       )}
-
-      {albums.length === 0 && !editId ? (
-        <p className="section-empty">Нет альбомов — создайте первый</p>
-      ) : filteredAlbums.length === 0 ? (
-        <p className="section-empty">Нет альбомов по заданным фильтрам</p>
+      {albums.length === 0 ? (
+        search || year ? (
+          <p className="section-empty">
+            Нет альбомов по заданным фильтрам
+          </p>
+        ) : (
+          <p className="section-empty">
+            Нет альбомов — создайте первый
+          </p>
+        )
       ) : (
         <div className="albums-grid">
-          {filteredAlbums.map((album) => {
+          {albums.map((album) => {
             const cover = album.photos?.[0];
             const n = album.photos?.length ?? 0;
             return (

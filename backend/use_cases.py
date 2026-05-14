@@ -277,8 +277,8 @@ class PhotoAlbumsUseCase:
     def create(self, album):
         return self.repository.create(album)
 
-    def get_all(self):
-        albums = self.repository.get_all_with_photos()
+    def get_all(self, search: str = None, year: int = None):
+        albums = self.repository.get_all_with_photos(search=search, year=year)
         result = []
         for a in albums:
             photos = self.photos_repository.get_by_album(a.id)
