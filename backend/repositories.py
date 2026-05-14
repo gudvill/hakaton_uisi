@@ -176,6 +176,13 @@ class ProgramRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="program", entity_class=Program, columns=["start_date", "end_date", "text", "order_index"], has_is_available=False)
 
+    def get_all_dict(self) -> List[Dict[str, Any]]:
+        query = f"SELECT id,{','.join(self.columns)} FROM {self.table_name} ORDER BY order_index"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
     def get_event_date(self):
         query = """SELECT start_date FROM program WHERE order_index = 1 LIMIT 1"""
         with self.connection() as conn:
