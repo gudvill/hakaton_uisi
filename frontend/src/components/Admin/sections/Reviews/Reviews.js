@@ -1,11 +1,38 @@
 import './Reviews.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { getAdminYearOptions } from '../../yearRange';
 import { getReviews, getArchivedReviews, createReviews, updateReviews, disableReview, restoreReview } from '../../../../api/reviewsService';
 import { PencilIcon, TrashIcon, PlusIcon, XMarkIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 function formatDate(date) {
   if (!date) return '—';
   return new Date(date).toLocaleString('ru-RU');
+}
+
+function ReviewEditCard({ form, setForm, file, setFile, apiUrl, onSave, onCancel }) {
+  return (
+    <div className="review-edit-card">
+      <input className="section-input" value={form.name || ''} placeholder="Название отзыва"
+        onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+      <div className="review-photo-preview-wrap">
+        {file ? (
+          <img className="review-photo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'cover', maxWidth: 120 }} />
+        ) : form.image ? (
+          <img className="review-photo" src={`${apiUrl}${form.image}`} alt="" style={{ objectFit: 'cover', maxWidth: 120 }} />
+        ) : (
+          <div style={{ width: 80, height: 80, background: '#f3f0ff', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>нет фото
+          </div>
+        )}
+      </div>
+      <input type="file" onChange={e => setFile(e.target.files[0])} />
+      <textarea className="section-textarea" value={form.content || ''} placeholder="Текст отзыва"
+        onChange={e => setForm(p => ({ ...p, content: e.target.value }))} />
+      <div className="section-row-actions" style={{ marginTop: 4 }}>
+        <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
+        <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
+      </div>
+    </div>
+  );
 }
 
 export default function Reviews() {
@@ -15,10 +42,10 @@ export default function Reviews() {
   const [file, setFile] = useState(null);
   const [tab, setTab] = useState('active');
   const [year, setYear] = useState('');
-  const years = Array.from({ length: 5 }, (_, i) => 2022 + i);
+  const years = useMemo(() => getAdminYearOptions(), []);
   const API_URL = process.env.REACT_APP_API_URL || '';
 
-  const load = async (silent = false) => {
+  const load = useCallback(async () => {
     try {
       const params = {
         year: year ? Number(year) : undefined,
@@ -33,18 +60,19 @@ export default function Reviews() {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      load(true);
-    }, 400);
-
-    return () => clearTimeout(delay);
   }, [year, tab]);
 
   useEffect(() => {
+    const delay = setTimeout(() => {
+      load();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [load]);
+
+  useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- только при монтировании
   }, []);
 
   const startEdit = (item) => {
@@ -111,30 +139,6 @@ export default function Reviews() {
     }
   };
 
-  const EditCard = ({ id }) => (
-    <div key={id} className="review-edit-card">
-      <input className="section-input" value={form.name || ''} placeholder="Название отзыва"
-        onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
-      <div className="review-photo-preview-wrap">
-        {file ? (
-          <img className="review-photo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'cover', maxWidth: 120 }} />
-        ) : form.image ? (
-          <img className="review-photo" src={`${API_URL}${form.image}`} alt="" style={{ objectFit: 'cover', maxWidth: 120 }} />
-        ) : (
-          <div style={{ width: 80, height: 80, background: '#f3f0ff', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>нет фото
-          </div>
-        )}
-      </div>
-      <input type="file" onChange={e => setFile(e.target.files[0])} />
-      <textarea className="section-textarea" value={form.content || ''} placeholder="Текст отзыва"
-        onChange={e => setForm(p => ({ ...p, content: e.target.value }))} />
-      <div className="section-row-actions" style={{ marginTop: 4 }}>
-        <button className="section-save-btn" onClick={save}>сохранить</button>
-        <button className="section-cancel-btn" onClick={cancel}>отмена</button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="admin-card">
       <div className="section-header">
@@ -170,12 +174,31 @@ export default function Reviews() {
         )}
       </div>
       <div className="reviews-grid">
-        {tab === 'active' && editId === 'new' && <EditCard id="new" />}
+        {tab === 'active' && editId === 'new' && (
+          <ReviewEditCard
+            form={form}
+            setForm={setForm}
+            file={file}
+            setFile={setFile}
+            apiUrl={API_URL}
+            onSave={save}
+            onCancel={cancel}
+          />
+        )}
         {items.length === 0 && editId !== 'new' && (
           <p className="section-empty">Нет отзывов</p>
         )}
         {items.map(item => editId === item.id ? (
-          <EditCard key={item.id} id={item.id} />
+          <ReviewEditCard
+            key={item.id}
+            form={form}
+            setForm={setForm}
+            file={file}
+            setFile={setFile}
+            apiUrl={API_URL}
+            onSave={save}
+            onCancel={cancel}
+          />
         ) : (
           <div key={item.id} className="review-card">
             {item.image && (

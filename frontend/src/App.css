@@ -13,6 +13,12 @@ html, body {
   cursor: url('./assets/cursor.svg'), auto;
 }
 
+/* Курсор при наведении */
+a:hover,
+button:hover {
+  cursor: url('./assets/cursor_hover.svg'), pointer;
+}
+
 /* Глобальный скролл */
 html {
   scrollbar-color: #2055C7 transparent;

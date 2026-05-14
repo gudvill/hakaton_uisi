@@ -1,5 +1,5 @@
 import './Program.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getProgram, createProgram, updateProgram, deleteProgram } from '../../../../api/programService';
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
@@ -15,16 +15,54 @@ function formatDateRange(start, end) {
     : `${sStr} – ${e.getDate()} ${months[e.getMonth()]}`;
 }
 
+function ProgramEditCard({ form, setForm, onSave, onCancel }) {
+  return (
+    <div className="admin-program-form">
+      <div className="admin-program-dates">
+        <div className="admin-program-field">
+          <label className="admin-program-label" htmlFor="program-start-date">Дата начала</label>
+          <input id="program-start-date" className="section-input" type="date" value={form.start_date || ''} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
+        </div>
+        <div className="admin-program-field">
+          <label className="admin-program-label" htmlFor="program-end-date">Дата окончания</label>
+          <input id="program-end-date" className="section-input" type="date" value={form.end_date || ''} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
+        </div>
+      </div>
+      <div className="admin-program-field admin-program-order-field">
+        <label className="admin-program-label" htmlFor="program-order-index">Порядок в списке</label>
+        <input id="program-order-index" className="section-input" type="number" value={form.order_index ?? ''} onChange={e => setForm(p => ({ ...p, order_index: e.target.value }))} />
+      </div>
+      <div className="admin-program-field">
+        <label className="admin-program-label" htmlFor="program-event-text">Текст события</label>
+        <textarea id="program-event-text" className="section-textarea" value={form.text || ''} placeholder="Описание для сайта" onChange={e => setForm(p => ({ ...p, text: e.target.value }))} />
+      </div>
+      <div className="section-row-actions">
+        <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
+        <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
+      </div>
+    </div>
+  );
+}
+
 export default function Program() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
 
   const load = () => {
-    getProgram().then(setItems).catch(console.error);
+    getProgram()
+      .then((data) => setItems(Array.isArray(data) ? data : []))
+      .catch(console.error);
   };
 
   useEffect(() => { load(); }, []);
+
+  const sortedItems = useMemo(
+    () => [...items].sort((a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0)),
+    [items]
+  );
+
+  const showTableHead = items.length > 0 || editId === 'new';
 
   const startEdit = (item) => { setEditId(item.id); setForm(item); };
   const startAdd = () => {
@@ -63,30 +101,8 @@ export default function Program() {
     load();
   };
 
-  const EditCard = () => (
-    <div className="program-edit-card">
-      <div className="program-edit-dates">
-        <div>
-          <label>Дата начала</label>
-          <input className="section-input" type="date" value={form.start_date || ''} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
-        </div>
-        <div>
-          <label>Дата конца</label>
-          <input className="section-input" type="date" value={form.end_date || ''} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
-        </div>
-      </div>
-      <label>Порядок отображения</label>
-      <input className="section-input" type="number" value={form.order_index ?? ''} onChange={e => setForm(p => ({ ...p, order_index: e.target.value }))} />
-      <textarea className="section-textarea" value={form.text || ''} placeholder="Описание события" onChange={e => setForm(p => ({ ...p, text: e.target.value }))} />
-      <div className="section-row-actions" style={{ marginTop: 4 }}>
-        <button className="section-save-btn" onClick={save}>сохранить</button>
-        <button className="section-cancel-btn" onClick={cancel}>отмена</button>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="admin-card">
+    <div className="admin-card admin-program-section">
       <div className="section-header">
         <h3 className="admin-card-title" style={{ marginBottom: 0 }}>
           ПРОГРАММА
@@ -97,22 +113,36 @@ export default function Program() {
         </button>
       </div>
 
-      <div className="program-list">
-        {editId === 'new' && <EditCard />}
+      <div className="admin-program-list">
+        {showTableHead && (
+          <div className="admin-program-thead" role="row">
+            <span>Период</span>
+            <span>Порядок</span>
+            <span>Событие</span>
+            <span className="admin-program-thead-actions" aria-hidden="true" />
+          </div>
+        )}
+        {editId === 'new' && (
+          <div className="admin-program-form-wrap">
+            <ProgramEditCard form={form} setForm={setForm} onSave={save} onCancel={cancel} />
+          </div>
+        )}
         {items.length === 0 && editId !== 'new' && (
           <p className="section-empty">Нет событий</p>
         )}
 
-        {items.map(item =>
+        {sortedItems.map(item =>
           editId === item.id ? (
-            <EditCard key={item.id} />
+            <div key={item.id} className="admin-program-form-wrap">
+              <ProgramEditCard form={form} setForm={setForm} onSave={save} onCancel={cancel} />
+            </div>
           ) : (
-            <div key={item.id} className="program-card">
-              <span className="program-date-badge">
+            <div key={item.id} className="admin-program-row">
+              <span className="admin-program-date">
                 {formatDateRange(item.start_date, item.end_date)}
               </span>
-              <span className="program-order">#{item.order_index}</span>
-              <p className="program-text">{item.text}</p>
+              <span className="admin-program-order">#{item.order_index}</span>
+              <p className="admin-program-desc">{item.text}</p>
               <div className="section-row-actions">
                 <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
                   <PencilIcon style={{ width: 15, height: 15 }} />

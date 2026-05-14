@@ -1,7 +1,9 @@
+/* Карточки показателей */
 .admin-content .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
+  margin-bottom: 24px;
 }
 
 .admin-content .stat-card {
@@ -33,4 +35,74 @@
   font-size: 12px;
   color: #777;
   font-weight: 500;
+}
+
+/* Графики */
+.admin-content .stats-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.admin-content .stats-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .admin-content .stats-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-content .stats-chart-card {
+  border: 1px solid #ede8ff;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+  padding: 18px 20px 12px;
+  box-shadow: 0 2px 12px rgba(106, 53, 204, 0.06);
+  min-width: 0;
+}
+
+.admin-content .stats-chart-head {
+  margin: 0 0 14px;
+}
+
+.admin-content .stats-chart-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.02em;
+}
+
+.admin-content .stats-chart-desc {
+  margin: 0;
+  font-size: 12px;
+  color: #7c6a9e;
+  line-height: 1.4;
+  max-width: 720px;
+}
+
+.admin-content .stats-chart-inner {
+  width: 100%;
+  min-height: 280px;
+  height: 300px;
+}
+
+.admin-content .stats-chart-inner--scatter {
+  height: 340px;
+}
+
+.admin-content .stats-tooltip {
+  border-radius: 10px !important;
+  border: 1px solid #ede8ff !important;
+  box-shadow: 0 8px 24px rgba(59, 31, 168, 0.12) !important;
+  font-size: 13px;
+}
+
+.admin-content .stats-page .admin-card-title {
+  margin-bottom: 16px;
 }

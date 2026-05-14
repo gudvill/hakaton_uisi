@@ -3,6 +3,26 @@ import { useState, useEffect } from 'react';
 import { getFaq, createFaq, updateFaq, deleteFaq } from '../../../../api/faqService';
 import { PencilIcon, TrashIcon, PlusIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
+function FaqEditCard({ form, setForm, saving, onSave, onCancel }) {
+  const inp = (key, placeholder) => (
+    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={(e) => setForm(p => ({ ...p, [key]: e.target.value }))} />
+  );
+  return (
+    <div className="admin-faq-edit-card">
+      {inp('question', 'Вопрос')}
+      <textarea className="section-textarea" value={form.answer || ''} placeholder="Ответ" onChange={(e) => setForm(p => ({ ...p, answer: e.target.value }))} />
+      <div className="section-row-actions" style={{ marginTop: 4 }}>
+        <button type="button" className="section-save-btn" onClick={onSave} disabled={saving} >
+          {saving ? 'сохранение...' : 'сохранить'}
+        </button>
+        <button type="button" className="section-cancel-btn" onClick={onCancel}>
+          отмена
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Faq() {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
@@ -74,47 +94,30 @@ export default function Faq() {
     }
   };
 
-  const inp = (key, placeholder) => (
-    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={(e) => setForm(p => ({ ...p, [key]: e.target.value }))} />
-  );
-
-  const EditCard = () => (
-    <div className="faq-edit-card">
-      {inp('question', 'Вопрос')}
-      <textarea className="section-textarea" value={form.answer || ''} placeholder="Ответ" onChange={(e) => setForm(p => ({ ...p, answer: e.target.value }))} />
-      <div className="section-row-actions" style={{ marginTop: 4 }}>
-        <button className="section-save-btn" onClick={save} disabled={saving} >
-          {saving ? 'сохранение...' : 'сохранить'}
-        </button>
-        <button className="section-cancel-btn" onClick={cancel}>
-          отмена
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="admin-card">
+    <div className="admin-card admin-faq-section">
       <div className="section-header">
         <h3 className="admin-card-title" style={{ marginBottom: 0 }}>FAQ</h3>
         <button className="section-add-btn" onClick={startAdd}>
           <PlusIcon style={{ width: 16, height: 16 }} /> добавить
         </button>
       </div>
-      <div className="faq-list">
-        {editId === 'new' && <EditCard />}
+      <div className="admin-faq-list">
+        {editId === 'new' && (
+          <FaqEditCard form={form} setForm={setForm} saving={saving} onSave={save} onCancel={cancel} />
+        )}
         {items.length === 0 && editId !== 'new' && (<p className="section-empty">Нет вопросов</p>)}
         {items.map(item =>
           editId === item.id ? (
-            <EditCard key={item.id} />
+            <FaqEditCard key={item.id} form={form} setForm={setForm} saving={saving} onSave={save} onCancel={cancel} />
           ) : (
-            <div key={item.id} className="faq-item">
-              <div className="faq-question"
+            <div key={item.id} className="admin-faq-item">
+              <div className="admin-faq-question"
                 onClick={() =>
                   setOpenId(p => (p === item.id ? null : item.id))
                 } >
                 <span>{item.question}</span>
-                <div className="faq-question-right">
+                <div className="admin-faq-question-right">
                   <button className="section-icon-btn section-icon-btn--edit"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -129,14 +132,14 @@ export default function Faq() {
                     }} >
                     <TrashIcon style={{ width: 14, height: 14 }} />
                   </button>
-                  <ChevronDownIcon className={`faq-chevron ${
-                      openId === item.id ? 'faq-chevron--open' : ''
+                  <ChevronDownIcon className={`admin-faq-chevron ${
+                      openId === item.id ? 'admin-faq-chevron--open' : ''
                     }`}
                     style={{ width: 16, height: 16 }} />
                 </div>
               </div>
               {openId === item.id && (
-                <div className="faq-answer">
+                <div className="admin-faq-answer">
                   {(item.answer || '').split('\n').map((line, i) => (
                     <p key={i}>{line}</p>
                   ))}

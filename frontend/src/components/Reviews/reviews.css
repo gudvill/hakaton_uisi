@@ -39,12 +39,10 @@
   transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* При наведении фото выезжает вверх */
 .folder-card:hover .folder-photo {
   transform: translateY(-65%);
 }
 
-/* Передняя часть папки — перекрывает низ фото */
 .folder-front {
   position: absolute;
   bottom: 0;
@@ -53,35 +51,39 @@
   z-index: 3;
 }
 
-/* Текст поверх передней части */
-.folder-text {
+.folder-body {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   z-index: 4;
-  padding: 30px 30px 30px;
+  max-height: 81%;
+  box-sizing: border-box;
+  padding: 16px 30px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.folder-title {
+  margin: 0;
+  flex-shrink: 0;
+  min-width: 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.folder-text {
+  margin: 0;
+  flex: 0 1 auto;
+  min-height: 0;
+  min-width: 0;
   color: white;
   font-size: 18px;
   line-height: 1.5;
-  max-height: 81%;
   overflow: hidden;
-  box-sizing: border-box;
-}
-
-@media (max-width: 900px) {
-  .reviews-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 580px) {
-  .reviews {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
-
-  .reviews-grid {
-    grid-template-columns: 1fr;
-  }
 }

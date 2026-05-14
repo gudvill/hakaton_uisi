@@ -1,9 +1,39 @@
 import './Partners.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getPartners, getArchivedPartners, createPartner, updatePartner, disablePartner, restorePartner } from '../../../../api/partnersService';
 import { PencilIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon, XMarkIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 const SORTABLE_KEYS = ['name', 'description', 'full_description'];
+
+function PartnersEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }) {
+  const inp = (key, placeholder) => (
+    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
+  );
+  return (
+    <tr className="section-edit-row">
+      <td style={{ width: 56 }}>
+        {file ? (
+          <img className="section-thumbnail partner-logo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : form.image ? (
+          <img className="section-thumbnail partner-logo" src={`${apiUrl}${form.image}`} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
+        ) : (
+          <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
+        )}
+      </td>
+      <td><input type="file" onChange={e => setFile(e.target.files[0])} /></td>
+      <td>{inp('name', 'Название')}</td>
+      <td>{inp('description', 'Описание')}</td>
+      <td>{inp('full_description', 'Полное описание')}</td>
+      <td>{inp('site_link', 'Ссылка на сайт')}</td>
+      <td>
+        <div className="section-row-actions">
+          <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
+          <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function Partners() {
   const [items, setItems] = useState([]);
@@ -15,7 +45,7 @@ export default function Partners() {
   const [sort, setSort] = useState({ key: "name", dir: "asc" });
   const API_URL = process.env.REACT_APP_API_URL || '';
 
-  const load = async (silent = false) => {
+  const load = useCallback(async () => {
     try {
       const params = {
         search: search || undefined,
@@ -32,18 +62,19 @@ export default function Partners() {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      load(true);
-    }, 400);
-
-    return () => clearTimeout(delay);
   }, [search, sort, tab]);
 
   useEffect(() => {
+    const delay = setTimeout(() => {
+      load();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [load]);
+
+  useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- только при монтировании
   }, []);
 
   const toggleSort = (key) => {
@@ -119,35 +150,6 @@ export default function Partners() {
     }
   };
 
-  const inp = (key, placeholder) => (
-    <input className="section-input" value={form[key] || ''} placeholder={placeholder} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
-  );
-
-  const EditRow = () => (
-    <tr className="section-edit-row">
-      <td style={{ width: 56 }}>
-        {file ? (
-          <img className="section-thumbnail partner-logo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
-        ) : form.image ? (
-          <img className="section-thumbnail partner-logo" src={`${API_URL}${form.image}`} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
-        ) : (
-          <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
-        )}
-      </td>
-      <td><input type="file" onChange={e => setFile(e.target.files[0])} /></td>
-      <td>{inp('name', 'Название')}</td>
-      <td>{inp('description', 'Описание')}</td>
-      <td>{inp('full_description', 'Полное описание')}</td>
-      <td>{inp('site_link', 'Ссылка на сайт')}</td>
-      <td>
-        <div className="section-row-actions">
-          <button className="section-save-btn" onClick={save}>сохранить</button>
-          <button className="section-cancel-btn" onClick={cancel}>отмена</button>
-        </div>
-      </td>
-    </tr>
-  );
-
   return (
     <div className="admin-card">
       <div className="section-header">
@@ -205,14 +207,33 @@ export default function Partners() {
             </tr>
           </thead>
           <tbody>
-            {tab === 'active' && editId === 'new' && <EditRow />}
+            {tab === 'active' && editId === 'new' && (
+              <PartnersEditRow
+                form={form}
+                setForm={setForm}
+                file={file}
+                setFile={setFile}
+                apiUrl={API_URL}
+                onSave={save}
+                onCancel={cancel}
+              />
+            )}
             {items.length === 0 && editId !== 'new' && (
               <tr>
                 <td colSpan={7} className="section-empty">Нет партнёров</td>
               </tr>
             )}
             {items.map(item => editId === item.id ? (
-              <EditRow key={item.id} />
+              <PartnersEditRow
+                key={item.id}
+                form={form}
+                setForm={setForm}
+                file={file}
+                setFile={setFile}
+                apiUrl={API_URL}
+                onSave={save}
+                onCancel={cancel}
+              />
             ) : (
               <tr key={item.id}>
                 <td>
