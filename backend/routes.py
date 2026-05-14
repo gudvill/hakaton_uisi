@@ -497,10 +497,6 @@ def create_photoalbum(photoalbum_data: PhotoAlbumCreateSerializer, use_case: Pho
     return PhotoAlbumSerializer.from_entity(photoalbum)
 
 @photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
-def get_photoalbums(use_case: PhotoAlbumsUseCase=Depends(get_photoalbums_usecase)):
-    return [PhotoAlbumSerializer.from_entity(i.album, i.photos) for i in use_case.get_all()]
-
-@photoalbums_router.get("/", response_model=List[PhotoAlbumSerializer])
 def get_photoalbums(search: str = None, year: int = None, use_case: PhotoAlbumsUseCase = Depends(get_photoalbums_usecase)):
     return [PhotoAlbumSerializer.from_entity(i.album, i.photos) for i in use_case.get_all(search, year)]
 
