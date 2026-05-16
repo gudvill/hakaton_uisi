@@ -1,10 +1,10 @@
 .photo {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  padding: clamp(2rem, 6vh, 4rem) 0;
+  overflow-x: clip;
 }
 
 .photo h2 {
-  margin-bottom: 5rem;
+  margin-bottom: clamp(2rem, 8vw, 5rem);
 }
 
 .photo-track {
@@ -14,6 +14,7 @@
   cursor: grab;
   user-select: none;
   touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .photo-track:active {
@@ -22,7 +23,8 @@
 
 .photo-item {
   flex: 0 0 calc((100% - 32px) / 3);
-  border-radius: 16px;
+  min-width: 0;
+  border-radius: clamp(8px, 2vw, 16px);
   overflow: hidden;
   aspect-ratio: 4 / 3;
 }
@@ -36,18 +38,22 @@
 }
 
 @media (max-width: 768px) {
-  .photo {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+  .photo-track {
+    gap: 12px;
   }
 
   .photo-item {
-    flex: 0 0 calc((100% - 16px) / 2);
+    flex: 0 0 calc((100% - 12px) / 2);
   }
 }
 
 @media (max-width: 480px) {
+  .photo-track {
+    gap: 8px;
+  }
+
   .photo-item {
-    flex: 0 0 100%;
+    flex: 0 0 calc((100% - 8px) / 2);
+    border-radius: 10px;
   }
 }

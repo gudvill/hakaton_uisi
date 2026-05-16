@@ -1,33 +1,30 @@
 .partners {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  padding: clamp(2rem, 6vh, 4rem) 0;
   color: white;
+  overflow-x: clip;
 }
 
-@media (max-width: 768px) {
-  .partners {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
+.partners h2 {
+  margin-bottom: clamp(1.5rem, 4vw, 4rem);
 }
-
 
 .partners-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(1rem, 2.5vw, 2rem);
 }
 
 .partner-card {
   background: white;
-  border-radius: 40px;
-  padding: 1.5rem;
+  border-radius: clamp(12px, 2vw, 20px);
+  padding: clamp(0.75rem, 2vw, 1.5rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   aspect-ratio: 1 / 1;
+  min-width: 0;
   transition: transform 0.3s ease;
   cursor: pointer;
 }
@@ -36,7 +33,26 @@
   transform: translateY(-5px);
 }
 
-/* Модалка партнеров */
+.partner-card img {
+  width: 100%;
+  max-width: 100%;
+  max-height: 55%;
+  height: auto;
+  margin-bottom: clamp(0.5rem, 1.5vw, 1rem);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.partner-name {
+  font-size: clamp(0.75rem, 1.2vw + 0.35rem, 1.5rem);
+  text-align: left;
+  color: #434343;
+  line-height: 1.2;
+  word-break: break-word;
+  width: 100%;
+}
+
+/* Модалка партнёров */
 .partner-modal-overlay {
   position: fixed;
   inset: 0;
@@ -45,107 +61,166 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+  box-sizing: border-box;
 }
 
 .partner-modal {
   background: white;
-  border-radius: 30px;
-  padding: 40px;
-  max-width: 700px;
+  border-radius: clamp(16px, 4vw, 30px);
+  padding: clamp(1.25rem, 5vw, 2.5rem);
+  max-width: min(700px, 100%);
   width: 100%;
+  max-height: min(85vh, 900px);
+  margin: auto;
+  overflow-y: auto;
   position: relative;
-  color: #fff;
+  color: #000;
   animation: modal-in 0.2s ease;
+  align-self: center;
+  flex-shrink: 0;
 }
 
 @keyframes modal-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .partner-modal__close {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: clamp(0.75rem, 3vw, 1.25rem);
+  right: clamp(0.75rem, 3vw, 1.25rem);
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
   line-height: 1;
-  transition: color 0.2s;
+  z-index: 1;
 }
 
-.partner-modal__close img{
-  width: 25px;
-}
-
-.partner-modal__close:hover {
-  color: #fff;
+.partner-modal__close img {
+  width: clamp(20px, 5vw, 25px);
+  height: auto;
+  display: block;
 }
 
 .partner-modal__img-wrap {
   background: #fff;
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+  margin: 0 0 clamp(1rem, 3vw, 1.5rem);
   display: flex;
-  margin: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .partner-modal__img-wrap img {
-  max-height: 80px;
+  max-height: clamp(48px, 12vw, 80px);
   max-width: 100%;
+  object-fit: contain;
 }
 
 .partner-modal__name {
-  font-size: 2rem;
+  font-size: clamp(1.25rem, 4vw, 2rem);
   font-weight: 600;
-  margin-bottom: 12px;
-  color: black;
+  margin-bottom: 0.75rem;
+  color: #000;
+  line-height: 1.2;
+  padding-right: 2rem;
 }
 
 .partner-modal__desc {
-  font-size: 1.3rem;
-  line-height: 1.2;
+  font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+  line-height: 1.45;
   font-weight: 400;
-  margin-bottom: 40px;
-  color: black;
+  margin-bottom: clamp(1.25rem, 4vw, 2.5rem);
+  color: #000;
 }
 
-.partner-modal__site{
+.partner-modal__site {
+  display: inline-block;
   background-color: #2055C7;
-  padding: 10px 15px;
+  color: #fff;
+  padding: clamp(0.5rem, 2vw, 0.65rem) clamp(0.875rem, 3vw, 1rem);
   border-radius: 100px;
   font-weight: 700;
-  font-size: 20px;
+  font-size: clamp(0.875rem, 2.5vw, 1.25rem);
+  text-decoration: none;
+  text-align: center;
 }
-
-.partner-card img {
-  width: 100%;
-  height: auto;
-  margin-bottom: 1rem;
-}
-
-.partner-name {
-  font-size: 1.5rem;
-  text-align: left;
-  color: #434343;
-}
-
 
 @media (max-width: 1200px) {
   .partners-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 992px) {
   .partners-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 
 @media (max-width: 768px) {
   .partners-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .partner-card {
+    aspect-ratio: 1 / 1.05;
+    padding: 0.75rem;
+  }
+
+  .partner-name {
+    font-size: 0.85rem;
+  }
+
+  .partner-modal__name {
+    padding-right: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .partners-grid {
+    gap: 0.5rem;
+  }
+
+  .partner-card {
+    border-radius: 12px;
+    padding: 0.5rem;
+  }
+
+  .partner-card img {
+    max-height: 50%;
+    margin-bottom: 0.35rem;
+  }
+
+  .partner-name {
+    font-size: 0.7rem;
+  }
+
+  .partner-modal-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .partner-modal {
+    border-radius: 20px;
+    max-height: min(80vh, 600px);
+  }
+}
+
+@media (max-width: 360px) {
+  .partner-name {
+    font-size: 0.65rem;
   }
 }

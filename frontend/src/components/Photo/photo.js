@@ -37,6 +37,11 @@ export default function Photo() {
     }
   };
 
+  const getVisibleCount = () =>
+    window.matchMedia('(max-width: 768px)').matches ? 2 : 3;
+
+  const getMaxIndex = () => Math.max(0, photos.length - getVisibleCount());
+
   const getItemWidth = () => {
     const track = trackRef.current;
     if (!track) return 0;
@@ -48,7 +53,7 @@ export default function Photo() {
   const goTo = (index) => {
     const track = trackRef.current;
     if (!track) return;
-    const maxIndex = photos.length - 3;
+    const maxIndex = getMaxIndex();
     currentIndex.current = Math.max(0, Math.min(index, maxIndex));
     track.style.scrollBehavior = 'smooth';
     track.scrollLeft = currentIndex.current * getItemWidth();
@@ -57,7 +62,7 @@ export default function Photo() {
   const startAuto = () => {
     stopAuto();
     autoTimer.current = setInterval(() => {
-      const maxIndex = photos.length - 3;
+      const maxIndex = getMaxIndex();
       goTo(currentIndex.current >= maxIndex ? 0 : currentIndex.current + 1);
     }, SLIDE_INTERVAL);
   };
@@ -69,6 +74,15 @@ export default function Photo() {
       startAuto();
     }
     return stopAuto;
+  }, [photos]);
+
+  useEffect(() => {
+    const onResize = () => {
+      currentIndex.current = Math.min(currentIndex.current, getMaxIndex());
+      goTo(currentIndex.current);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [photos]);
 
   const onPointerDown = (e) => {
