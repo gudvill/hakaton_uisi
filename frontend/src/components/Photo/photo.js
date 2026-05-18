@@ -21,15 +21,26 @@ export default function Photo() {
   }, []);
 
   const loadPhotos = async () => {
-    const albums = await getPhotoAlbums();
-    if (!albums.length) return;
-
-    const firstAlbum = albums[0];
-
-    const mapped = (firstAlbum.photos || []).map(p => `${API_URL}${p.path}`);
-
-    setPhotos(mapped);
+    try {
+      const albums = await getPhotoAlbums({});
+      if (!albums.length) return;
+      const latestAlbum = [...albums].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      )[0];
+      const mapped = [...(latestAlbum.photos || [])]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 10)
+        .map((p) => `${API_URL}${p.path}`);
+      setPhotos(mapped);
+    } catch (e) {
+      console.error(e);
+    }
   };
+
+  const getVisibleCount = () =>
+    window.matchMedia('(max-width: 768px)').matches ? 2 : 3;
+
+  const getMaxIndex = () => Math.max(0, photos.length - getVisibleCount());
 
   const getItemWidth = () => {
     const track = trackRef.current;
@@ -42,7 +53,7 @@ export default function Photo() {
   const goTo = (index) => {
     const track = trackRef.current;
     if (!track) return;
-    const maxIndex = photos.length - 3;
+    const maxIndex = getMaxIndex();
     currentIndex.current = Math.max(0, Math.min(index, maxIndex));
     track.style.scrollBehavior = 'smooth';
     track.scrollLeft = currentIndex.current * getItemWidth();
@@ -51,7 +62,7 @@ export default function Photo() {
   const startAuto = () => {
     stopAuto();
     autoTimer.current = setInterval(() => {
-      const maxIndex = photos.length - 3;
+      const maxIndex = getMaxIndex();
       goTo(currentIndex.current >= maxIndex ? 0 : currentIndex.current + 1);
     }, SLIDE_INTERVAL);
   };
@@ -63,6 +74,15 @@ export default function Photo() {
       startAuto();
     }
     return stopAuto;
+  }, [photos]);
+
+  useEffect(() => {
+    const onResize = () => {
+      currentIndex.current = Math.min(currentIndex.current, getMaxIndex());
+      goTo(currentIndex.current);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [photos]);
 
   const onPointerDown = (e) => {

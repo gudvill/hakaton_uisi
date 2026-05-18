@@ -13,6 +13,10 @@ export default function About() {
       .catch(err => console.error("Ошибка загрузки этапов:", err));
   }, []);
 
+  const orderedSteps = [...steps].sort(
+    (a, b) => a.row - b.row || a.col - b.col
+  );
+
   return (
     <section id="hakaton" className="about container">
       <h2>О ХАКАТОНЕ</h2>
@@ -41,7 +45,7 @@ export default function About() {
         </svg>
 
         <div className="roadmap-grid">
-          {steps.map((s) => (
+          {orderedSteps.map((s) => (
             <div
               key={s.id}
               className="roadmap-cell"

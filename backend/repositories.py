@@ -176,6 +176,13 @@ class ProgramRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="program", entity_class=Program, columns=["start_date", "end_date", "text", "order_index"], has_is_available=False)
 
+    def get_all_dict(self) -> List[Dict[str, Any]]:
+        query = f"SELECT id,{','.join(self.columns)} FROM {self.table_name} ORDER BY order_index"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                return self._fetch_all_dict(cursor)
+            
     def get_event_date(self):
         query = """SELECT start_date FROM program WHERE order_index = 1 LIMIT 1"""
         with self.connection() as conn:
@@ -358,11 +365,19 @@ class PhotoAlbumsRepository(BaseRepository):
     def __init__(self, connection):
         super().__init__(connection=connection, table_name="photoalbums", entity_class=PhotoAlbum, columns=["name", "is_available"])
 
-    def get_all_with_photos(self):
-        query = "SELECT id, name, created_at, is_available FROM photoalbums ORDER BY id"
+    def get_all_with_photos(self, search: str = None, year: int = None):
+        query = "SELECT id, name, created_at, is_available FROM photoalbums WHERE is_available = TRUE"
+        params = []
+        if search: # поиск по названию
+            query += " AND LOWER(name) LIKE %s"
+            params.append(f"%{search.lower()}%")
+        if year: # фильтр по году
+            query += " AND EXTRACT(YEAR FROM created_at) = %s"
+            params.append(year)
+        query += " ORDER BY created_at DESC"
         with self.connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query)
+                cursor.execute(query, params)
                 rows = cursor.fetchall()
         return [PhotoAlbum(r[0], r[1], r[2], r[3]) for r in rows]
 

@@ -1,8 +1,10 @@
 import api from "./axios";
 
 // получить альбомы
-export const getPhotoAlbums = async () => {
-  const res = await api.get("/photoalbums/");
+export const getPhotoAlbums = async (params = {}) => {
+  const res = await api.get('/photoalbums/', {
+    params,
+  });
   return res.data;
 };
 

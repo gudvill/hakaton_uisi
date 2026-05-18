@@ -1,95 +1,131 @@
 .time {
-  padding: 4rem 2rem;
-  padding-top: 0;
+  padding: clamp(6rem, 12vh, 10rem) clamp(0.75rem, 4vw, 2rem) clamp(2rem, 5vh, 4rem);
   margin-top: -10vh;
   position: relative;
   background: linear-gradient(to bottom, transparent 0%, #06011F 30%);
-  font-family: "Russo One", sans-serif;
   z-index: 2;
+  pointer-events: none;
+  overflow-x: clip;
 }
 
 .time-container {
   text-align: center;
+  pointer-events: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .time-title {
-  font-size: 2.5rem;
+  font-size: clamp(1.25rem, 4vw, 2.5rem);
   font-weight: bold;
   color: white;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1.25rem, 4vw, 2rem);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  padding: 0 0.5rem;
 }
 
-.time-countdown {
+.time-flip-clock {
+  --fcc-flip-duration: 0.5s;
+  --fcc-spacing: clamp(0.5rem, 2.5vw, 2rem);
+  --fcc-digit-block-width: clamp(40px, 11vw, 88px);
+  --fcc-digit-block-height: clamp(48px, 13vw, 96px);
+  --fcc-digit-block-radius: clamp(6px, 1.5vw, 12px);
+  --fcc-digit-block-spacing: clamp(3px, 1vw, 6px);
+  --fcc-digit-font-size: clamp(1.5rem, 6.5vw, 4.5rem);
+  --fcc-digit-color: #ffffff;
+  --fcc-label-font-size: clamp(0.625rem, 1.8vw, 1.25rem);
+  --fcc-label-color: #ffffff;
+  --fcc-background: #6d40ce;
+  --fcc-divider-color: rgba(255, 255, 255, 0.25);
+  --fcc-divider-height: 1px;
+  --fcc-separator-size: clamp(4px, 1.2vw, 8px);
+  --fcc-separator-color: #ffffff;
+
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 3rem;
-  padding: 1.5rem 4rem;
-  border: 3px solid #5D44C4;
-  border-radius: 50px;
   margin: 0 auto;
   width: fit-content;
-  max-width: 600px;
+  max-width: 100%;
 }
 
-.time-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-  flex-shrink: 1;
+.time-title--complete {
+  margin-bottom: 0;
 }
 
-.time-number {
-  font-size: 5rem;
-  font-weight: bold;
-  color: white;
-  line-height: 1;
-  font-family: 'Russo One', sans-serif;
+/* Планшет */
+@media (max-width: 992px) {
+  .time {
+    margin-top: -8vh;
+    padding-top: clamp(5.5rem, 10vh, 8rem);
+  }
+
+  .time-flip-clock {
+    --fcc-digit-block-width: clamp(38px, 10vw, 72px);
+    --fcc-digit-block-height: clamp(44px, 12vw, 80px);
+    --fcc-digit-font-size: clamp(1.35rem, 5.5vw, 3.5rem);
+    --fcc-spacing: clamp(0.4rem, 2vw, 1.25rem);
+  }
 }
 
-.time-label {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: white;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
+/* Мобильные */
 @media (max-width: 768px) {
+  .time {
+    margin-top: -6vh;
+    padding-top: 5rem;
+  }
+
   .time-title {
-    font-size: 1.5rem;
+    letter-spacing: 0.06em;
   }
 
-  .time-countdown {
-    gap: 1rem;
-    padding: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .time-number {
-    font-size: 3rem;
-  }
-
-  .time-label {
-    font-size: 0.875rem;
+  .time-flip-clock {
+    --fcc-digit-block-width: 42px;
+    --fcc-digit-block-height: 50px;
+    --fcc-digit-font-size: 1.75rem;
+    --fcc-digit-block-spacing: 3px;
+    --fcc-label-font-size: 0.65rem;
+    --fcc-spacing: 0.35rem;
+    --fcc-separator-size: 5px;
   }
 }
 
-@media (max-width: 480px) {
-  .time-countdown {
-    gap: 0.5rem;
-    padding: 1.5rem;
+/* Узкие экраны */
+@media (max-width: 576px) {
+  .time-flip-clock {
+    --fcc-digit-block-width: 36px;
+    --fcc-digit-block-height: 44px;
+    --fcc-digit-font-size: 1.5rem;
+    --fcc-label-font-size: 0.6rem;
+    --fcc-spacing: 0.25rem;
+    --fcc-digit-block-radius: 8px;
+  }
+}
+
+/* Маленькие телефоны */
+@media (max-width: 400px) {
+  .time {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 
-  .time-number {
-    font-size: 2rem;
+  .time-flip-clock {
+    --fcc-digit-block-width: 32px;
+    --fcc-digit-block-height: 40px;
+    --fcc-digit-font-size: 1.25rem;
+    --fcc-label-font-size: 0.55rem;
+    --fcc-spacing: 0.2rem;
+    --fcc-digit-block-spacing: 2px;
+    --fcc-separator-size: 4px;
   }
+}
 
-  .time-label {
-    font-size: 0.75rem;
+/* Очень узкий экран — лёгкое уменьшение всего блока */
+@media (max-width: 360px) {
+  .time-flip-clock {
+    transform: scale(0.92);
+    transform-origin: top center;
+    margin-bottom: -0.5rem;
   }
 }
