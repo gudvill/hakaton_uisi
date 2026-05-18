@@ -291,31 +291,6 @@ export default function Registration({ isOpen, onClose }) {
           <button className="modal-close" onClick={onClose}><img src='/images/close.svg' alt="закрыть" /></button>
           <h2 className='registration-title'>Регистрация</h2>
 
-          {process.env.NODE_ENV === 'development' && (
-            <button type="button" style={{ fontSize: 11, color: '#aaa', background: 'none', cursor: 'pointer', alignSelf: 'flex-start' }}
-              onClick={() => setFormData({
-                name: 'Тест команда',
-                institution: 'УрТИСИ',
-                amount_participants: 2,
-                participation_form: 'Очная',
-                level_education: 'бакалавриат/специалитет',
-                selected_case: '1',
-                spare_case: '2',
-                captain_phone: '+7 (999) 123-45-67',
-                captain_email: 'test@mail.ru',
-                curator_fio: 'Иванов Иван Иванович',
-                curator_phone: '+7 (999) 123-45-68',
-                agreement: true,
-                acquaintance: true,
-                participants: [
-                  { id: 0, fio: 'Петров Пётр Петрович', role: 'капитан', course: '3' },
-                  { id: 1, fio: 'Сидоров Сидор Сидорович', role: 'участник', course: '2' },
-                ]
-              })}>
-              [dev] заполнить
-            </button>
-          )}
-
           <form onSubmit={handleSubmit} className="registration-form">
             <p className='form-subtitle'>Информация о команде</p>
             <label>

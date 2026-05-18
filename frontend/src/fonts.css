@@ -1,0 +1,52 @@
+/* ONDER */
+@font-face {
+  font-family: 'Onder';
+  src: url('./assets/fonts/ONDER-REGULAR.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* UNBOUNDED - LIGHT */
+@font-face {
+  font-family: 'Unbounded';
+  src: url('./assets/fonts/Unbounded-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* UNBOUNDED - REGULAR */
+@font-face {
+  font-family: 'Unbounded';
+  src: url('./assets/fonts/Unbounded-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* UNBOUNDED - MEDIUM */
+@font-face {
+  font-family: 'Unbounded';
+  src: url('./assets/fonts/Unbounded-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* UNBOUNDED - BOLD */
+@font-face {
+  font-family: 'Unbounded';
+  src: url('./assets/fonts/Unbounded-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* UNBOUNDED - BLACK */
+@font-face {
+  font-family: 'Unbounded';
+  src: url('./assets/fonts/Unbounded-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}

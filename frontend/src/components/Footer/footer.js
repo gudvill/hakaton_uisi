@@ -12,6 +12,7 @@ export default function Footer() {
         <div className='social-icon'>
             <a href='https://t.me/vth2023'><img src='images/telegram.svg' alt='Телеграм'></img></a>
             <a href='https://vk.com/hakatonurtisi'><img src='images/vk.svg' alt='Вконтакте'></img></a>
+            <a href='#'><img src='images/max.svg' alt='Макс'></img></a>
         </div>
         <div>
             <p>priem@urtisi.ru<br/>laa@urtisi.ru</p>
