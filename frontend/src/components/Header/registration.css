@@ -66,6 +66,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  font-weight: 400;
 }
 
 .registration-form label {
@@ -75,11 +76,16 @@
 }
 
 input::placeholder {
-  color: #000; 
+  color: #888;
+}
+
+.registration-form span {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 label input[type="text"],
-label input[type="number"], 
+label input[type="number"],
 label input[type="email"],
 label input[type="tel"],
 label select {
@@ -89,6 +95,8 @@ label select {
   border-radius: 50px;
   box-sizing: border-box;
   color: black;
+  font-size: 0.9rem;
+  font-weight: 500;
   margin-top: 4px;
 }
 
@@ -108,7 +116,7 @@ label:has(input[type="radio"]) {
 
 .form-subtitle {
   margin: 15px 0 0px 0;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 18px;
 }
 
@@ -125,13 +133,12 @@ label:has(input[type="radio"]) {
   border-radius: 50px;
   width: fit-content;
   text-align: center;
-  font-weight: 600;
+  font-weight: 400;
   margin: 0 auto;
   margin-top: 15px;
   margin-bottom: 15px;
   transition: opacity 0.2s, cursor 0.2s;
 }
-
 
 .participant-row {
   display: flex;
@@ -159,8 +166,6 @@ input[type="radio"] {
   height: 15px;
 }
 
-
-/* Стрелка для select */
 label select {
   appearance: none;
   -webkit-appearance: none;

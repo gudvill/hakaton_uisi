@@ -56,34 +56,17 @@ export default function App() {
   return (
     <div className="app-wrapper">
       <Routes>
-		      {/* сайт */}
           <Route path="/" element={<Home />} />
-
-          {/* новости */}
           <Route path="/news" element={<NewsAllPage />} />
           <Route path="/news/:id" element={<NewsDetailPage />} />
-
-          {/* фотогалерея */}
           <Route path='/photogallery' element={<PhotoGallery />} />
-
-          {/* кейсы */}
           <Route path="/case/:id" element={<CaseDetailPage />} />
-
-          {/* политика */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/user-agreement" element={<UserAgreement />} />
-
-          {/* 404 */}
           <Route path="*" element={<NotFound />} />
-
-          {/* логин */}
           <Route path="/admin/login" element={<Login />} />
-
-          {/* восстановление доступа */}
           <Route path="/request-password-reset" element={<PasswordResetRequestPage />} />
           <Route path="/reset-password" element={<PasswordResetPage />} />
-
-          {/* админка */}
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Routes>
     </div>

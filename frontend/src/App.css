@@ -43,13 +43,34 @@ html {
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Unbounded', sans-serif;
   background-color: #06011F;
+}
+
+button, .hero-btn {
+  font-family: 'Unbounded', sans-serif;
 }
 
 .app-wrapper {
   overflow-x: hidden;
   width: 100%;
+}
+
+/* Заголовки всех секций — шрифт Onder, адаптивный размер */
+.home-page .cases h2,
+.home-page .about h2,
+.home-page .contacts h2,
+.home-page .faq h2,
+.home-page .partners h2,
+.home-page .photo h2,
+.home-page .photogallery h2,
+.home-page .program h2,
+.home-page .reviews h2,
+.home-page .news-header h2,
+.news-all h2 {
+  font-family: 'Onder', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 900;
 }
 
 .container {

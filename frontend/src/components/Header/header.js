@@ -54,15 +54,6 @@ export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRe
               <img src="/images/logo2.svg" alt="HAKATON" />
             </Link>
 
-<<<<<<< HEAD
-            <div className="header-menu">
-              <a href="/#hakaton" className="header-link">О хакатоне</a>
-              <a href="/#cases" className="header-link">Кейсы</a>
-              <a href="/#partners" className="header-link">Партнеры</a>
-              <a href="/#faq" className="header-link">FAQ</a>
-              <a href="/news" className="header-link">Новости</a>
-              <a href="/photogallery" className="header-link">Фотогалерея</a>
-=======
             <div
               id="header-menu"
               className={`header-menu${menuOpen ? ' header-menu--open' : ''}`}
@@ -72,7 +63,6 @@ export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRe
                   {link.label}
                 </a>
               ))}
->>>>>>> a84a77b3956e1b1c2cc013cb827760bec158ae8e
             </div>
 
             <div className="header-actions">

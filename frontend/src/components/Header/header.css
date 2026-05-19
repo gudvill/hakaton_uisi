@@ -169,10 +169,8 @@
 
   .header-menu {
     display: flex;
-    flex: 1;
     justify-content: center;
     margin: 0 0.5rem;
-    min-width: 0;
   }
 
   .header-container {
