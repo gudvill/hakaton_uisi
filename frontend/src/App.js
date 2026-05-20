@@ -1,7 +1,6 @@
 import './App.css';
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import useMetrika from "./useMetrika";
 
 import Header from './components/Header/header';
 import Hero from './components/Hero/hero';
@@ -54,7 +53,6 @@ function Home() {
 }
 
 export default function App() {
-  useMetrika();
   return (
     <div className="app-wrapper">
       <Routes>
