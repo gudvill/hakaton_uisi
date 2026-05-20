@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFi
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
-from utils import send_reset_email
+from utils import send_reset_email, get_visits_and_views
 import uuid
 import os
 from datetime import datetime
@@ -32,6 +32,7 @@ from dependencies import (get_current_admin, get_admin_usecase,
                           get_registration_usecase, get_stats_usecase)
 
 stats_router = APIRouter(prefix="/stats", tags=["stats"])
+analytics_router = APIRouter(prefix="/analytics", tags=["analytics"])
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 acquaintance_router = APIRouter(prefix="/acquaintance", tags=["acquaintance"])
 faq_router = APIRouter(prefix="/faq", tags=["faq"])
@@ -50,6 +51,11 @@ registration_router = APIRouter(prefix="/registration", tags=["registration"])
 @stats_router.get("/", summary="Получить статистику")
 def get_stats(usecase: StatsUseCase = Depends(get_stats_usecase), admin=Depends(get_current_admin)):
     return usecase.get_stats()
+
+@analytics_router.get("/")
+def analytics(admin=Depends(get_current_admin)):
+    return get_visits_and_views()
+
 
 # Эндпоинты для Админа
 @admin_router.get("/me")

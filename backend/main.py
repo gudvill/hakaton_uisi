@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes import stats_router, admin_router, acquaintance_router, faq_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router, registration_router
+from routes import stats_router, analytics_router, admin_router, acquaintance_router, faq_router, program_router, about_router, cases_router, news_router, partners_router, photoalbums_router, photos_router, reviews_router, registration_router
 
 app = FastAPI()
 
@@ -16,6 +16,7 @@ for folder in MEDIA_FOLDERS:
 app.mount("/media", StaticFiles(directory=BASE_MEDIA), name="media")
 
 app.include_router(stats_router)
+app.include_router(analytics_router)
 app.include_router(admin_router)
 app.include_router(acquaintance_router)
 app.include_router(faq_router)

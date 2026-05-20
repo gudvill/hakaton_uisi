@@ -1,21 +1,8 @@
 import './Stats.css';
 import { useEffect, useState, useMemo } from 'react';
-import { getStats } from '../../../../api/statsService';
+import { getStats, getAnalytics } from '../../../../api/statsService';
 import { UserGroupIcon, UsersIcon, AcademicCapIcon, BookOpenIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  Legend,
-  LineChart,
-  Line,
-  ScatterChart,
-  Scatter,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, LineChart, Line, ScatterChart, Scatter, } from 'recharts';
 
 const CARDS_CONFIG = [
   { key: 'teams', label: 'Команд', Icon: UserGroupIcon, color: '#6a35cc', bg: '#f3f0ff' },
@@ -74,12 +61,19 @@ function ScatterTooltip({ active, payload }) {
 export default function Stats() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
     getStats()
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    getAnalytics()
+      .then(setAnalytics)
+      .catch(console.error);
   }, []);
 
   const yearData = useMemo(() => (Array.isArray(data?.teams_by_year) ? data.teams_by_year : []), [data]);
@@ -96,6 +90,14 @@ export default function Stats() {
     [data]
   );
   const topPartners = useMemo(() => (Array.isArray(data?.top_partners) ? data.top_partners : []), [data]);
+
+  const metrikaData = useMemo(() => {
+    return analytics?.data?.map((item) => ({
+      date: item.dimensions?.[0]?.name,
+      visits: item.metrics?.[0] || 0,
+      views: item.metrics?.[1] || 0,
+    })) || [];
+  }, [analytics]);
 
   const scatterData = useMemo(() => {
     const m = data?.participants_matrix;
@@ -404,6 +406,61 @@ export default function Stats() {
               <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(22, 163, 74, 0.08)' }} />
               <Bar dataKey="cases_count" fill="url(#statsBarPartners)" maxBarSize={44} radius={[8, 8, 0, 0]} />
             </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Посещаемость сайта" description="Статистика посещений и просмотров страниц по данным Яндекс Метрики.">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={metrikaData} margin={CHART_MARGIN}>
+              <defs>
+                <linearGradient id="statsVisits" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#8b5cf6" />
+                  <stop offset="100%" stopColor="#6a35cc" />
+                </linearGradient>
+                <linearGradient id="statsViews" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#06b6d4" />
+                  <stop offset="100%" stopColor="#2563eb" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: GRID_STROKE }}
+                tickFormatter={formatChartDate}
+                interval="preserveStartEnd"
+                minTickGap={28}
+                label={{
+                  value: 'Дата',
+                  position: 'insideBottom',
+                  offset: -36,
+                  fill: '#6a35cc',
+                  fontSize: 12,
+                  fontWeight: 600
+                }}
+              />
+
+              <YAxis
+                width={44}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                label={{
+                  value: 'Количество',
+                  angle: -90,
+                  position: 'insideLeft',
+                  dx: 10,
+                  fill: '#6a35cc',
+                  fontSize: 12,
+                  fontWeight: 600
+                }}
+              />
+              <Tooltip labelFormatter={(v) => formatChartDate(v)} contentStyle={tooltipStyle} />
+              <Legend />
+              <Line type="monotone" dataKey="visits" name="Посещения" stroke="url(#statsVisits)" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="views" name="Просмотры" stroke="url(#statsViews)" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 6 }} />
+            </LineChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
