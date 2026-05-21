@@ -6,7 +6,7 @@ from jose import jwt, JWTError
 from security import SECRET_KEY, ALGORITHM
 from repositories import StatsRepository, AdminRepository, AcquaintanceRepository, FaqRepository, ProgramRepository, AboutRepository, CasesRepository, NewsRepository, PartnersRepository, PhotoAlbumsRepository, PhotosRepository, ReviewsRepository, RegistrationRepository
 from use_cases import StatsUseCase, AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
-"""
+
 security = HTTPBearer()
 
 def get_current_admin(token=Depends(security)):
@@ -31,7 +31,7 @@ def get_current_admin(request: Request):
         return user_id
     except JWTError:
         raise HTTPException(status_code=401, detail="Неверный токен")
-
+"""
 # connection к postgres
 def get_connection():
     conn = psycopg2.connect(settings.database_connection_string)
