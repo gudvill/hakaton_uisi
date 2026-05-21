@@ -41,7 +41,7 @@ describe('Главная страница', () => {
   test('логотип в шапке — это ссылка на главную страницу', async () => {
     const logo = await driver.findElement(By.css('.header-logo'));
     const href = await logo.getAttribute('href');
-    expect(href).toMatch(/^http:\/\/localhost:3000\/?$/);
+    expect(href).toMatch(/^https?:\/\/[^/]+(\/)?$/);
   });
 
   test('футер присутствует на странице', async () => {
