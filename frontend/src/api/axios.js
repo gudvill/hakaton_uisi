@@ -2,7 +2,15 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
-  withCredentials: true,
+});
+
+// access токен
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // авто-refresh
@@ -10,16 +18,32 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes("/admin/refresh")) {
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
-        await api.post("/admin/refresh");
+        const refresh = localStorage.getItem("refresh");
+
+        const res = await axios.post(
+          `${process.env.REACT_APP_API_URL}/admin/refresh`,
+          {
+            refresh_token: refresh,
+          }
+        );
+
+        const newAccess = res.data.access_token;
+
+        localStorage.setItem("access", newAccess);
+        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+
         return api(originalRequest);
       } catch (e) {
-        await api.post("/admin/logout");
+        localStorage.clear();
         window.location.href = "/admin/login";
       }
     }
+
     return Promise.reject(error);
   }
 );
