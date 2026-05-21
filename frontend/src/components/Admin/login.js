@@ -13,7 +13,7 @@ export default function Login() {
 
     try {
       await login(loginValue, password);
-      navigate("/admin");
+      navigate("/admin", { replace: true });
     } catch (err) {
       alert("Неверный логин или пароль");
     }

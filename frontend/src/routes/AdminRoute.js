@@ -8,24 +8,12 @@ export default function AdminRoute({ children }) {
 
   useEffect(() => {
     getMe()
-      .then(() => {
-        setIsAuth(true);
-      })
-      .catch(() => {
-        setIsAuth(false);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then(() => setIsAuth(true))
+      .catch(() => setIsAuth(false))
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
-
-  if (!isAuth) {
-    return <Navigate to="/admin/login" />;
-  }
-
+  if (loading) return <div>Загрузка...</div>;
+  if (!isAuth) return <Navigate to="/admin/login" replace />;
   return children;
 }
