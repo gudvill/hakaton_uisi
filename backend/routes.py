@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Form, Response, Request
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
@@ -66,6 +66,7 @@ def get_me(current_admin=Depends(get_current_admin), use_case: AdminUseCase = De
 def update_profile(data: UpdateProfileRequest, current_admin=Depends(get_current_admin), use_case: AdminUseCase = Depends(get_admin_usecase)):
     return use_case.update_profile(int(current_admin), data.login, data.email)
 
+"""
 @admin_router.post("/login")
 def login(admin_data: LoginRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     user = use_case.login(admin_data.login, admin_data.password)
@@ -86,6 +87,35 @@ def refresh_token(data: RefreshRequest):
         raise HTTPException(status_code=401, detail="Invalid token")
     new_access = create_access_token({"sub": user_id})
     return {"access_token": new_access}
+"""
+@admin_router.post("/login")
+def login(admin_data: LoginRequest, response: Response, use_case: AdminUseCase = Depends(get_admin_usecase)):
+    user = use_case.login(admin_data.login, admin_data.password)
+    if not user: raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+    access = create_access_token({"sub": str(user["id"])})
+    refresh = create_refresh_token({"sub": str(user["id"])})
+    response.set_cookie(key="access_token", value=access, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 30)
+    response.set_cookie(key="refresh_token", value=refresh, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 60 * 24 * 7)
+    return {"message": "ok"}
+
+@admin_router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token", samesite="Lax", path="/")
+    response.delete_cookie(key="refresh_token", samesite="Lax", path="/")
+    return {"message": "logged out"}
+
+@admin_router.post("/refresh")
+def refresh_token(request: Request, response: Response):
+    try:
+        refresh_token = request.cookies.get("refresh_token")
+        if not refresh_token: raise HTTPException(status_code=401, detail="refresh-токен не найден")
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    new_access = create_access_token({"sub": user_id})
+    response.set_cookie(key="access_token", value=new_access, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 30)
+    return { "access_token": new_access }
 
 @admin_router.post("/request-password-reset")
 def request_password_reset(request: PasswordResetRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
