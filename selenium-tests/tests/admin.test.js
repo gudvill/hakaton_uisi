@@ -13,20 +13,34 @@ describe('Вход в админ-панель', () => {
     if (driver) await driver.quit();
   }, 15000);
 
-  beforeEach(async () => {
+  async function goToLogin() {
     await driver.get(LOGIN_URL);
     await driver.wait(until.elementLocated(By.css('.login-card')), WAIT_TIMEOUT);
-  });
+  }
+
+  async function dismissAlertAndRecover() {
+    try {
+      const alert = await driver.switchTo().alert();
+      await alert.accept();
+    } catch (_) {
+      // алерт уже закрыт или навигация прервала его
+    }
+    // Возвращаемся на страницу входа в чистое состояние
+    await driver.get(LOGIN_URL);
+    await driver.wait(until.elementLocated(By.css('.login-card')), WAIT_TIMEOUT);
+  }
+
+  // ── Статические проверки UI (не меняют состояние страницы) ────────────────
 
   test('страница входа загружается и отображает карточку входа', async () => {
+    await goToLogin();
     const card = await driver.findElement(By.css('.login-card'));
     expect(await card.isDisplayed()).toBe(true);
   });
 
   test('заголовок карточки содержит "Вход в админ-панель"', async () => {
     const title = await driver.findElement(By.css('.login-title'));
-    const text = await title.getText();
-    expect(text.toLowerCase()).toContain('вход');
+    expect((await title.getText()).toLowerCase()).toContain('вход');
   });
 
   test('форма содержит поля логина и пароля', async () => {
@@ -39,11 +53,19 @@ describe('Вход в админ-панель', () => {
   test('кнопка ВОЙТИ видна и содержит правильный текст', async () => {
     const btn = await driver.findElement(By.css('.login-button'));
     expect(await btn.isDisplayed()).toBe(true);
-    const text = await btn.getText();
-    expect(text.toLowerCase()).toContain('войти');
+    expect((await btn.getText()).toLowerCase()).toContain('войти');
   });
 
+  test('ссылка "восстановить пароль" присутствует', async () => {
+    const link = await driver.findElement(By.css('.login-restore'));
+    expect(await link.isDisplayed()).toBe(true);
+  });
+
+  // ── Тесты с навигацией и алертами (идут последними) ───────────────────────
+
   test('неверные учётные данные вызывают alert с сообщением об ошибке', async () => {
+    await goToLogin();
+
     const loginInput = await driver.findElement(By.css('.login-input[type="text"]'));
     const passInput = await driver.findElement(By.css('.login-input[type="password"]'));
     const btn = await driver.findElement(By.css('.login-button'));
@@ -54,15 +76,15 @@ describe('Вход в админ-панель', () => {
     await passInput.sendKeys('wrong_password_xyz');
     await btn.click();
 
-    // Компонент вызывает нативный alert() при ошибке
     await driver.wait(until.alertIsPresent(), 8000);
     const alert = await driver.switchTo().alert();
     const text = await alert.getText();
     expect(text.toLowerCase()).toContain('неверный');
-    await alert.accept();
+
+    await dismissAlertAndRecover();
   });
 
-  test('отправка пустой формы вызывает alert с сообщением об ошибке', async () => {
+  test('пустые поля тоже вызывают alert с сообщением об ошибке', async () => {
     const loginInput = await driver.findElement(By.css('.login-input[type="text"]'));
     const passInput = await driver.findElement(By.css('.login-input[type="password"]'));
     const btn = await driver.findElement(By.css('.login-button'));
@@ -73,7 +95,10 @@ describe('Вход в админ-панель', () => {
 
     await driver.wait(until.alertIsPresent(), 8000);
     const alert = await driver.switchTo().alert();
-    await alert.accept();
+    const text = await alert.getText();
+    expect(text.length).toBeGreaterThan(0);
+
+    await dismissAlertAndRecover();
   });
 
   test('клик на логотип переводит на главную страницу', async () => {
@@ -81,12 +106,6 @@ describe('Вход в админ-панель', () => {
     await logo.click();
     await driver.wait(until.urlContains(BASE_URL), 5000);
     const url = await driver.getCurrentUrl();
-    // После клика должны оказаться на главной, а не на /admin/login
     expect(url).not.toContain('/admin/login');
-  });
-
-  test('ссылка "восстановить пароль" присутствует', async () => {
-    const link = await driver.findElement(By.css('.login-restore'));
-    expect(await link.isDisplayed()).toBe(true);
   });
 });
