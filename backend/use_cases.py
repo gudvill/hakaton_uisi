@@ -80,7 +80,9 @@ class AdminUseCase:
         if not token_data: raise ValueError("Неверный токен")
         token_id, admin_id, _, expires_at, used = token_data
         if used: raise ValueError("Токен уже использован")
-        if expires_at < datetime.utcnow(): raise ValueError("Токен истёк")
+        if expires_at < datetime.utcnow():
+            self.repository.mark_token_used(token_id)
+            raise ValueError("Токен истёк")
         password_hash = hash_password(new_password)
         self.repository.update_password(admin_id, password_hash)
         self.repository.mark_token_used(token_id)

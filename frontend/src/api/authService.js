@@ -6,25 +6,17 @@ export const login = async (login, password) => {
     login,
     password,
   });
-  localStorage.setItem("access", res.data.access_token);
-  localStorage.setItem("refresh", res.data.refresh_token);
   return res.data;
 };
 
 // выход
-export const logout = () => {
-  localStorage.clear();
+export const logout = async () => {
+  await api.post("/admin/logout");
 };
 
 // refresh
 export const refreshToken = async () => {
-  const refresh = localStorage.getItem("refresh");
-
-  const res = await api.post("/admin/refresh", {
-    refresh_token: refresh,
-  });
-
-  localStorage.setItem("access", res.data.access_token);
+  const res = await api.post("/admin/refresh");
   return res.data;
 };
 
