@@ -10,7 +10,7 @@ export default function FormSelect({ value, onChange, options, placeholder }) {
         <div className="relative w-full">
 
           <ListboxButton
-            className="w-full flex items-center justify-between px-3 py-3 rounded-full text-left text-black"
+            className="w-full flex items-center justify-between px-3 py-3 rounded-full text-left text-black font-normal text-sm"
             style={{ backgroundColor: 'rgba(101, 150, 255, 0.37)' }}
           >
             <span className={selected ? 'text-black' : 'text-gray-400'}>

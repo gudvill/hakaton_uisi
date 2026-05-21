@@ -72,11 +72,12 @@
 /* Мобильные */
 @media (max-width: 768px) {
   .time {
-    margin-top: -6vh;
-    padding-top: 5rem;
+    margin-top: 0;
+    padding-top: 3rem;
   }
 
   .time-title {
+    font-size: 1.5rem !important;
     letter-spacing: 0.06em;
   }
 

@@ -381,13 +381,13 @@ export default function Registration({ isOpen, onClose }) {
                 value={formData.curator_phone} onChange={handleInputChange} />
             </label>
 
-            <label className="checkbox-group">
+            <label className="checkbox-group checkbox-group--first">
               <Checkbox checked={formData.agreement}
                 onChange={(val) => setFormData(prev => ({ ...prev, agreement: val }))}
                 className="group shrink-0 size-6 rounded-md bg-white p-1 ring-1 ring-[#2055C7] ring-inset data-[checked]:bg-[#2055C7]">
                 <CheckIcon className="hidden size-4 fill-white group-data-[checked]:block" />
               </Checkbox>
-              <span><a href='#'>Согласие на обработку персональных данных</a></span>
+              <span><a href='/user-agreement' target='_blank' rel='noreferrer'>Согласие на обработку персональных данных</a></span>
             </label>
 
             <label className="checkbox-group">
@@ -396,7 +396,7 @@ export default function Registration({ isOpen, onClose }) {
                 className="group shrink-0 size-6 rounded-md bg-white p-1 ring-1 ring-[#2055C7] ring-inset data-[checked]:bg-[#2055C7]">
                 <CheckIcon className="hidden size-4 fill-white group-data-[checked]:block" />
               </Checkbox>
-              <span><a href='#'>Политика конфиденциальности</a></span>
+              <span><a href='/privacy-policy' target='_blank' rel='noreferrer'>Политика конфиденциальности</a></span>
             </label>
 
             <button className="registration-button" type="submit">
