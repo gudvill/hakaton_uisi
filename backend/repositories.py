@@ -150,6 +150,12 @@ class AdminRepository:
             with conn.cursor() as cursor:
                 cursor.execute(query, (token_id,))
 
+    def invalidate_reset_tokens(self, admin_id: int):
+        query = "UPDATE password_reset_tokens SET used=TRUE WHERE admin_id = %s AND used = false"
+        with self.connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (admin_id,))
+
     def update_password(self, admin_id: int, password_hash: str):
         query = "UPDATE admins SET password_hash=%s WHERE id=%s"
         with self.connection() as conn:
