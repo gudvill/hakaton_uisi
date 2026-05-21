@@ -27,7 +27,7 @@ git add frontend/
 ```
 ## Работа с Docker
 
-### Если фронтенд новые зависимости:
+### Если frontend новые зависимости:
 ```bash
 docker-compose exec frontend npm install
 ```
