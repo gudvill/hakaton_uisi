@@ -8,6 +8,7 @@ from use_cases import StatsUseCase, AdminUseCase, AcquaintanceUseCase, FaqUseCas
 
 
 def get_current_admin(request: Request):
+    print(request.cookies)
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(status_code=401, detail="Токен отсутствует")
