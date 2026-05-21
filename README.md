@@ -25,6 +25,8 @@ git pull origin main
 ```bash
 git add frontend/
 ```
+## Работа с Docker
+
 ### Если фронтенд новые зависимости:
 ```bash
 docker-compose exec frontend npm install
