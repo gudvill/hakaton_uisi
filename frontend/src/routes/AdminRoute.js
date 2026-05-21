@@ -21,8 +21,7 @@ export default function AdminRoute({ children }) {
       .catch(() => setIsAuth(false))
       .finally(() => setLoading(false));
   }, []);
-
   if (loading) return <div>Загрузка...</div>;
-  if (!isAuth) return navigate("/admin", { replace: true });
+  if (!isAuth) { return <Navigate to="/admin/login" replace />; }
   return children;
 }
