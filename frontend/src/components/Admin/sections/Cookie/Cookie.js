@@ -1,43 +1,83 @@
 import './Cookie.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getAcquaintanceById, updateAcquaintance } from '../../../../api/acquaintanceService';
+import { PencilIcon } from '@heroicons/react/24/outline';
 
 export default function Cookie() {
-  const [text, setText] = useState(
-    'Мы используем файлы cookie для улучшения работы сайта. Продолжая использовать сайт, вы соглашаетесь с нашей политикой конфиденциальности.'
-  );
-  const [saved, setSaved] = useState(false);
+  const [data, setData] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({});
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    getAcquaintanceById(3)
+      .then(d => {
+        setData(d);
+        setForm(d);
+      })
+      .catch(console.error);
+  }, []);
+
+  const save = async () => {
+    try {
+      const updated = await updateAcquaintance(data.id, form);
+      setData(updated);
+      setForm(updated);
+      setEditing(false);
+    } catch (e) {
+      console.error(e);
+      alert("Ошибка при сохранении");
+    }
   };
+
+  const cancel = () => {
+    setForm(data);
+    setEditing(false);
+  };
+
+  if (!data) {
+    return <p style={{ color: '#999', fontSize: 14 }}>Загрузка...</p>;
+  }
 
   return (
     <div className="admin-card">
       <div className="section-header">
         <h3 className="admin-card-title" style={{ marginBottom: 0 }}>COOKIE — УВЕДОМЛЕНИЕ</h3>
-      </div>
 
+        {!editing ? (
+          <button className="section-add-btn" onClick={() => setEditing(true)} >
+            <PencilIcon style={{ width: 15, height: 15 }} />
+            {' '}редактировать
+          </button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="section-save-btn" onClick={save} >сохранить</button>
+            <button className="section-cancel-btn" onClick={cancel} >отмена</button>
+          </div>
+        )}
+      </div>
       <p className="cookie-hint">
         Текст, который отображается в баннере cookie при первом посещении сайта.
       </p>
-
-      <textarea
-        className="section-textarea cookie-textarea"
-        value={text}
-        onChange={e => setText(e.target.value)}
-        rows={5}
-      />
-
-      <div className="section-row-actions" style={{ marginTop: 12 }}>
-        <button
-          type="button"
-          className="section-save-btn"
-          onClick={handleSave}
-        >
-          {saved ? 'сохранено ✓' : 'сохранить'}
-        </button>
-      </div>
+      {editing ? (
+        <div className="policy-edit-form">
+          <input
+            className="section-input"
+            value={form.title || ''}
+            placeholder="Заголовок"
+            onChange={e => setForm(p => ({...p, title: e.target.value}))} />
+          <textarea
+            className="section-textarea cookie-textarea"
+            value={form.text || ''}
+            placeholder="Текст уведомления"
+            rows={5}
+            onChange={e => setForm(p => ({...p, text: e.target.value}))} />
+        </div>
+      ) : (
+        <div>
+          <p className="policy-preview-title">{data.title}</p>
+          <div className="policy-preview-text" dangerouslySetInnerHTML={{ __html: data.text }} />
+        </div>
+      )}
     </div>
   );
 }
