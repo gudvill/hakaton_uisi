@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFi
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
-from utils import send_reset_email, get_visits_and_views
+from utils import send_reset_email, get_visits_and_views, get_visit_sessions, get_top_pages, get_devices, get_traffic_sources
 import uuid
 import os
 from datetime import datetime
@@ -55,6 +55,22 @@ def get_stats(usecase: StatsUseCase = Depends(get_stats_usecase), admin=Depends(
 @analytics_router.get("/")
 def analytics(admin=Depends(get_current_admin)):
     return get_visits_and_views()
+
+@analytics_router.get("/sessions")
+def analytics_sessions(admin=Depends(get_current_admin)):
+    return get_visit_sessions()
+
+@analytics_router.get("/pages")
+def analytics_pages(admin=Depends(get_current_admin)):
+    return get_top_pages()
+
+@analytics_router.get("/devices")
+def analytics_devices(admin=Depends(get_current_admin)):
+    return get_devices()
+
+@analytics_router.get("/sources")
+def analytics_sources(admin=Depends(get_current_admin)):
+    return get_traffic_sources()
 
 
 # Эндпоинты для Админа

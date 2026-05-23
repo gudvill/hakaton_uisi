@@ -1,4 +1,5 @@
 import os
+import time
 import resend
 import requests
 
@@ -7,6 +8,17 @@ resend.api_key = os.getenv("RESEND_API_KEY")
 YANDEX_TOKEN = os.getenv("YANDEX_METRIKA_TOKEN")
 COUNTER_ID = os.getenv("YANDEX_METRIKA_COUNTER_ID")
 BASE_URL = "https://api-metrika.yandex.net/stat/v1/data"
+
+_cache: dict = {}
+CACHE_TTL = 300  # 5 минут
+
+def _get_cached(key: str, fetch_fn):
+    entry = _cache.get(key)
+    if entry and time.time() - entry["ts"] < CACHE_TTL:
+        return entry["data"]
+    data = fetch_fn()
+    _cache[key] = {"data": data, "ts": time.time()}
+    return data
 
 def send_reset_email(to_email: str, reset_link: str):
     response = resend.Emails.send({
@@ -23,15 +35,87 @@ def send_reset_email(to_email: str, reset_link: str):
 
 
 def get_visits_and_views():
-    headers = { "Authorization": f"OAuth {YANDEX_TOKEN}" }
-    params = {
-        "ids": COUNTER_ID,
-        "metrics": "ym:s:visits,ym:s:pageviews",
-        "dimensions": "ym:s:date",
-        "date1": "30daysAgo",
-        "date2": "today",
-        "sort": "ym:s:date"
-    }
-    response = requests.get(BASE_URL, headers=headers, params=params)
-    response.raise_for_status()
-    return response.json()
+    def fetch():
+        headers = { "Authorization": f"OAuth {YANDEX_TOKEN}" }
+        params = {
+            "ids": COUNTER_ID,
+            "metrics": "ym:s:visits,ym:s:pageviews,ym:s:avgVisitDurationSeconds,ym:s:pageDepth",
+            "dimensions": "ym:s:date",
+            "date1": "30daysAgo",
+            "date2": "today",
+            "sort": "ym:s:date"
+        }
+        r = requests.get(BASE_URL, headers=headers, params=params)
+        r.raise_for_status()
+        return r.json()
+    return _get_cached("visits_and_views", fetch)
+
+
+def get_visit_sessions():
+    def fetch():
+        headers = { "Authorization": f"OAuth {YANDEX_TOKEN}" }
+        params = {
+            "ids": COUNTER_ID,
+            "dimensions": "ym:s:dateTime,ym:s:startURL,ym:s:endURL",
+            "metrics": "ym:s:avgVisitDurationSeconds,ym:s:pageDepth",
+            "date1": "7daysAgo",
+            "date2": "today",
+            "sort": "-ym:s:dateTime",
+            "limit": 200
+        }
+        r = requests.get(BASE_URL, headers=headers, params=params)
+        r.raise_for_status()
+        return r.json()
+    return _get_cached("visit_sessions", fetch)
+
+
+def get_top_pages():
+    def fetch():
+        headers = { "Authorization": f"OAuth {YANDEX_TOKEN}" }
+        params = {
+            "ids": COUNTER_ID,
+            "dimensions": "ym:pv:URLPath",
+            "metrics": "ym:pv:pageviews",
+            "date1": "30daysAgo",
+            "date2": "today",
+            "sort": "-ym:pv:pageviews",
+            "limit": 10
+        }
+        r = requests.get(BASE_URL, headers=headers, params=params)
+        r.raise_for_status()
+        return r.json()
+    return _get_cached("top_pages", fetch)
+
+
+def get_devices():
+    def fetch():
+        headers = { "Authorization": f"OAuth {YANDEX_TOKEN}" }
+        params = {
+            "ids": COUNTER_ID,
+            "dimensions": "ym:s:deviceCategory",
+            "metrics": "ym:s:visits",
+            "date1": "30daysAgo",
+            "date2": "today",
+            "sort": "-ym:s:visits",
+        }
+        r = requests.get(BASE_URL, headers=headers, params=params)
+        r.raise_for_status()
+        return r.json()
+    return _get_cached("devices", fetch)
+
+
+def get_traffic_sources():
+    def fetch():
+        headers = { "Authorization": f"OAuth {YANDEX_TOKEN}" }
+        params = {
+            "ids": COUNTER_ID,
+            "dimensions": "ym:s:trafficSourceName",
+            "metrics": "ym:s:visits",
+            "date1": "30daysAgo",
+            "date2": "today",
+            "sort": "-ym:s:visits",
+        }
+        r = requests.get(BASE_URL, headers=headers, params=params)
+        r.raise_for_status()
+        return r.json()
+    return _get_cached("traffic_sources", fetch)

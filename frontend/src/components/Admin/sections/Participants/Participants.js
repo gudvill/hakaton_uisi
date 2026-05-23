@@ -2,6 +2,15 @@ import './Participants.css';
 import { useEffect, useState, Fragment } from "react";
 import { getRegistrations, disableRegistration, restoreRegistration, updateRegistration, deleteParticipant, createParticipant } from "../../../../api/registrationService";
 import { ChevronDownIcon, ChevronUpIcon, TrashIcon, PencilIcon, MagnifyingGlassIcon, XMarkIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
+import AdminSelect from '../../AdminSelect';
+
+const EDUCATION_LEVELS = [
+  { value: 'спо 9класс', label: 'СПО (9 класс)' },
+  { value: 'спо 11класс', label: 'СПО (11 класс)' },
+  { value: 'бакалавриат/специалитет', label: 'Бакалавриат/Специалитет' },
+  { value: 'магистратура', label: 'Магистратура' },
+];
+const CASE_OPTIONS = [1,2,3,4,5,6].map(c => ({ value: String(c), label: `Кейс ${c}` }));
 
 const ROLE_LABELS = {
   капитан: "Капитан",
@@ -230,19 +239,8 @@ export default function Participants() {
                 </button>
               )}
             </div>
-            <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
-              <option value="">Образование</option>
-              <option value="спо 9класс">СПО (9 класс)</option>
-              <option value="спо 11класс">СПО (11 класс)</option>
-              <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
-              <option value="магистратура">Магистратура</option>
-            </select>
-            <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
-              <option value="">Все кейсы</option>
-              {[1, 2, 3, 4, 5, 6].map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <AdminSelect value={levelFilter} onChange={setLevelFilter} options={EDUCATION_LEVELS} placeholder="Образование" />
+            <AdminSelect value={caseFilter} onChange={setCaseFilter} options={CASE_OPTIONS} placeholder="Все кейсы" />
 
             {(search || levelFilter || caseFilter) && (
               <button
@@ -485,19 +483,8 @@ export default function Participants() {
                 </button>
               )}
             </div>
-            <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
-              <option value="">Образование</option>
-              <option value="спо 9класс">СПО (9 класс)</option>
-              <option value="спо 11класс">СПО (11 класс)</option>
-              <option value="бакалавриат/специалитет">Бакалавриат/Специалитет</option>
-              <option value="магистратура">Магистратура</option>
-            </select>
-            <select className="participants-filter-select" value={caseFilter} onChange={e => setCaseFilter(e.target.value)}>
-              <option value="">Все кейсы</option>
-              {[1, 2, 3, 4, 5, 6].map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <AdminSelect value={levelFilter} onChange={setLevelFilter} options={EDUCATION_LEVELS} placeholder="Образование" />
+            <AdminSelect value={caseFilter} onChange={setCaseFilter} options={CASE_OPTIONS} placeholder="Все кейсы" />
 
             {(search || levelFilter || caseFilter) && (
               <button
