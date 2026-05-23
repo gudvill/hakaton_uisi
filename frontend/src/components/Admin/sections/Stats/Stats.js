@@ -1,6 +1,6 @@
 import './Stats.css';
 import { useEffect, useState, useMemo } from 'react';
-import { getStats, getAnalytics, getVisitSessions, getTopPages, getDevices, getTrafficSources } from '../../../../api/statsService';
+import { getStats, getAnalytics } from '../../../../api/statsService';
 import { UserGroupIcon, UsersIcon, AcademicCapIcon, BookOpenIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, LineChart, Line, ScatterChart, Scatter, } from 'recharts';
 
@@ -106,11 +106,7 @@ export default function Stats() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
-  const [sessions, setSessions] = useState(null);
-  const [sessionsError, setSessionsError] = useState(null);
-  const [topPages, setTopPages] = useState(null);
-  const [devices, setDevices] = useState(null);
-  const [sources, setSources] = useState(null);
+  const [analyticsError, setAnalyticsError] = useState(false);
 
   useEffect(() => {
     getStats()
@@ -122,23 +118,7 @@ export default function Stats() {
   useEffect(() => {
     getAnalytics()
       .then(setAnalytics)
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    getVisitSessions()
-      .then((res) => { setSessions(res); setSessionsError(null); })
-      .catch((err) => {
-        console.error('sessions error:', err);
-        setSessionsError(err?.response?.data?.detail || err?.message || 'Ошибка загрузки');
-        setSessions({});
-      });
-  }, []);
-
-  useEffect(() => {
-    getTopPages().then(setTopPages).catch((e) => { console.error(e); setTopPages({}); });
-    getDevices().then(setDevices).catch((e) => { console.error(e); setDevices({}); });
-    getTrafficSources().then(setSources).catch((e) => { console.error(e); setSources({}); });
+      .catch((e) => { console.error(e); setAnalyticsError(true); setAnalytics({}); });
   }, []);
 
   const yearData = useMemo(() => (Array.isArray(data?.teams_by_year) ? data.teams_by_year : []), [data]);
@@ -157,7 +137,7 @@ export default function Stats() {
   const topPartners = useMemo(() => (Array.isArray(data?.top_partners) ? data.top_partners : []), [data]);
 
   const metrikaData = useMemo(() => {
-    return analytics?.data?.map((item) => ({
+    return analytics?.visits?.data?.map((item) => ({
       date: item.dimensions?.[0]?.name,
       visits: item.metrics?.[0] || 0,
       views: item.metrics?.[1] || 0,
@@ -180,12 +160,12 @@ export default function Stats() {
       value: item.metrics?.[0] ?? 0,
     }));
 
-  const topPagesRows = useMemo(() => parseRankedList(topPages), [topPages]);
-  const devicesRows = useMemo(() => parseRankedList(devices), [devices]);
-  const sourcesRows = useMemo(() => parseRankedList(sources), [sources]);
+  const topPagesRows = useMemo(() => parseRankedList(analytics?.pages), [analytics]);
+  const devicesRows  = useMemo(() => parseRankedList(analytics?.devices), [analytics]);
+  const sourcesRows  = useMemo(() => parseRankedList(analytics?.sources), [analytics]);
 
   const sessionRows = useMemo(() => {
-    return sessions?.data?.map((item) => {
+    return analytics?.sessions?.data?.map((item) => {
       const rawDate = item.dimensions?.[0]?.name ?? '';
       const startURL = item.dimensions?.[1]?.name ?? '';
       const endURL = item.dimensions?.[2]?.name ?? '';
@@ -193,7 +173,7 @@ export default function Stats() {
       const pageDepth = item.metrics?.[1] ?? null;
       return { rawDate, startURL, endURL, duration, pageDepth };
     }) ?? [];
-  }, [sessions]);
+  }, [analytics]);
 
   const scatterData = useMemo(() => {
     const m = data?.participants_matrix;
@@ -519,21 +499,21 @@ export default function Stats() {
           title="Популярные страницы"
           unit="просм."
           rows={topPagesRows}
-          loading={topPages === null}
+          loading={analytics === null}
           color="#c96a00"
         />
         <MetrikaTile
           title="Устройства"
           unit="визитов"
           rows={devicesRows}
-          loading={devices === null}
+          loading={analytics === null}
           color="#c96a00"
         />
         <MetrikaTile
           title="Источники трафика"
           unit="визитов"
           rows={sourcesRows}
-          loading={sources === null}
+          loading={analytics === null}
           color="#c96a00"
         />
       </div>
@@ -620,10 +600,10 @@ export default function Stats() {
         <div className="metrika-table-header">
           Визиты за последние 7 дней
         </div>
-        {sessions === null ? (
+        {analytics === null ? (
           <p className="metrika-table-empty">Загрузка...</p>
-        ) : sessionsError ? (
-          <p className="metrika-table-empty metrika-table-error">{sessionsError}</p>
+        ) : analyticsError ? (
+          <p className="metrika-table-empty metrika-table-error">Ошибка загрузки</p>
         ) : sessionRows.length === 0 ? (
           <p className="metrika-table-empty">Нет данных за период</p>
         ) : (
