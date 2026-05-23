@@ -36,16 +36,14 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
       <td>
         <select
           className="section-input"
-          value={form._pos || ''}
-          onChange={(e) => {
-            const pos = Number(e.target.value);
-            setForm((p) => ({ ...p, _pos: pos, row: Math.ceil(pos / 3), col: ((pos - 1) % 3) + 1 }));
-          }}
-        >
+          value={form.order_index || ''}
+          onChange={(e) =>
+            setForm((p) => ({...p, order_index: Number(e.target.value)}))}>
           <option value="">—</option>
-          {[1,2,3,4,5,6,7,8].map(n => (
-            <option key={n} value={n}>{n}</option>
-          ))}
+          {[...Array(20)].map((_, idx) => {
+            const n = idx + 1;
+            return (<option key={n} value={n}>{n}</option>);
+          })}
         </select>
       </td>
       <td>
@@ -68,7 +66,7 @@ export default function About() {
   const load = async () => {
     try {
       const data = await getAbout();
-      setItems([...data].sort((a, b) => ((a.row - 1) * 3 + a.col) - ((b.row - 1) * 3 + b.col)));
+      setItems([...data].sort((a, b) => a.order_index - b.order_index));
     } catch (e) {
       console.error(e);
     }
@@ -76,14 +74,9 @@ export default function About() {
 
   useEffect(() => { load(); }, []);
 
-  const startEdit = (item) => {
-    const pos = (item.row && item.col) ? (item.row - 1) * 3 + item.col : '';
-    setEditId(item.id);
-    setForm({ ...item, _pos: pos });
-    setFile(null);
-  };
-  const startAdd  = () => { setEditId('new'); setForm({ row: '', title: '', text: '' }); setFile(null); };
-  const cancel    = () => { setEditId(null); setForm({}); setFile(null); };
+  const startEdit = (item) => { setEditId(item.id); setForm({ ...item }); setFile(null); };
+  const startAdd = () => { setEditId('new'); setForm({order_index: '', title: '', text: ''}); setFile(null); };
+  const cancel = () => { setEditId(null); setForm({}); setFile(null); };
 
   const save = async () => {
     const formData = new FormData();
@@ -99,38 +92,7 @@ export default function About() {
         await createAbout(formData);
       } else {
         await updateAbout(editId, formData);
-
-        const newPos = form._pos ? Number(form._pos) : null;
-
-        if (newPos) {
-          const others = items
-            .filter(i => i.id !== editId)
-            .sort((a, b) => ((a.row - 1) * 3 + a.col) - ((b.row - 1) * 3 + b.col));
-
-          const reordered = [...others];
-          reordered.splice(newPos - 1, 0, { id: editId });
-
-          await Promise.all(
-            reordered.map((item, idx) => {
-              const pos = idx + 1;
-              const newRow = Math.ceil(pos / 3);
-              const newCol = ((pos - 1) % 3) + 1;
-              const orig = items.find(i => i.id === item.id);
-              if (!orig || orig.row !== newRow || orig.col !== newCol) {
-                const fd = new FormData();
-                ['title', 'text', 'icon'].forEach(k => {
-                  if (orig?.[k] != null && orig[k] !== '') fd.append(k, orig[k]);
-                });
-                fd.append('row', newRow);
-                fd.append('col', newCol);
-                return updateAbout(item.id, fd);
-              }
-              return Promise.resolve();
-            })
-          );
-        }
       }
-
       await load();
       cancel();
     } catch (e) {
@@ -186,9 +148,7 @@ export default function About() {
                   </td>
                   <td style={{ fontWeight: 600 }}>{item.title}</td>
                   <td className="about-text-cell">{item.text}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    {(item.row && item.col) ? (item.row - 1) * 3 + item.col : '—'}
-                  </td>
+                  <td style={{ textAlign: 'center' }}>{item.order_index || '—'}</td>
                   <td>
                     <div className="section-row-actions">
                       <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>

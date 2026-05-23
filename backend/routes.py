@@ -192,7 +192,7 @@ def delete_faq(item_id: int, use_case: FaqUseCase = Depends(get_faq_usecase), ad
 
 # Эндпоинты для Описания
 @about_router.post("/", response_model=AboutSerializer)
-async def create_about(number_index: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+async def create_about(order_index: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
     icon_path = None
     if file:
         ext = file.filename.split(".")[-1]
@@ -201,7 +201,7 @@ async def create_about(number_index: Optional[int] = Form(None), title: Optional
         with open(file_path, "wb") as f:
             f.write(await file.read())
         icon_path = f"/media/about/{filename}"
-    item = About(id=0, number_index=number_index, title=title, text=text, icon=icon_path)
+    item = About(id=0, order_index=order_index , title=title, text=text, icon=icon_path)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
     return AboutSerializer(**created)
@@ -217,7 +217,7 @@ def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usec
     return AboutSerializer(**item)
 
 @about_router.put("/{item_id}", response_model=AboutSerializer)
-async def update_about(item_id: int, number_index: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+async def update_about(item_id: int, order_index: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
     existing = use_case.get_by_id(item_id)
     if not existing: raise HTTPException(404)
     icon_path = existing["icon"]
@@ -233,7 +233,7 @@ async def update_about(item_id: int, number_index: Optional[int] = Form(None), t
         with open(file_path, "wb") as f:
             f.write(await file.read())
         icon_path = f"/media/about/{filename}"
-    item = About(id=item_id, number_index=number_index, title=title, text=text, icon=icon_path)
+    item = About(id=item_id, order_index=order_index , title=title, text=text, icon=icon_path)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
     return AboutSerializer(**updated)

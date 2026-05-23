@@ -36,7 +36,7 @@ class Faq:
 @dataclass
 class About:
     id: int = None
-    number_index: Optional[int] = None
+    order_index: Optional[int] = None
     title: Optional[str] = None
     text: Optional[str] = None
     icon: Optional[str] = None
