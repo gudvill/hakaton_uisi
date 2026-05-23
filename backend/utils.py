@@ -8,17 +8,8 @@ resend.api_key = os.getenv("RESEND_API_KEY")
 YANDEX_TOKEN = os.getenv("YANDEX_METRIKA_TOKEN")
 COUNTER_ID = os.getenv("YANDEX_METRIKA_COUNTER_ID")
 BASE_URL = "https://api-metrika.yandex.net/stat/v1/data"
-
 _cache: dict = {}
 CACHE_TTL = 300  # 5 минут
-
-def _get_cached(key: str, fetch_fn):
-    entry = _cache.get(key)
-    if entry and time.time() - entry["ts"] < CACHE_TTL:
-        return entry["data"]
-    data = fetch_fn()
-    _cache[key] = {"data": data, "ts": time.time()}
-    return data
 
 def send_reset_email(to_email: str, reset_link: str):
     response = resend.Emails.send({
@@ -33,6 +24,13 @@ def send_reset_email(to_email: str, reset_link: str):
     print("[RESEND] response:", response)
     return response
 
+def _get_cached(key: str, fetch_fn):
+    entry = _cache.get(key)
+    if entry and time.time() - entry["ts"] < CACHE_TTL:
+        return entry["data"]
+    data = fetch_fn()
+    _cache[key] = {"data": data, "ts": time.time()}
+    return data
 
 def _fetch_metrika(key, params):
     def fetch():
@@ -41,7 +39,6 @@ def _fetch_metrika(key, params):
         r.raise_for_status()
         return r.json()
     return _get_cached(key, fetch)
-
 
 def get_all_analytics():
     return {

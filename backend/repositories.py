@@ -175,7 +175,7 @@ class FaqRepository(BaseRepository):
 
 class AboutRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(connection=connection, table_name="about", entity_class=About, columns=["row", "col", "title", "text", "icon"], has_is_available=False)
+        super().__init__(connection=connection, table_name="about", entity_class=About, columns=["number_index", "title", "text", "icon"], has_is_available=False)
 
 
 class ProgramRepository(BaseRepository):
