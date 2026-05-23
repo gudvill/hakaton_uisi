@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAdminYearOptions } from '../../yearRange';
 import { getNews, getArchivedNews, createNews, updateNews, disableNews, restoreNews } from '../../../../api/newsService';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import AdminSelect from '../../AdminSelect';
 
 function formatDate(str) {
   if (!str) return '—';
@@ -212,12 +213,7 @@ export default function News() {
             </button>
           )}
         </div>
-        <select className="participants-filter-select" value={year} onChange={e => setYear(e.target.value)} >
-          <option value="">Год новости</option>
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
+        <AdminSelect value={year} onChange={setYear} options={years.map(y => ({ value: y, label: String(y) }))} placeholder="Год новости" />
         {(search || year) && (
           <button className="participants-reset-btn"
             onClick={() => {

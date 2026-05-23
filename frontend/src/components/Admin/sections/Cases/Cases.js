@@ -4,6 +4,7 @@ import { getAdminYearOptions } from '../../yearRange';
 import { getCases, getArchivedCases, createCase, updateCase, disableCase, restoreCase } from '../../../../api/casesService';
 import { getPartners } from '../../../../api/partnersService';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import AdminSelect from '../../AdminSelect';
 
 const LEVELS = [
   { value: 'стартовый', label: 'Стартовый' },
@@ -21,20 +22,22 @@ function CasesEditRow({ form, setForm, partnerOptions, onSave, onCancel }) {
       <td style={{ width: 70 }}>{inp('case_number', '№')}</td>
       <td>{inp('name', 'Название кейса')}</td>
       <td style={{ width: 150 }}>
-        <select className="section-input cases-select" value={form.level || ''} onChange={e => setForm(p => ({ ...p, level: e.target.value }))} >
-          <option value="">Уровень</option>
-          {LEVELS.map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+        <AdminSelect
+          variant="form"
+          value={form.level || ''}
+          onChange={v => setForm(p => ({ ...p, level: v }))}
+          options={LEVELS}
+          placeholder="Уровень"
+        />
       </td>
       <td>
-        <select className="section-input cases-select" value={form.partner_id || ''} onChange={e => setForm(p => ({ ...p, partner_id: e.target.value }))} >
-          <option value="">Партнёр</option>
-          {partnerOptions.map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+        <AdminSelect
+          variant="form"
+          value={form.partner_id || ''}
+          onChange={v => setForm(p => ({ ...p, partner_id: v }))}
+          options={partnerOptions}
+          placeholder="Партнёр"
+        />
       </td>
       <td>{inp('teams_count', 'Кол-во команд')}</td>
       <td>
@@ -211,18 +214,8 @@ export default function Cases() {
             </button>
           )}
         </div>
-        <select className="participants-filter-select" value={yearFilter} onChange={e => setYearFilter(e.target.value)} >
-          <option value="">Год</option>
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-        <select className="participants-filter-select" value={levelFilter} onChange={e => setLevelFilter(e.target.value)} >
-          <option value="">Уровень</option>
-          {LEVELS.map(l => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
-        </select>
+        <AdminSelect value={yearFilter} onChange={setYearFilter} options={years.map(y => ({ value: y, label: String(y) }))} placeholder="Год" />
+        <AdminSelect value={levelFilter} onChange={setLevelFilter} options={LEVELS} placeholder="Уровень" />
 
         {(search || yearFilter || levelFilter) && (
           <button className="participants-reset-btn"

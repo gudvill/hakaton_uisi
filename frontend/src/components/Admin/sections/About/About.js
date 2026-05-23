@@ -22,9 +22,7 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
         ) : (
           <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
         )}
-      </td>
-      <td>
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        <input type="file" style={{ marginTop: 4, fontSize: 11 }} onChange={(e) => setFile(e.target.files[0])} />
       </td>
       <td>{inp('title', 'Заголовок')}</td>
       <td>
@@ -35,8 +33,21 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
           onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
         />
       </td>
-      <td>{inp('row', 'Row')}</td>
-      <td>{inp('col', 'Col')}</td>
+      <td>
+        <select
+          className="section-input"
+          value={(form.row && form.col) ? (Number(form.row) - 1) * 3 + Number(form.col) : ''}
+          onChange={(e) => {
+            const pos = Number(e.target.value);
+            setForm((p) => ({ ...p, row: Math.ceil(pos / 3), col: ((pos - 1) % 3) + 1 }));
+          }}
+        >
+          <option value="">—</option>
+          {[1,2,3,4,5,6,7,8].map(n => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
+      </td>
       <td>
         <div className="section-row-actions">
           <button type="button" className="section-save-btn" onClick={onSave}>
@@ -50,6 +61,9 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
     </tr>
   );
 }
+
+const COLS = 3;
+const posToRowCol = (pos) => ({ row: Math.ceil(pos / COLS), col: ((pos - 1) % COLS) + 1 });
 
 export default function About() {
   const [items, setItems] = useState([]);
@@ -95,22 +109,48 @@ export default function About() {
 
   const save = async () => {
     const formData = new FormData();
-
     Object.keys(form).forEach(k => {
       if (form[k] !== '' && form[k] !== null && form[k] !== undefined) {
         formData.append(k, form[k]);
       }
     });
-
-    if (file) {
-      formData.append("file", file);
-    }
+    if (file) formData.append('file', file);
 
     try {
       if (editId === 'new') {
         await createAbout(formData);
       } else {
         await updateAbout(editId, formData);
+
+        const newPos = (form.row && form.col)
+          ? (Number(form.row) - 1) * COLS + Number(form.col)
+          : null;
+
+        if (newPos) {
+          const others = items
+            .filter(i => i.id !== editId)
+            .sort((a, b) => ((a.row - 1) * COLS + a.col) - ((b.row - 1) * COLS + b.col));
+
+          const reordered = [...others];
+          reordered.splice(newPos - 1, 0, { id: editId });
+
+          await Promise.all(
+            reordered.map((item, idx) => {
+              const { row, col } = posToRowCol(idx + 1);
+              const orig = items.find(i => i.id === item.id);
+              if (!orig || orig.row !== row || orig.col !== col) {
+                const fd = new FormData();
+                ['title', 'text', 'icon'].forEach(k => {
+                  if (orig?.[k] != null && orig[k] !== '') fd.append(k, orig[k]);
+                });
+                fd.append('row', row);
+                fd.append('col', col);
+                return updateAbout(item.id, fd);
+              }
+              return Promise.resolve();
+            })
+          );
+        }
       }
 
       await load();
@@ -146,11 +186,9 @@ export default function About() {
           <thead>
             <tr>
               <th style={{ width: 56 }}>Иконка</th>
-              <th>Путь к фото</th>
               <th>Заголовок</th>
               <th>Описание</th>
-              <th>По строке</th>
-              <th>По столбцу</th>
+              <th style={{ width: 80 }}>Порядок</th>
               <th></th>
             </tr>
           </thead>
@@ -170,7 +208,7 @@ export default function About() {
 
             {items.length === 0 && editId !== 'new' && (
               <tr>
-                <td colSpan={7} className="section-empty">
+                <td colSpan={5} className="section-empty">
                   Нет шагов
                 </td>
               </tr>
@@ -194,19 +232,14 @@ export default function About() {
                     {item.icon ? (
                       <img className="section-thumbnail" src={`${API_URL}${item.icon}`} alt="" />
                     ) : (
-                      <span style={{ color: '#ccc', fontSize: 12 }}>
-                        нет
-                      </span>
+                      <span style={{ color: '#ccc', fontSize: 12 }}>нет</span>
                     )}
-                  </td>
-                  <td
-                    style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} >
-                    {item.icon || '—'}
                   </td>
                   <td style={{ fontWeight: 600 }}>{item.title}</td>
                   <td className="about-text-cell">{item.text}</td>
-                  <td>{item.row ?? '—'}</td>
-                  <td>{item.col ?? '—'}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    {(item.row && item.col) ? (item.row - 1) * 3 + item.col : '—'}
+                  </td>
                   <td>
                     <div className="section-row-actions">
                       <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
