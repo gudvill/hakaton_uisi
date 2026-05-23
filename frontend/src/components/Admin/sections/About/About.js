@@ -36,10 +36,10 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
       <td>
         <select
           className="section-input"
-          value={(form.row && form.col) ? (Number(form.row) - 1) * 3 + Number(form.col) : ''}
+          value={form._pos || ''}
           onChange={(e) => {
             const pos = Number(e.target.value);
-            setForm((p) => ({ ...p, row: Math.ceil(pos / 3), col: ((pos - 1) % 3) + 1 }));
+            setForm((p) => ({ ...p, _pos: pos, row: Math.ceil(pos / 3), col: ((pos - 1) % 3) + 1 }));
           }}
         >
           <option value="">—</option>
@@ -50,20 +50,13 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
       </td>
       <td>
         <div className="section-row-actions">
-          <button type="button" className="section-save-btn" onClick={onSave}>
-            сохранить
-          </button>
-          <button type="button" className="section-cancel-btn" onClick={onCancel}>
-            отмена
-          </button>
+          <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
+          <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
         </div>
       </td>
     </tr>
   );
 }
-
-const COLS = 3;
-const posToRowCol = (pos) => ({ row: Math.ceil(pos / COLS), col: ((pos - 1) % COLS) + 1 });
 
 export default function About() {
   const [items, setItems] = useState([]);
@@ -75,37 +68,22 @@ export default function About() {
   const load = async () => {
     try {
       const data = await getAbout();
-      setItems(
-        [...data].sort(
-          (a, b) => (a.row ?? 0) - (b.row ?? 0) || (a.col ?? 0) - (b.col ?? 0)
-        )
-      );
+      setItems([...data].sort((a, b) => ((a.row - 1) * 3 + a.col) - ((b.row - 1) * 3 + b.col)));
     } catch (e) {
       console.error(e);
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const startEdit = (item) => {
+    const pos = (item.row && item.col) ? (item.row - 1) * 3 + item.col : '';
     setEditId(item.id);
-    setForm(item);
+    setForm({ ...item, _pos: pos });
     setFile(null);
   };
-
-  const startAdd = () => {
-    setEditId('new');
-    setForm({ row: '', col: '', title: '', text: '' });
-    setFile(null);
-  };
-
-  const cancel = () => {
-    setEditId(null);
-    setForm({});
-    setFile(null);
-  };
+  const startAdd  = () => { setEditId('new'); setForm({ row: '', title: '', text: '' }); setFile(null); };
+  const cancel    = () => { setEditId(null); setForm({}); setFile(null); };
 
   const save = async () => {
     const formData = new FormData();
@@ -122,29 +100,29 @@ export default function About() {
       } else {
         await updateAbout(editId, formData);
 
-        const newPos = (form.row && form.col)
-          ? (Number(form.row) - 1) * COLS + Number(form.col)
-          : null;
+        const newPos = form._pos ? Number(form._pos) : null;
 
         if (newPos) {
           const others = items
             .filter(i => i.id !== editId)
-            .sort((a, b) => ((a.row - 1) * COLS + a.col) - ((b.row - 1) * COLS + b.col));
+            .sort((a, b) => ((a.row - 1) * 3 + a.col) - ((b.row - 1) * 3 + b.col));
 
           const reordered = [...others];
           reordered.splice(newPos - 1, 0, { id: editId });
 
           await Promise.all(
             reordered.map((item, idx) => {
-              const { row, col } = posToRowCol(idx + 1);
+              const pos = idx + 1;
+              const newRow = Math.ceil(pos / 3);
+              const newCol = ((pos - 1) % 3) + 1;
               const orig = items.find(i => i.id === item.id);
-              if (!orig || orig.row !== row || orig.col !== col) {
+              if (!orig || orig.row !== newRow || orig.col !== newCol) {
                 const fd = new FormData();
                 ['title', 'text', 'icon'].forEach(k => {
                   if (orig?.[k] != null && orig[k] !== '') fd.append(k, orig[k]);
                 });
-                fd.append('row', row);
-                fd.append('col', col);
+                fd.append('row', newRow);
+                fd.append('col', newCol);
                 return updateAbout(item.id, fd);
               }
               return Promise.resolve();
@@ -172,10 +150,7 @@ export default function About() {
   return (
     <div className="admin-card">
       <div className="section-header">
-        <h3 className="admin-card-title" style={{ marginBottom: 0 }}>
-          О ХАКАТОНЕ — ROADMAP
-        </h3>
-
+        <h3 className="admin-card-title" style={{ marginBottom: 0 }}>О ХАКАТОНЕ — ROADMAP</h3>
         <button className="section-add-btn" onClick={startAdd}>
           <PlusIcon style={{ width: 16, height: 16 }} /> добавить
         </button>
@@ -192,48 +167,22 @@ export default function About() {
               <th></th>
             </tr>
           </thead>
-
           <tbody>
             {editId === 'new' && (
-              <AboutEditRow
-                form={form}
-                setForm={setForm}
-                file={file}
-                setFile={setFile}
-                apiUrl={API_URL}
-                onSave={save}
-                onCancel={cancel}
-              />
+              <AboutEditRow form={form} setForm={setForm} file={file} setFile={setFile} apiUrl={API_URL} onSave={save} onCancel={cancel} />
             )}
-
             {items.length === 0 && editId !== 'new' && (
-              <tr>
-                <td colSpan={5} className="section-empty">
-                  Нет шагов
-                </td>
-              </tr>
+              <tr><td colSpan={5} className="section-empty">Нет шагов</td></tr>
             )}
-
             {items.map((item) =>
               editId === item.id ? (
-                <AboutEditRow
-                  key={item.id}
-                  form={form}
-                  setForm={setForm}
-                  file={file}
-                  setFile={setFile}
-                  apiUrl={API_URL}
-                  onSave={save}
-                  onCancel={cancel}
-                />
+                <AboutEditRow key={item.id} form={form} setForm={setForm} file={file} setFile={setFile} apiUrl={API_URL} onSave={save} onCancel={cancel} />
               ) : (
                 <tr key={item.id}>
                   <td>
-                    {item.icon ? (
-                      <img className="section-thumbnail" src={`${API_URL}${item.icon}`} alt="" />
-                    ) : (
-                      <span style={{ color: '#ccc', fontSize: 12 }}>нет</span>
-                    )}
+                    {item.icon
+                      ? <img className="section-thumbnail" src={`${API_URL}${item.icon}`} alt="" />
+                      : <span style={{ color: '#ccc', fontSize: 12 }}>нет</span>}
                   </td>
                   <td style={{ fontWeight: 600 }}>{item.title}</td>
                   <td className="about-text-cell">{item.text}</td>
@@ -242,10 +191,10 @@ export default function About() {
                   </td>
                   <td>
                     <div className="section-row-actions">
-                      <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)} >
+                      <button className="section-icon-btn section-icon-btn--edit" onClick={() => startEdit(item)}>
                         <PencilIcon style={{ width: 15, height: 15 }} />
                       </button>
-                      <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)} >
+                      <button className="section-icon-btn section-icon-btn--delete" onClick={() => del(item.id)}>
                         <TrashIcon style={{ width: 15, height: 15 }} />
                       </button>
                     </div>

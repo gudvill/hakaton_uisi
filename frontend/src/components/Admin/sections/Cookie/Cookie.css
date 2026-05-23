@@ -1,0 +1,17 @@
+.admin-content .cookie-hint {
+  font-size: 13px;
+  color: #999;
+  margin: 0 0 16px;
+}
+
+.admin-content .cookie-textarea {
+  width: 100%;
+  max-width: 640px;
+  resize: vertical;
+}
+
+.admin-content .cookie-stub-note {
+  font-size: 12px;
+  color: #bbb;
+  margin-top: 16px;
+}

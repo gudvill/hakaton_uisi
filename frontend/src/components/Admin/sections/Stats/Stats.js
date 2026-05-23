@@ -16,6 +16,22 @@ const CARDS_CONFIG = [
   { key: 'spo11', label: 'СПО (после 11)', Icon: BuildingOfficeIcon, color: '#f43f5e', bg: '#fff1f2' },
 ];
 
+const METRIKA_LABELS = {
+  'PC': 'Компьютер',
+  'Smartphones': 'Смартфон',
+  'Tablet': 'Планшет',
+  'TV': 'Телевизор',
+  'Direct traffic': 'Зашли напрямую',
+  'Search traffic': 'Из поиска',
+  'Social traffic': 'Из соцсетей',
+  'Ad traffic': 'Из рекламы',
+  'Link traffic': 'По внешней ссылке',
+  'Cached page traffic': 'Сохранённые вкладки',
+  'Internal traffic': 'Внутренние переходы',
+  'Email traffic': 'Из письма',
+  'Recommendation systems': 'Из рекомендаций',
+};
+
 const GRID_STROKE = '#ede8ff';
 const AXIS_TICK = { fontSize: 11, fill: '#5c4d7a' };
 const CHART_MARGIN = { top: 8, right: 12, bottom: 52, left: 8 };
@@ -42,11 +58,11 @@ function truncateLabel(value, max = 22) {
   return `${s.slice(0, max - 1)}…`;
 }
 
-function MetrikaTile({ title, rows, unit, loading, color }) {
+function MetrikaTile({ title, rows, unit, loading, color, bg, border }) {
   const max = rows[0]?.value || 1;
   return (
-    <div className="metrika-tile">
-      <div className="metrika-tile-title">{title}</div>
+    <div className="metrika-tile" style={{ background: bg, borderColor: border }}>
+      <div className="metrika-tile-title" style={{ color }}>{title}</div>
       {loading ? (
         <div className="metrika-tile-empty">Загрузка...</div>
       ) : rows.length === 0 ? (
@@ -55,17 +71,17 @@ function MetrikaTile({ title, rows, unit, loading, color }) {
         <ol className="metrika-tile-list">
           {rows.map((row, i) => (
             <li key={i} className="metrika-tile-row">
-              <span className="metrika-tile-rank">{i + 1}</span>
+              <span className="metrika-tile-rank" style={{ color }}>{i + 1}</span>
               <div className="metrika-tile-bar-wrap">
                 <div className="metrika-tile-label" title={row.name}>{row.name}</div>
-                <div className="metrika-tile-bar-track">
+                <div className="metrika-tile-bar-track" style={{ background: border }}>
                   <div
                     className="metrika-tile-bar-fill"
                     style={{ width: `${(row.value / max) * 100}%`, background: color }}
                   />
                 </div>
               </div>
-              <span className="metrika-tile-value">{row.value.toLocaleString('ru-RU')}</span>
+              <span className="metrika-tile-value" style={{ color }}>{row.value.toLocaleString('ru-RU')}</span>
             </li>
           ))}
         </ol>
@@ -155,10 +171,10 @@ export default function Stats() {
   }, [metrikaData]);
 
   const parseRankedList = (raw) =>
-    (raw?.data ?? []).map((item) => ({
-      name: item.dimensions?.[0]?.name ?? '—',
-      value: item.metrics?.[0] ?? 0,
-    }));
+    (raw?.data ?? []).map((item) => {
+      const name = item.dimensions?.[0]?.name ?? '—';
+      return { name: METRIKA_LABELS[name] ?? name, value: item.metrics?.[0] ?? 0 };
+    });
 
   const topPagesRows = useMemo(() => parseRankedList(analytics?.pages), [analytics]);
   const devicesRows  = useMemo(() => parseRankedList(analytics?.devices), [analytics]);
@@ -501,20 +517,26 @@ export default function Stats() {
           rows={topPagesRows}
           loading={analytics === null}
           color="#c96a00"
+          bg="linear-gradient(160deg,#fffdf7,#fff8ed)"
+          border="#ffe0a0"
         />
         <MetrikaTile
           title="Устройства"
           unit="визитов"
           rows={devicesRows}
           loading={analytics === null}
-          color="#c96a00"
+          color="#2563eb"
+          bg="linear-gradient(160deg,#f8faff,#eff6ff)"
+          border="#bfdbfe"
         />
         <MetrikaTile
           title="Источники трафика"
           unit="визитов"
           rows={sourcesRows}
           loading={analytics === null}
-          color="#c96a00"
+          color="#059669"
+          bg="linear-gradient(160deg,#f6fdf9,#f0fdf4)"
+          border="#bbf7d0"
         />
       </div>
 

@@ -135,6 +135,21 @@
   text-align: right;
 }
 
+.admin-content .section-edit-row .news-col-actions {
+  vertical-align: top;
+}
+
+.admin-content .section-edit-row .news-col-actions .section-row-actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.admin-content .section-edit-row .news-col-actions .section-save-btn,
+.admin-content .section-edit-row .news-col-actions .section-cancel-btn {
+  width: 100%;
+  text-align: center;
+}
+
 /* Миниатюра в таблице новостей: чуть крупнее общих 44px — лучше видно, строка не раздувается */
 .admin-content .news-admin-table .section-thumbnail,
 .admin-content .news-admin-table .news-img-placeholder {
