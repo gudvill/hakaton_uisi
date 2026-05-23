@@ -13,9 +13,7 @@ export default function About() {
       .catch(err => console.error("Ошибка загрузки этапов:", err));
   }, []);
 
-  const orderedSteps = [...steps].sort(
-    (a, b) => a.row - b.row || a.col - b.col
-  );
+  const orderedSteps = [...steps].sort((a, b) => a.row - b.row || a.col - b.col);
 
   return (
     <section id="hakaton" className="about container">

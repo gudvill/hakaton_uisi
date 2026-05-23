@@ -40,12 +40,11 @@ function CasesEditRow({ form, setForm, partnerOptions, onSave, onCancel }) {
         />
       </td>
       <td>{inp('teams_count', 'Кол-во команд')}</td>
-      <td>
-        <textarea className="section-textarea" value={form.description || ''} placeholder="Описание" onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
+      <td className="cases-col-desc">
+        <textarea className="section-textarea cases-desc-textarea" value={form.description || ''} placeholder="Описание" onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </td>
-      <td></td>
-      <td>
-        <div className="section-row-actions">
+      <td colSpan={2} style={{ verticalAlign: 'top' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
           <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
           <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
         </div>

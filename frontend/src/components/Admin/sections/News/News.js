@@ -50,9 +50,8 @@ function NewsEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel })
           onChange={e => setForm(p => ({ ...p, full_description: e.target.value }))}
         />
       </td>
-      <td className="news-col-created" style={{ whiteSpace: 'nowrap', color: '#999' }}>—</td>
-      <td className="news-col-actions">
-        <div className="section-row-actions">
+      <td className="news-col-actions" colSpan={2} style={{ verticalAlign: 'top' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
           <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
           <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
         </div>
