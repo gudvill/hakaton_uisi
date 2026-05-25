@@ -5,7 +5,6 @@ export default function CookieNotice() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Проверяем, принял ли пользователь cookie ранее
     const cookieAccepted = localStorage.getItem('cookieAccepted');
     if (!cookieAccepted) {
       setIsVisible(true);
@@ -13,13 +12,11 @@ export default function CookieNotice() {
   }, []);
 
   const handleAccept = () => {
-    // Сохраняем согласие в localStorage
     localStorage.setItem('cookieAccepted', 'true');
     setIsVisible(false);
   };
 
   const handleClose = () => {
-    // Просто скрываем уведомление
     setIsVisible(false);
   };
 

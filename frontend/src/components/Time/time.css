@@ -101,13 +101,21 @@
     --fcc-spacing: 0.25rem;
     --fcc-digit-block-radius: 8px;
   }
+
+  .time-title {
+    font-size: 20px;
+  }
+
 }
 
-/* Маленькие телефоны */
 @media (max-width: 400px) {
   .time {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+  }
+
+  .time-title {
+    font-size: 18px;
   }
 
   .time-flip-clock {
@@ -121,7 +129,6 @@
   }
 }
 
-/* Очень узкий экран — лёгкое уменьшение всего блока */
 @media (max-width: 360px) {
   .time-flip-clock {
     transform: scale(0.92);

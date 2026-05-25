@@ -79,9 +79,8 @@
   font-size: clamp(0.75rem, 0.95vw + 0.35rem, 1.3rem);
   font-weight: 500;
   color: #000;
-  margin: clamp(1rem, 3vw, 2.5rem) 0 clamp(0.3rem, 1vw, 0.75rem);
+  margin: clamp(0.35rem, 1vw, 0.75rem) 0 clamp(0.3rem, 1vw, 0.75rem);
   line-height: 1.2;
-  min-height: clamp(2.5rem, 8vw, 5rem);
   transition: color 0.3s ease;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -101,17 +100,14 @@
   cursor: pointer;
   margin-bottom: clamp(0.1rem, 0.3vw, 0.25rem);
   align-self: flex-start;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
 }
 
 .partner_name {
   color: #000;
   font-size: clamp(0.75rem, 1.1vw + 0.22rem, 1.5rem);
   font-weight: 600;
-  margin: clamp(0.35rem, 1vw, 1rem) 0 clamp(0.25rem, 0.5vw, 0.5rem);
+  margin: clamp(0.35rem, 1vw, 1rem) 0 0;
   transition: color 0.3s ease;
   line-height: 1.15;
   word-break: break-word;
@@ -119,6 +115,8 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  flex-shrink: 1;
+  min-height: 0;
 }
 
 .case_number {

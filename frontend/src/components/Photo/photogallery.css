@@ -6,9 +6,7 @@
 }
 
 .photogallery h2 {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 4rem;
+  margin-bottom: clamp(1.5rem, 4vw, 4rem);
   text-transform: uppercase;
   color: white;
 }
@@ -16,14 +14,14 @@
 .photogallery__loading,
 .photogallery__empty {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
 }
 
 /* Сетка 4 в строку */
 .photogallery__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: clamp(6px, 1.5vw, 12px);
 }
 
 @media (max-width: 1024px) {

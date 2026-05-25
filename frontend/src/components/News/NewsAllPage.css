@@ -1,13 +1,11 @@
 .news-all {
-  padding-top: calc(120px + 2rem);
-  padding-bottom: 4rem;
+  padding-top: clamp(5rem, calc(80px + 4vw), calc(120px + 2rem));
+  padding-bottom: clamp(2rem, 4vw, 4rem);
   color: white;
   min-height: 80vh;
 }
 
 .news-all h2 {
-  font-size: 4rem;
-  font-weight: 700;
   margin-bottom: 0;
   text-transform: uppercase;
   color: white;
@@ -18,20 +16,20 @@
   align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 4rem;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  margin-bottom: clamp(1.5rem, 4vw, 4rem);
 }
 
 .news-all__years {
   display: flex;
-  gap: 8px;
+  gap: clamp(4px, 1vw, 8px);
   flex-wrap: wrap;
 }
 
 .news-all__year-btn {
-  padding: 6px 20px;
+  padding: clamp(4px, 0.8vw, 6px) clamp(10px, 2vw, 20px);
   border-radius: 50px;
-  font-size: 14px;
+  font-size: clamp(0.7rem, 1.2vw, 0.9rem);
   font-weight: 600;
   cursor: pointer;
   border: 2px solid #5D44C4;
@@ -125,17 +123,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 4rem;
+  gap: clamp(4px, 1vw, 8px);
+  margin-top: clamp(1.5rem, 4vw, 4rem);
   flex-wrap: wrap;
 }
 
 .news-all__page-btn {
-  min-width: 40px;
-  height: 40px;
-  padding: 0 10px;
+  min-width: clamp(28px, 5vw, 40px);
+  height: clamp(28px, 5vw, 40px);
+  padding: 0 clamp(6px, 1.5vw, 10px);
   border-radius: 50px;
-  font-size: 14px;
+  font-size: clamp(0.7rem, 1.2vw, 0.9rem);
   font-weight: 600;
   cursor: pointer;
   border: 2px solid #5D44C4;

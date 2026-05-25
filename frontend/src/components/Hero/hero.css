@@ -13,7 +13,6 @@
   top: 0;
   left: 0;
   width: 100%;
-  /* покрываем только зону overlap таймера (margin-top: -10vh) */
   height: calc(100% + 10vh);
   background-image: url('../../assets/background.svg');
   background-size: cover;
@@ -58,8 +57,8 @@
   display: block;
   color: white;
   transform: scaleY(-1);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, transparent 90%);
-  mask-image: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, transparent 90%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, transparent 90%);
+  mask-image: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, transparent 90%);
 }
 
 .hero-buttons {
@@ -120,7 +119,7 @@
 }
 
 @media (max-width: 768px) {
-  .hero-visual { width: 55%; top: 25%; opacity: 0.9; }
+  .hero-visual { width: 55%; top: 25%; }
 
   .hero-btn.hero-btn-outline,
   .hero-btn.hero-btn-solid {
@@ -130,7 +129,7 @@
 }
 
 @media (max-width: 480px) {
-  .hero-visual { width: 70%; top: 20%; opacity: 0.8; }
+  .hero-visual { width: 70%; top: 20%; }
 
   .hero-buttons {
     flex-direction: column;

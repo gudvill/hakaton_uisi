@@ -1,7 +1,7 @@
 const { Builder, Browser } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || 'http://31.57.93.65';
 const WAIT_TIMEOUT = 10000;
 
 // Передай HEADLESS=false чтобы видеть браузер: set HEADLESS=false && npm test
@@ -18,9 +18,7 @@ async function buildDriver() {
     '--disable-gpu',
     '--window-size=1440,900'
   );
-
-  // selenium-webdriver 4.x автоматически загружает подходящий chromedriver
-  // через встроенный Selenium Manager — версия всегда совпадёт с Chrome
+  
   const driver = await new Builder()
     .forBrowser(Browser.CHROME)
     .setChromeOptions(options)
