@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { getPhotoAlbums, createPhotoAlbum, updatePhotoAlbum, deletePhotoAlbum, uploadPhoto, deletePhoto } from '../../../../api/photoAlbumsService';
 import { getAdminYearOptions } from '../../yearRange';
 import { PencilIcon, TrashIcon, PlusIcon, PhotoIcon, ChevronLeftIcon, ArrowUpTrayIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import AdminSelect from '../../AdminSelect';
 
 export default function Photos() {
   const [albums, setAlbums] = useState([]);
@@ -206,14 +207,7 @@ export default function Photos() {
             </button>
           )}
         </div>
-        <select className="participants-filter-select" value={year} onChange={(e) => setYear(e.target.value)}>
-          <option value="">Год альбома</option>
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+        <AdminSelect value={year} onChange={setYear} options={years.map(y => ({ value: y, label: String(y) }))} placeholder="Год альбома" />
         {(search || year) && (
           <button
             type="button"

@@ -1,6 +1,6 @@
 import psycopg2
 from config import settings
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from jose import jwt, JWTError
 from security import SECRET_KEY, ALGORITHM
@@ -17,7 +17,21 @@ def get_current_admin(token=Depends(security)):
         return user_id
     except JWTError:
         raise HTTPException(status_code=401)
-
+"""   
+def get_current_admin(request: Request):
+    print(request.cookies)
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Токен отсутствует")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Неверный токен")
+        return user_id
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Неверный токен")
+"""
 # connection к postgres
 def get_connection():
     conn = psycopg2.connect(settings.database_connection_string)

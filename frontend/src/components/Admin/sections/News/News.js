@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAdminYearOptions } from '../../yearRange';
 import { getNews, getArchivedNews, createNews, updateNews, disableNews, restoreNews } from '../../../../api/newsService';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import AdminSelect from '../../AdminSelect';
 
 function formatDate(str) {
   if (!str) return '—';
@@ -49,9 +50,8 @@ function NewsEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel })
           onChange={e => setForm(p => ({ ...p, full_description: e.target.value }))}
         />
       </td>
-      <td className="news-col-created" style={{ whiteSpace: 'nowrap', color: '#999' }}>—</td>
-      <td className="news-col-actions">
-        <div className="section-row-actions">
+      <td className="news-col-actions" colSpan={2} style={{ verticalAlign: 'top' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
           <button type="button" className="section-save-btn" onClick={onSave}>сохранить</button>
           <button type="button" className="section-cancel-btn" onClick={onCancel}>отмена</button>
         </div>
@@ -212,12 +212,7 @@ export default function News() {
             </button>
           )}
         </div>
-        <select className="participants-filter-select" value={year} onChange={e => setYear(e.target.value)} >
-          <option value="">Год новости</option>
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
+        <AdminSelect value={year} onChange={setYear} options={years.map(y => ({ value: y, label: String(y) }))} placeholder="Год новости" />
         {(search || year) && (
           <button className="participants-reset-btn"
             onClick={() => {

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAdminYearOptions } from '../../yearRange';
 import { getReviews, getArchivedReviews, createReviews, updateReviews, disableReview, restoreReview } from '../../../../api/reviewsService';
 import { PencilIcon, TrashIcon, PlusIcon, XMarkIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import AdminSelect from '../../AdminSelect';
 
 function formatDate(date) {
   if (!date) return '—';
@@ -161,12 +162,7 @@ export default function Reviews() {
         </button>
       </div>
       <div className="participants-filters">
-        <select className="participants-filter-select" value={year} onChange={e => setYear(e.target.value)} >
-          <option value="">Год отзыва</option>
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
+        <AdminSelect value={year} onChange={setYear} options={years.map(y => ({ value: y, label: String(y) }))} placeholder="Год отзыва" />
         {year && (
           <button className="participants-reset-btn" onClick={() => setYear('')} >
             <XMarkIcon style={{ width: 14, height: 14 }} /> сбросить

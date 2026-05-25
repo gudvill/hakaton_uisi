@@ -9,3 +9,4 @@ export const getAnalytics = async () => {
   const res = await api.get('/analytics/');
   return res.data;
 };
+

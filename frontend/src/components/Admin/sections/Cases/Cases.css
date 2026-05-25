@@ -25,3 +25,15 @@
   background: #fef3c7;
   color: #d97706;
 }
+
+.admin-content .cases-col-desc {
+  min-width: 200px;
+  width: 30%;
+}
+
+.admin-content .cases-desc-textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  box-sizing: border-box;
+}

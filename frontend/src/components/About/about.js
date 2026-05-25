@@ -3,7 +3,6 @@ import { getAbout } from '../../api/aboutService';
 import './about.css';
 
 export default function About() {
-  // row: 1-3, col: 1-3
   const [steps, setSteps] = useState([]);
   const API_URL = process.env.REACT_APP_API_URL || '';
 
@@ -13,9 +12,13 @@ export default function About() {
       .catch(err => console.error("Ошибка загрузки этапов:", err));
   }, []);
 
-  const orderedSteps = [...steps].sort(
-    (a, b) => a.row - b.row || a.col - b.col
-  );
+  const orderedSteps = [...steps].sort((a, b) => a.order_index - b.order_index);
+
+  const getGridPosition = (orderIndex) => {
+    const row = Math.ceil(orderIndex / 3);
+    const col = ((orderIndex - 1) % 3) + 1;
+    return { gridRow: row, gridColumn: col };
+  };
 
   return (
     <section id="hakaton" className="about container">
@@ -31,7 +34,7 @@ export default function About() {
         >
           <defs>
             <linearGradient id="snakeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stopColor="#A558F8" />
+              <stop offset="0%" stopColor="#A558F8" />
               <stop offset="100%" stopColor="#2055C7" />
             </linearGradient>
           </defs>
@@ -46,12 +49,8 @@ export default function About() {
 
         <div className="roadmap-grid">
           {orderedSteps.map((s) => (
-            <div
-              key={s.id}
-              className="roadmap-cell"
-              style={{ gridRow: s.row, gridColumn: s.col }}
-            >
-              <div className="roadmap-circle"><img src={`${API_URL}${s.icon}`} alt={s.title} /></div>
+            <div key={s.id} className="roadmap-cell" style={getGridPosition(s.order_index)} >
+              <div className="roadmap-circle"><img src={`${API_URL}${s.icon}`} alt={s.title} /></div>  
               <div className="roadmap-label">
                 <h3>{s.title}</h3>
                 <p>{s.text}</p>
@@ -59,7 +58,6 @@ export default function About() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

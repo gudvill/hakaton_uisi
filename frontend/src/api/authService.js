@@ -28,6 +28,27 @@ export const refreshToken = async () => {
   return res.data;
 };
 
+/*
+// login
+export const login = async (login, password) => {
+  const res = await api.post("/admin/login", {
+    login,
+    password,
+  });
+  return res.data;
+};
+
+// выход
+export const logout = async () => {
+  await api.post("/admin/logout");
+};
+
+// refresh
+export const refreshToken = async () => {
+  const res = await api.post("/admin/refresh");
+  return res.data;
+};
+*/
 // запрос сброса пароля
 export const requestPasswordReset = async (email) => {
   const res = await api.post("/admin/request-password-reset", {

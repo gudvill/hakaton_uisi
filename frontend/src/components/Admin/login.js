@@ -1,6 +1,6 @@
 import './login.css';
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../../api/authService";
 
 export default function Login() {
@@ -13,7 +13,7 @@ export default function Login() {
 
     try {
       await login(loginValue, password);
-      navigate("/admin");
+      navigate("/admin", { replace: true });
     } catch (err) {
       alert("Неверный логин или пароль");
     }
@@ -53,7 +53,7 @@ export default function Login() {
 
           <button className="login-button" type="submit">ВОЙТИ</button>
 
-          <a href="#" className="login-restore">восстановить пароль</a>
+          <Link to="/request-password-reset" className="login-restore">восстановить пароль</Link>
         </form>
       </div>
     </div>

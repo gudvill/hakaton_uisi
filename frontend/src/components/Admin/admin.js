@@ -2,8 +2,7 @@ import './admin.css';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout, getMe } from '../../api/authService';
-import { UserCircleIcon, UsersIcon, NewspaperIcon, ChartBarIcon, CalendarDaysIcon, QuestionMarkCircleIcon, BriefcaseIcon, UserGroupIcon, ChatBubbleLeftRightIcon, PhotoIcon, DocumentTextIcon, DocumentMinusIcon, MapIcon } from '@heroicons/react/24/outline';
-
+import { UserCircleIcon, UsersIcon, NewspaperIcon, ChartBarIcon, CalendarDaysIcon, QuestionMarkCircleIcon, BriefcaseIcon, UserGroupIcon, ChatBubbleLeftRightIcon, PhotoIcon, DocumentTextIcon, DocumentMinusIcon, MapIcon, CakeIcon } from '@heroicons/react/24/outline';
 import Account from './sections/Account/Account';
 import Participants from './sections/Participants/Participants';
 import News from './sections/News/News';
@@ -17,6 +16,7 @@ import Photos from './sections/Photos/Photos';
 import Policy from './sections/Policy/Policy';
 import Agreement from './sections/Agreement/Agreement';
 import About from './sections/About/About';
+import Cookie from './sections/Cookie/Cookie';
 
 const NAV_ITEMS = [
   { id: 'participants', label: 'команды', Icon: UsersIcon, Component: Participants },
@@ -31,6 +31,7 @@ const NAV_ITEMS = [
   { id: 'photos', label: 'фотоальбом', Icon: PhotoIcon, Component: Photos },
   { id: 'policy', label: 'политика',   Icon: DocumentTextIcon, Component: Policy },
   { id: 'agreement', label: 'соглашение', Icon: DocumentMinusIcon, Component: Agreement },
+  { id: 'cookie', label: 'cookie', Icon: CakeIcon, Component: Cookie },
 ];
 
 export default function Admin() {
@@ -45,6 +46,7 @@ export default function Admin() {
         logout();
         navigate('/admin/login');
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = () => {

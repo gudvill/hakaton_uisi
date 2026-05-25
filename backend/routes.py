@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Form, Response, Request
 from typing import List
 from jose import jwt, JWTError
 from security import create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
-from utils import send_reset_email, get_visits_and_views
+from utils import send_reset_email, get_all_analytics
 import uuid
 import os
 from datetime import datetime
@@ -36,14 +36,14 @@ analytics_router = APIRouter(prefix="/analytics", tags=["analytics"])
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 acquaintance_router = APIRouter(prefix="/acquaintance", tags=["acquaintance"])
 faq_router = APIRouter(prefix="/faq", tags=["faq"])
-program_router = APIRouter(prefix="/program", tags=["program"])
 about_router = APIRouter(prefix="/about", tags=["about"])
-cases_router = APIRouter(prefix="/cases", tags=["cases"])
+program_router = APIRouter(prefix="/program", tags=["program"])
 news_router = APIRouter(prefix="/news", tags=["news"])
+cases_router = APIRouter(prefix="/cases", tags=["cases"])
 partners_router = APIRouter(prefix="/partners", tags=["partners"])
+reviews_router = APIRouter(prefix="/reviews", tags=["reviews"])
 photoalbums_router = APIRouter(prefix="/photoalbums", tags=["photoalbums"])
 photos_router = APIRouter(prefix="/photos", tags=["photos"])
-reviews_router = APIRouter(prefix="/reviews", tags=["reviews"])
 registration_router = APIRouter(prefix="/registration", tags=["registration"])
 
 
@@ -54,7 +54,7 @@ def get_stats(usecase: StatsUseCase = Depends(get_stats_usecase), admin=Depends(
 
 @analytics_router.get("/")
 def analytics(admin=Depends(get_current_admin)):
-    return get_visits_and_views()
+    return get_all_analytics()
 
 
 # Эндпоинты для Админа
@@ -86,7 +86,36 @@ def refresh_token(data: RefreshRequest):
         raise HTTPException(status_code=401, detail="Invalid token")
     new_access = create_access_token({"sub": user_id})
     return {"access_token": new_access}
+"""
+@admin_router.post("/login")
+def login(admin_data: LoginRequest, response: Response, use_case: AdminUseCase = Depends(get_admin_usecase)):
+    user = use_case.login(admin_data.login, admin_data.password)
+    if not user: raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+    access = create_access_token({"sub": str(user["id"])})
+    refresh = create_refresh_token({"sub": str(user["id"])})
+    response.set_cookie(key="access_token", value=access, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 30)
+    response.set_cookie(key="refresh_token", value=refresh, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 60 * 24 * 7)
+    return {"message": "ok"}
 
+@admin_router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token", samesite="Lax", path="/")
+    response.delete_cookie(key="refresh_token", samesite="Lax", path="/")
+    return {"message": "logged out"}
+
+@admin_router.post("/refresh")
+def refresh_token(request: Request, response: Response):
+    try:
+        refresh_token = request.cookies.get("refresh_token")
+        if not refresh_token: raise HTTPException(status_code=401, detail="refresh-токен не найден")
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    new_access = create_access_token({"sub": user_id})
+    response.set_cookie(key="access_token", value=new_access, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 30)
+    return { "access_token": new_access }
+"""
 @admin_router.post("/request-password-reset")
 def request_password_reset(request: PasswordResetRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     token = use_case.request_password_reset(request.email)
@@ -163,7 +192,7 @@ def delete_faq(item_id: int, use_case: FaqUseCase = Depends(get_faq_usecase), ad
 
 # Эндпоинты для Описания
 @about_router.post("/", response_model=AboutSerializer)
-async def create_about(row: Optional[int] = Form(None), col: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+async def create_about(order_index: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
     icon_path = None
     if file:
         ext = file.filename.split(".")[-1]
@@ -172,7 +201,7 @@ async def create_about(row: Optional[int] = Form(None), col: Optional[int] = For
         with open(file_path, "wb") as f:
             f.write(await file.read())
         icon_path = f"/media/about/{filename}"
-    item = About(id=0, row=row, col=col, title=title, text=text, icon=icon_path)
+    item = About(id=0, order_index=order_index , title=title, text=text, icon=icon_path)
     item_id = use_case.create(item)
     created = use_case.get_by_id(item_id)
     return AboutSerializer(**created)
@@ -188,7 +217,7 @@ def get_about_item(item_id: int, use_case: AboutUseCase = Depends(get_about_usec
     return AboutSerializer(**item)
 
 @about_router.put("/{item_id}", response_model=AboutSerializer)
-async def update_about(item_id: int, row: Optional[int] = Form(None), col: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
+async def update_about(item_id: int, order_index: Optional[int] = Form(None), title: Optional[str] = Form(None), text: Optional[str] = Form(None), file: UploadFile = File(None), use_case: AboutUseCase = Depends(get_about_usecase), admin=Depends(get_current_admin)):
     existing = use_case.get_by_id(item_id)
     if not existing: raise HTTPException(404)
     icon_path = existing["icon"]
@@ -204,7 +233,7 @@ async def update_about(item_id: int, row: Optional[int] = Form(None), col: Optio
         with open(file_path, "wb") as f:
             f.write(await file.read())
         icon_path = f"/media/about/{filename}"
-    item = About(id=item_id, row=row, col=col, title=title, text=text, icon=icon_path)
+    item = About(id=item_id, order_index=order_index , title=title, text=text, icon=icon_path)
     use_case.update(item_id, item)
     updated = use_case.get_by_id(item_id)
     return AboutSerializer(**updated)

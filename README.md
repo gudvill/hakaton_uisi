@@ -25,4 +25,14 @@ git pull origin main
 ```bash
 git add frontend/
 ```
+## Работа с Docker
+
+### Если frontend новые зависимости:
+```bash
+docker-compose exec frontend npm install
+```
+### Если backend новые зависимости: 
+```bash
+docker-compose exec backend pip install -r requirements.txt
+```
 ---
