@@ -137,7 +137,6 @@ class PartnerCreateSerializer(BaseModel):
     name: Optional[str] = None
     image: Optional[str] = None
     description: Optional[str] = None
-    full_description: Optional[str] = None
     site_link: Optional[str] = None
 
 class PartnerSerializer(BaseModel):
@@ -145,7 +144,6 @@ class PartnerSerializer(BaseModel):
     name: Optional[str] = None
     image: Optional[str] = None
     description: Optional[str] = None
-    full_description: Optional[str] = None
     site_link: Optional[str] = None
     created_at: Optional[datetime] = None
     is_available: bool = True

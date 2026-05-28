@@ -305,13 +305,13 @@ class CasesRepository(BaseRepository):
 
 class PartnersRepository(BaseRepository):
     def __init__(self, connection):
-        super().__init__(connection=connection, table_name="partners", entity_class=Partner, columns=["name", "image", "description", "full_description", "site_link", "is_available"])
+        super().__init__(connection=connection, table_name="partners", entity_class=Partner, columns=["name", "image", "description", "site_link", "is_available"])
             
     def get_filtered(self, search: str = None, sort_by: str = "name", sort_dir: str = "asc"):
-        allowed_sort = { "name": "name", "description": "description", "full_description": "full_description" }
+        allowed_sort = { "name": "name", "description": "description" }
         sort_column = allowed_sort.get(sort_by, "name")
         sort_direction = "ASC" if sort_dir == "asc" else "DESC"
-        query = "SELECT id, name, image, description, full_description, site_link, created_at, is_available FROM partners WHERE is_available = TRUE"
+        query = "SELECT id, name, image, description, site_link, created_at, is_available FROM partners WHERE is_available = TRUE"
         params = []
         if search: # поиск
             query += " AND LOWER(name) LIKE %s"
@@ -323,10 +323,10 @@ class PartnersRepository(BaseRepository):
                 return self._fetch_all_dict(cursor)
 
     def get_filtered_archived(self, search: str = None, sort_by: str = "created_at", sort_dir: str = "desc"):
-        allowed_sort = { "name": "name", "description": "description", "full_description": "full_description" }
+        allowed_sort = { "name": "name", "description": "description" }
         sort_column = allowed_sort.get(sort_by, "name")
         sort_direction = "ASC" if sort_dir == "asc" else "DESC"
-        query = "SELECT id, name, image, description, full_description, site_link, created_at, is_available FROM partners WHERE is_available = FALSE"
+        query = "SELECT id, name, image, description, site_link, created_at, is_available FROM partners WHERE is_available = FALSE"
         params = []
         if search: # поиск
             query += " AND LOWER(name) LIKE %s"

@@ -33,7 +33,7 @@ export default function Partners() {
               <img src={`${API_URL}${selected.image}`} alt={selected.name} />
             </div>
             <h3 className="partner-modal__name">{selected.name}</h3>
-            <p className="partner-modal__desc">{selected.description}Уральский банк реконструкции и развития входит в список 30 крупнейших банков России, составленный ЦБ РФ, и в топ-100  самых надёжных кредитных учреждений России, по версии журнала Forbes.</p>
+            <p className="partner-modal__desc">{selected.description}</p>
             <a className="partner-modal__site" href={selected.site_link || '#'} target="_blank"rel="noreferrer" >Перейти на сайт</a>
           </div>
         </div>

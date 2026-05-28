@@ -393,7 +393,7 @@ def restore_case(case_id: int, usecase: CasesUseCase = Depends(get_cases_usecase
 
 # Эндпоинты для Партнёров
 @partners_router.post("/", response_model=PartnerSerializer)
-async def create_partner(name: Optional[str] = Form(None), description: Optional[str] = Form(None), full_description: Optional[str] = Form(None), site_link: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: PartnersUseCase = Depends(get_partners_usecase), admin = Depends(get_current_admin)) -> PartnerSerializer:
+async def create_partner(name: Optional[str] = Form(None), description: Optional[str] = Form(None), site_link: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: PartnersUseCase = Depends(get_partners_usecase), admin = Depends(get_current_admin)) -> PartnerSerializer:
     image_path = None
     if file:
         ext = file.filename.split(".")[-1]
@@ -403,7 +403,7 @@ async def create_partner(name: Optional[str] = Form(None), description: Optional
         with open(file_path, "wb") as f:
             f.write(await file.read())
         image_path = f"/media/partners/{filename}"
-    partner = Partner(id=0, name=name, image=image_path, description=description, full_description=full_description, site_link=site_link, is_available=True)
+    partner = Partner(id=0, name=name, image=image_path, description=description, site_link=site_link, is_available=True)
     partner_id = use_case.create(partner)
     created = use_case.get_by_id(partner_id)
     return PartnerSerializer(**created)
@@ -423,7 +423,7 @@ def get_partner(partner_id: int, use_case: PartnersUseCase = Depends(get_partner
     return PartnerSerializer(**row)
 
 @partners_router.put("/{partner_id}", response_model=PartnerSerializer)
-async def update_partner(partner_id: int, name: Optional[str] = Form(None), description: Optional[str] = Form(None), full_description: Optional[str] = Form(None), site_link: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
+async def update_partner(partner_id: int, name: Optional[str] = Form(None), description: Optional[str] = Form(None), site_link: Optional[str] = Form(None), file: Optional[UploadFile] = File(None), use_case: PartnersUseCase = Depends(get_partners_usecase), admin=Depends(get_current_admin)) -> PartnerSerializer:
     existing = use_case.get_by_id(partner_id)
     if not existing: raise HTTPException(status_code=404, detail="Партнёр не найден")
     image_path = existing.get("image")
@@ -441,7 +441,7 @@ async def update_partner(partner_id: int, name: Optional[str] = Form(None), desc
         with open(file_path, "wb") as f:
             f.write(await file.read())
         image_path = f"/media/partners/{filename}"
-    partner = Partner(id=partner_id, name=name, image=image_path, description=description, full_description=full_description, site_link=site_link)
+    partner = Partner(id=partner_id, name=name, image=image_path, description=description, site_link=site_link)
     use_case.update(partner_id, partner)
     updated = use_case.get_by_id(partner_id)
     return PartnerSerializer(**updated)

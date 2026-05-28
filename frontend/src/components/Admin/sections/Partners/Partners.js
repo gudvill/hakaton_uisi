@@ -4,7 +4,7 @@ import { getPartners, getArchivedPartners, createPartner, updatePartner, disable
 import { PencilIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon, XMarkIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import FileInputButton from '../../FileInputButton';
 
-const SORTABLE_KEYS = ['name', 'description', 'full_description'];
+const SORTABLE_KEYS = ['name', 'description'];
 
 function PartnersEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }) {
   const inp = (key, placeholder) => (
@@ -24,16 +24,6 @@ function PartnersEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCance
       </td>
       <td>{inp('name', 'Название')}</td>
       <td>{inp('description', 'Описание')}</td>
-      <td>
-        <textarea
-          className="section-textarea"
-          value={form.full_description || ''}
-          placeholder="Полное описание"
-          rows={3}
-          style={{ resize: 'vertical', minHeight: 60 }}
-          onChange={e => setForm(p => ({ ...p, full_description: e.target.value }))}
-        />
-      </td>
       <td>{inp('site_link', 'Ссылка на сайт')}</td>
       <td>
         <div className="section-row-actions">
@@ -104,7 +94,7 @@ export default function Partners() {
 
   const startAdd = () => {
     setEditId('new');
-    setForm({ name: '', description: '', full_description: '', site_link: '' });
+    setForm({ name: '', description: '', site_link: '' });
     setFile(null);
   };
 
@@ -116,7 +106,7 @@ export default function Partners() {
 
   const save = async () => {
     const formData = new FormData();
-    const allowedKeys = ['name', 'description', 'full_description', 'site_link'];
+    const allowedKeys = ['name', 'description', 'site_link'];
     allowedKeys.forEach(key => {
       const v = form[key];
       if (v !== '' && v !== null && v !== undefined) {
@@ -200,7 +190,6 @@ export default function Partners() {
               {[
                 { key: 'name', label: 'Название' },
                 { key: 'description', label: 'Описание' },
-                { key: 'full_description', label: 'Полное описание' },
                 { key: 'site_link', label: 'Ссылка на сайт' },
               ].map(({ key, label }) => (
                 <th key={key} className={SORTABLE_KEYS.includes(key) ? "participants-th-sort" : ""} onClick={() => SORTABLE_KEYS.includes(key) && toggleSort(key)} >
@@ -229,7 +218,7 @@ export default function Partners() {
             )}
             {items.length === 0 && editId !== 'new' && (
               <tr>
-                <td colSpan={7} className="section-empty">Нет партнёров</td>
+                <td colSpan={6} className="section-empty">Нет партнёров</td>
               </tr>
             )}
             {items.map(item => editId === item.id ? (
@@ -252,7 +241,6 @@ export default function Partners() {
                 </td>
                 <td style={{ fontWeight: 600 }}>{item.name || '—'}</td>
                 <td className="partner-desc">{item.description || '—'}</td>
-                <td className="partner-desc">{item.full_description || '—'}</td>
                 <td style={{ color: '#666' }}>{item.site_link || '—'}</td>
                 <td>
                   <div className="section-row-actions">
