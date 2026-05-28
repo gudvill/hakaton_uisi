@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAdminYearOptions } from '../../yearRange';
 import { getNews, getArchivedNews, createNews, updateNews, disableNews, restoreNews } from '../../../../api/newsService';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import FileInputButton from '../../FileInputButton';
 import AdminSelect from '../../AdminSelect';
 
 function formatDate(str) {
@@ -22,7 +23,7 @@ function NewsEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel })
           ) : (
             <div className="news-img-placeholder" />
           )}
-          <input type="file" className="news-edit-file-input" onChange={e => setFile(e.target.files[0])} />
+          <FileInputButton onChange={e => setFile(e.target.files[0])} />
         </div>
       </td>
       <td className="news-col-title">

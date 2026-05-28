@@ -73,7 +73,9 @@ button, .hero-btn {
 .home-page .program h2,
 .home-page .reviews h2,
 .home-page .news-header h2,
-.news-all h2 {
+.news-all h2,
+.cases-archive h2,
+.photogallery h2 {
   font-family: 'Onder', sans-serif;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 900;
@@ -111,7 +113,9 @@ button, .hero-btn {
   .home-page .program h2,
   .home-page .reviews h2,
   .home-page .news-header h2,
-  .news-all h2 {
+  .news-all h2,
+  .cases-archive h2,
+  .photogallery h2 {
     font-size: 1.1rem;
   }
 }

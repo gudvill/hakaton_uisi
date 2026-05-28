@@ -64,7 +64,7 @@ export default function AdminSelect({ value, onChange, options, placeholder, var
         <div style={wrapperStyle}>
 
           <ListboxButton style={getButtonStyle(open)}>
-            <span style={{ flex: 1 }}>{selected ? selected.label : placeholder}</span>
+            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selected ? selected.label : placeholder}</span>
             {chevronSvg(open)}
           </ListboxButton>
 

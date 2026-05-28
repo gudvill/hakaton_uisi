@@ -2,6 +2,7 @@ import './About.css';
 import { useState, useEffect } from 'react';
 import { getAbout, createAbout, updateAbout, deleteAbout } from '../../../../api/aboutService';
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import FileInputButton from '../../FileInputButton';
 
 function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }) {
   const inp = (key, placeholder) => (
@@ -22,7 +23,7 @@ function AboutEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCancel }
         ) : (
           <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
         )}
-        <input type="file" style={{ marginTop: 4, fontSize: 11 }} onChange={(e) => setFile(e.target.files[0])} />
+        <FileInputButton onChange={e => setFile(e.target.files[0])} />
       </td>
       <td>{inp('title', 'Заголовок')}</td>
       <td>

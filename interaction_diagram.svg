@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1060" height="680" viewBox="0 0 1060 680"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="Arial, sans-serif">
+
+  <defs>
+    <marker id="arr-r" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto">
+      <polygon points="0 0,11 4,0 8" fill="#1a4d8a"/>
+    </marker>
+    <marker id="arr-l" markerWidth="11" markerHeight="8" refX="1" refY="4" orient="auto">
+      <polygon points="11 0,0 4,11 8" fill="#1a6b3a"/>
+    </marker>
+    <marker id="arr-d" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto">
+      <polygon points="0 0,8 0,4 8" fill="#5b88c0"/>
+    </marker>
+  </defs>
+
+  <rect width="1060" height="680" fill="#f5f8fc"/>
+
+  <!-- TITLE -->
+  <rect x="0" y="0" width="1060" height="48" fill="#2c7ab5"/>
+  <text x="530" y="31" text-anchor="middle" fill="#fff" font-size="17" font-weight="bold">
+    Взаимодействие Frontend и Backend (продакшен)
+  </text>
+
+  <!-- ══════════════════════════════════
+       FRONTEND BOX
+  ══════════════════════════════════ -->
+  <rect x="12" y="58" width="340" height="604" rx="4"
+        fill="#fff" stroke="#5b88c0" stroke-width="1.6" stroke-dasharray="8,4"/>
+  <text x="182" y="82"  text-anchor="middle" font-size="15" font-weight="bold" fill="#0d1f33">Frontend</text>
+  <text x="182" y="99"  text-anchor="middle" font-size="11" fill="#4a6e99">Пользовательский интерфейс (React)</text>
+
+  <!-- FE: Компоненты -->
+  <rect x="28" y="110" width="308" height="85" rx="3" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="182" y="132" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">Компоненты (React)</text>
+  <text x="182" y="150" text-anchor="middle" font-size="11" fill="#1a2f4a">Hero · News · Cases · About · Partners</text>
+  <text x="182" y="166" text-anchor="middle" font-size="11" fill="#1a2f4a">Program · Faq · Reviews · Photo · Footer</text>
+  <text x="182" y="182" text-anchor="middle" font-size="11" fill="#1a2f4a">Admin · Login · NotFound · PasswordReset</text>
+
+  <line x1="182" y1="195" x2="182" y2="219" stroke="#5b88c0" stroke-width="1.5" marker-end="url(#arr-d)"/>
+
+  <!-- FE: API-сервисы -->
+  <rect x="28" y="219" width="308" height="112" rx="3" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="182" y="242" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">API-сервисы (Services)</text>
+  <text x="182" y="259" text-anchor="middle" font-size="11" fill="#1a2f4a">newsService · casesService · faqService</text>
+  <text x="182" y="275" text-anchor="middle" font-size="11" fill="#1a2f4a">authService · registrationService</text>
+  <text x="182" y="291" text-anchor="middle" font-size="11" fill="#1a2f4a">reviewsService · programService</text>
+  <text x="182" y="307" text-anchor="middle" font-size="11" fill="#1a2f4a">partnersService · photoAlbumsService</text>
+
+  <line x1="182" y1="331" x2="182" y2="355" stroke="#5b88c0" stroke-width="1.5" marker-end="url(#arr-d)"/>
+
+  <!-- FE: Axios -->
+  <rect x="28" y="355" width="308" height="110" rx="3" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="182" y="377" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">Axios HTTP-клиент</text>
+  <text x="182" y="394" text-anchor="middle" font-size="11" fill="#1a2f4a">axios.js — единый экземпляр</text>
+  <text x="182" y="410" text-anchor="middle" font-size="11" fill="#3a6090">withCredentials: true</text>
+  <text x="182" y="426" text-anchor="middle" font-size="11" fill="#555">cookies отправляются браузером</text>
+  <text x="182" y="442" text-anchor="middle" font-size="11" fill="#555">автоматически при каждом запросе</text>
+  <text x="182" y="458" text-anchor="middle" font-size="10" fill="#888">res. interceptor: 401 → /admin/refresh → повтор</text>
+
+  <!-- dashed arrow down -->
+  <line x1="182" y1="465" x2="182" y2="489" stroke="#5b88c0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-d)"/>
+
+  <!-- FE: httpOnly Cookies -->
+  <rect x="28" y="489" width="308" height="80" rx="3"
+        fill="#eef5fd" stroke="#5b88c0" stroke-width="1.2" stroke-dasharray="5,3"/>
+  <text x="182" y="511" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">httpOnly Cookies (браузер)</text>
+  <text x="182" y="529" text-anchor="middle" font-size="11" fill="#1a2f4a">access_token — httpOnly, 30 мин</text>
+  <text x="182" y="545" text-anchor="middle" font-size="11" fill="#1a2f4a">refresh_token — httpOnly, 7 дней</text>
+  <text x="182" y="561" text-anchor="middle" font-size="10" fill="#888">недоступны из JavaScript (защита от XSS)</text>
+
+  <!-- ══════════════════════════════════
+       BACKEND BOX
+  ══════════════════════════════════ -->
+  <rect x="708" y="58" width="340" height="604" rx="4"
+        fill="#fff" stroke="#5b88c0" stroke-width="1.6" stroke-dasharray="8,4"/>
+  <text x="878" y="82"  text-anchor="middle" font-size="15" font-weight="bold" fill="#0d1f33">Backend</text>
+  <text x="878" y="99"  text-anchor="middle" font-size="11" fill="#4a6e99">Бизнес-логика и данные (FastAPI)</text>
+
+  <!-- BE: Routes -->
+  <rect x="724" y="110" width="308" height="110" rx="3" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="878" y="133" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">Routes (FastAPI)</text>
+  <text x="878" y="150" text-anchor="middle" font-size="11" fill="#1a2f4a">/news · /cases · /faq · /program · /about</text>
+  <text x="878" y="166" text-anchor="middle" font-size="11" fill="#1a2f4a">/partners · /reviews · /photoalbums · /photos</text>
+  <text x="878" y="182" text-anchor="middle" font-size="11" fill="#1a2f4a">/admin · /registration · /acquaintance</text>
+  <text x="878" y="210" text-anchor="middle" font-size="10" fill="#4a4a7a">/stats · /analytics · /media (StaticFiles)</text>
+
+  <line x1="878" y1="220" x2="878" y2="244" stroke="#5b88c0" stroke-width="1.5" marker-end="url(#arr-d)"/>
+
+  <!-- BE: Use Cases -->
+  <rect x="724" y="244" width="308" height="110" rx="3" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="878" y="267" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">Use Cases (бизнес-логика)</text>
+  <text x="878" y="284" text-anchor="middle" font-size="11" fill="#1a2f4a">NewsUseCase · CasesUseCase · FaqUseCase</text>
+  <text x="878" y="300" text-anchor="middle" font-size="11" fill="#1a2f4a">AdminUseCase · RegistrationUseCase</text>
+  <text x="878" y="316" text-anchor="middle" font-size="11" fill="#1a2f4a">ReviewsUseCase · PartnersUseCase</text>
+  <text x="878" y="332" text-anchor="middle" font-size="11" fill="#1a2f4a">PhotoAlbumsUseCase · ProgramUseCase</text>
+  <text x="878" y="346" text-anchor="middle" font-size="10.5" fill="#4a4a7a">JWT: create_access_token / create_refresh_token</text>
+
+  <line x1="878" y1="354" x2="878" y2="378" stroke="#5b88c0" stroke-width="1.5" marker-end="url(#arr-d)"/>
+
+  <!-- BE: Repositories -->
+  <rect x="724" y="378" width="308" height="82" rx="3" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="878" y="401" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">Repositories</text>
+  <text x="878" y="418" text-anchor="middle" font-size="11" fill="#1a2f4a">BaseRepository + специализированные</text>
+  <text x="878" y="434" text-anchor="middle" font-size="11" fill="#1a2f4a">CRUD, фильтрация, сортировка, архив</text>
+  <text x="878" y="450" text-anchor="middle" font-size="11" fill="#1a2f4a">restore / disable (мягкое удаление)</text>
+
+  <line x1="878" y1="460" x2="878" y2="484" stroke="#5b88c0" stroke-width="1.5" marker-end="url(#arr-d)"/>
+
+  <!-- BE: Database (cylinder) -->
+  <rect x="724" y="484" width="308" height="100" fill="#cfe5f8" stroke="#5b88c0" stroke-width="1.2"/>
+  <ellipse cx="878" cy="484" rx="154" ry="14" fill="#b8d8f2" stroke="#5b88c0" stroke-width="1.2"/>
+  <ellipse cx="878" cy="584" rx="154" ry="14" fill="#b8d8f2" stroke="#5b88c0" stroke-width="1.2"/>
+  <ellipse cx="878" cy="484" rx="154" ry="14" fill="#b8d8f2" stroke="#5b88c0" stroke-width="1.2"/>
+  <text x="878" y="522" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d1f33">База данных (PostgreSQL)</text>
+  <text x="878" y="540" text-anchor="middle" font-size="11" fill="#1a2f4a">news · cases · faq · program · about</text>
+  <text x="878" y="556" text-anchor="middle" font-size="11" fill="#1a2f4a">partners · reviews · photo_albums</text>
+  <text x="878" y="572" text-anchor="middle" font-size="11" fill="#1a2f4a">registration · participants · admin</text>
+
+  <!-- ══════════════════════════════════
+       MIDDLE: COMMUNICATION
+  ══════════════════════════════════ -->
+
+  <!-- ── 1. Публичные запросы (→) ── -->
+  <line x1="350" y1="195" x2="706" y2="195"
+        stroke="#1a4d8a" stroke-width="2.5" marker-end="url(#arr-r)"/>
+  <rect x="358" y="108" width="348" height="80" rx="3"
+        fill="#e8f2fc" stroke="#5b88c0" stroke-width="1"/>
+  <text x="532" y="127" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d2255">Публичные запросы (без токена)</text>
+  <text x="532" y="144" text-anchor="middle" font-size="10.5" fill="#1a2f4a">GET /news/ · /cases/ · /faq/ · /program/</text>
+  <text x="532" y="159" text-anchor="middle" font-size="10.5" fill="#1a2f4a">GET /partners/ · /reviews/ · /photoalbums/ · /about/</text>
+  <text x="532" y="174" text-anchor="middle" font-size="10.5" fill="#1a2f4a">POST /registration/ (регистрация команды)</text>
+
+  <!-- ── 2. Аутентификация ── -->
+  <rect x="358" y="208" width="348" height="118" rx="3"
+        fill="#fff8e6" stroke="#c8963a" stroke-width="1.2" stroke-dasharray="5,3"/>
+  <text x="532" y="228" text-anchor="middle" font-size="12" font-weight="bold" fill="#7a4a00">🔐  Аутентификация</text>
+  <text x="532" y="246" text-anchor="middle" font-size="10.5" fill="#4a3000">→  POST /admin/login {login, password}</text>
+  <text x="532" y="262" text-anchor="middle" font-size="10.5" fill="#4a3000">←  Set-Cookie: access_token (httpOnly, 30 мин)</text>
+  <text x="532" y="278" text-anchor="middle" font-size="10.5" fill="#4a3000">←  Set-Cookie: refresh_token (httpOnly, 7 дней)</text>
+  <text x="532" y="294" text-anchor="middle" font-size="10.5" fill="#4a3000">→  POST /admin/refresh (cookie автоматически)</text>
+  <text x="532" y="310" text-anchor="middle" font-size="10.5" fill="#4a3000">←  Set-Cookie: новый access_token</text>
+  <text x="532" y="324" text-anchor="middle" font-size="10" fill="#888">→  POST /admin/logout  ←  удаление cookies</text>
+
+  <!-- ── 3. Защищённые запросы (→) ── -->
+  <line x1="350" y1="380" x2="706" y2="380"
+        stroke="#1a4d8a" stroke-width="2.5" marker-end="url(#arr-r)"/>
+  <rect x="358" y="338" width="348" height="36" rx="3"
+        fill="#e8f2fc" stroke="#5b88c0" stroke-width="1"/>
+  <text x="532" y="355" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d2255">Защищённые запросы</text>
+  <text x="532" y="371" text-anchor="middle" font-size="10.5" fill="#1a2f4a">cookies отправляются автоматически (withCredentials)</text>
+  <rect x="358" y="388" width="348" height="48" rx="3"
+        fill="#e8f2fc" stroke="#5b88c0" stroke-width="1"/>
+  <text x="532" y="406" text-anchor="middle" font-size="10.5" fill="#1a2f4a">GET/POST/PUT/DELETE — все /admin/* ресурсы</text>
+  <text x="532" y="422" text-anchor="middle" font-size="10.5" fill="#1a2f4a">Загрузка файлов: multipart/form-data</text>
+  <text x="532" y="430" text-anchor="middle" font-size="10" fill="#888">/news/ · /partners/ · /reviews/ · /about/ · /photos/</text>
+
+  <!-- ── 4. JSON ответы (←) ── -->
+  <line x1="706" y1="480" x2="350" y2="480"
+        stroke="#1a6b3a" stroke-width="2.5" marker-end="url(#arr-l)"/>
+  <rect x="358" y="448" width="348" height="26" rx="3"
+        fill="#e6f4ec" stroke="#3a8a5a" stroke-width="1"/>
+  <text x="532" y="465" text-anchor="middle" font-size="12" font-weight="bold" fill="#0a3a1a">JSON ответы</text>
+  <rect x="358" y="488" width="348" height="42" rx="3"
+        fill="#e6f4ec" stroke="#3a8a5a" stroke-width="1"/>
+  <text x="532" y="505" text-anchor="middle" font-size="10.5" fill="#0a3a1a">200 OK — данные (массивы / объекты)</text>
+  <text x="532" y="521" text-anchor="middle" font-size="10.5" fill="#0a3a1a">401 → авто-refresh → повтор запроса</text>
+
+  <!-- ── 5. Статика ── -->
+  <rect x="358" y="544" width="348" height="50" rx="3"
+        fill="#f0f0f0" stroke="#aaa" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="532" y="564" text-anchor="middle" font-size="11" font-weight="bold" fill="#444">Статика (медиафайлы)</text>
+  <text x="532" y="580" text-anchor="middle" font-size="10.5" fill="#555">GET /media/news/ · /media/partners/ · /media/reviews/</text>
+  <text x="532" y="590" text-anchor="middle" font-size="10" fill="#777">StaticFiles — напрямую через FastAPI</text>
+
+</svg>

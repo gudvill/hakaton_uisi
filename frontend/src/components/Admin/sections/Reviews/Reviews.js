@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAdminYearOptions } from '../../yearRange';
 import { getReviews, getArchivedReviews, createReviews, updateReviews, disableReview, restoreReview } from '../../../../api/reviewsService';
 import { PencilIcon, TrashIcon, PlusIcon, XMarkIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import FileInputButton from '../../FileInputButton';
 import AdminSelect from '../../AdminSelect';
 
 function formatDate(date) {
@@ -25,7 +26,7 @@ function ReviewEditCard({ form, setForm, file, setFile, apiUrl, onSave, onCancel
           </div>
         )}
       </div>
-      <input type="file" onChange={e => setFile(e.target.files[0])} />
+      <FileInputButton onChange={e => setFile(e.target.files[0])} />
       <textarea className="section-textarea" value={form.content || ''} placeholder="Текст отзыва"
         onChange={e => setForm(p => ({ ...p, content: e.target.value }))} />
       <div className="section-row-actions" style={{ marginTop: 4 }}>

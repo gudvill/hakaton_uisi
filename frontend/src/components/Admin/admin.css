@@ -1,3 +1,25 @@
+.file-input-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: #f3f0ff;
+  border: 1.5px solid #c4b0f5;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6a35cc;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.file-input-btn:hover {
+  background: #ede8ff;
+  border-color: #6a35cc;
+}
+
 /* Общий layout — вертикальная колонка */
 .admin-layout {
   display: flex;

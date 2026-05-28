@@ -20,7 +20,7 @@
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
-  padding: clamp(0.75rem, 2vw, 2rem);
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(0.75rem, 2vw, 2rem) clamp(0.75rem, 2vw, 2rem);
   position: relative;
   transition: transform 0.3s ease;
   display: flex;
@@ -79,18 +79,15 @@
   font-size: clamp(0.75rem, 0.95vw + 0.35rem, 1.3rem);
   font-weight: 500;
   color: #000;
-<<<<<<< HEAD
   margin: clamp(0.35rem, 1vw, 0.75rem) 0 clamp(0.3rem, 1vw, 0.75rem);
-=======
-  margin: clamp(2rem, 4vw, 3.5rem) 0 clamp(0.3rem, 1vw, 0.75rem);
->>>>>>> 8db12870e88075ddd2c7b8472c7f5bca0a2089bf
   line-height: 1.2;
   transition: color 0.3s ease;
+  word-break: break-word;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
-  word-break: break-word;
 }
 
 .level {
@@ -115,10 +112,6 @@
   transition: color 0.3s ease;
   line-height: 1.15;
   word-break: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
   flex-shrink: 1;
   min-height: 0;
 }
@@ -166,6 +159,34 @@
   width: auto;
 }
 
+.info-level--starter {
+  color: #abfaa4;
+  font-weight: 600;
+}
+
+.info-level--advanced {
+  color: #FFE566;
+  font-weight: 600;
+}
+
+.cases-button{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: white;
+  color: black;
+  padding: 10px 15px;
+  border-radius: 100px;
+  transition: all 0.3s;
+  margin-top: 25px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cases-button:hover{
+  transform: scale(1.05);
+}
+
 @media (max-width: 1200px) {
   .cases_container {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -187,7 +208,7 @@
   }
 
   .case_card {
-    padding: 1.35rem 1.25rem 3.5rem;
+    padding: 2.5rem 1.25rem 3.5rem;
   }
 
   .case_header {
@@ -254,7 +275,7 @@
   }
 
   .case_card {
-    padding: 1.15rem 1.1rem 3rem;
+    padding: 2rem 1.1rem 3rem;
     aspect-ratio: 1 / 1.08;
     box-sizing: border-box;
   }
@@ -264,7 +285,6 @@
     min-height: 2.6em;
     margin: 0.15rem 0 0.5rem;
     padding-right: 0.25rem;
-    -webkit-line-clamp: 3;
     line-height: 1.25;
   }
 
@@ -308,7 +328,7 @@
   }
 
   .case_card {
-    padding: 1rem 0.95rem 2.75rem;
+    padding: 1.75rem 0.95rem 2.75rem;
     justify-content: center;
   }
 

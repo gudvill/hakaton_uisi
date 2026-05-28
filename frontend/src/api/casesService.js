@@ -1,4 +1,7 @@
+import axios from "axios";
 import api from "./axios";
+
+const publicApi = axios.create({ baseURL: process.env.REACT_APP_API_URL });
 
 // получить все активные кейсы
 export const getCases = async (params = {}) => {
@@ -6,9 +9,9 @@ export const getCases = async (params = {}) => {
   return res.data;
 };
 
-// получить все архивные кейсы
+// получить все архивные кейсы (публичный эндпоинт, без токена)
 export const getArchivedCases = async (params = {}) => {
-  const res = await api.get("/cases/archived/", { params });
+  const res = await publicApi.get("/cases/archived/", { params });
   return res.data;
 };
 

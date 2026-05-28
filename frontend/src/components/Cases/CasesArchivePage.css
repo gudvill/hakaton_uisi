@@ -1,0 +1,76 @@
+.cases-archive {
+  min-height: 80vh;
+  padding-top: clamp(5rem, calc(80px + 4vw), calc(120px + 2rem));
+  padding-bottom: clamp(2rem, 4vw, 4rem);
+}
+
+.cases-archive h2 {
+  color: white;
+  margin-bottom: 0;
+}
+
+.cases-archive__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  margin-bottom: clamp(1.5rem, 4vw, 4rem);
+}
+
+.cases-archive__years {
+  display: flex;
+  gap: clamp(4px, 1vw, 8px);
+  flex-wrap: wrap;
+}
+
+.cases-archive__year-btn {
+  padding: clamp(4px, 0.8vw, 6px) clamp(10px, 2vw, 20px);
+  border-radius: 50px;
+  font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid #5D44C4;
+  color: white;
+  background: transparent;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.cases-archive__year-btn:hover {
+  border-color: white;
+}
+
+.cases-archive__year-btn--active {
+  background: white;
+  border-color: white;
+  color: #06011F;
+}
+
+.cases-archive__status {
+  color: #aaa;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .cases-archive {
+    padding-top: calc(90px + 1.5rem);
+    padding-bottom: 2rem;
+  }
+
+  .cases-archive__header {
+    margin-bottom: 2rem;
+    gap: 1rem;
+  }
+
+  .cases-archive h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cases-archive__year-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+}

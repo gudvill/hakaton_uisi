@@ -28,6 +28,11 @@
   line-height: 1.5;
 }
 
+.admin-content .review-photo-preview-wrap {
+  display: flex;
+  justify-content: center;
+}
+
 .admin-content .review-edit-card {
   border: 1px dashed #d4c8ff;
   border-radius: 16px;
@@ -36,4 +41,13 @@
   flex-direction: column;
   gap: 8px;
   background: white;
+  overflow: visible;
+}
+
+.admin-content .review-edit-card .section-row-actions {
+  flex-direction: column;
+}
+
+.admin-content .review-edit-card .section-row-actions button {
+  width: 100%;
 }

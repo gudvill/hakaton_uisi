@@ -19,27 +19,25 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const refresh = localStorage.getItem("refresh");
+
+    if (error.response?.status === 401 && !originalRequest._retry && refresh) {
       originalRequest._retry = true;
 
       try {
-        const refresh = localStorage.getItem("refresh");
-
         const res = await axios.post(
           `${process.env.REACT_APP_API_URL}/admin/refresh`,
-          {
-            refresh_token: refresh,
-          }
+          { refresh_token: refresh }
         );
 
         const newAccess = res.data.access_token;
-
         localStorage.setItem("access", newAccess);
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
 
         return api(originalRequest);
       } catch (e) {
-        localStorage.clear();
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
         window.location.href = "/admin/login";
       }
     }

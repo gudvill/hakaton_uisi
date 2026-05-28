@@ -1,4 +1,7 @@
+import axios from "axios";
 import api from "./axios";
+
+const publicApi = axios.create({ baseURL: process.env.REACT_APP_API_URL });
 
 // получить все oзнакомления
 export const getAcquaintances = async () => {
@@ -6,9 +9,15 @@ export const getAcquaintances = async () => {
   return res.data;
 };
 
-// получить oзнакомление по id
+// получить oзнакомление по id (авторизованный)
 export const getAcquaintanceById = async (id) => {
   const res = await api.get(`/acquaintance/${id}`);
+  return res.data;
+};
+
+// получить oзнакомление по id без токена (для публичных компонентов)
+export const getAcquaintanceByIdPublic = async (id) => {
+  const res = await publicApi.get(`/acquaintance/${id}`);
   return res.data;
 };
 

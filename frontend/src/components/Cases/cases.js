@@ -1,5 +1,6 @@
 import './cases.css';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getCases } from '../../api/casesService';
 
 const getLevelModifier = (level) => {
@@ -41,11 +42,12 @@ export default function Cases() {
         ))}
         <div className="info-baner">
           <div className="info-text">
-            <p>Стартовый уровень - для студентов 1-2 курсов.</p>
-            <p>Продвинутый уровень - для студентов 3-5 курса и студентов магистратуры.</p>
+            <p><span className="info-level--starter">Стартовый уровень</span> — для студентов 1-2 курсов.</p>
+            <p><span className="info-level--advanced">Продвинутый уровень</span> — для студентов 3-5 курса и студентов магистратуры.</p>
+            <Link to='/old-cases' className='cases-button'>кейсы прошлых лет <img src='images/black_arrow.svg'></img></Link>
           </div>
           <div className="info-image">
-            <img src="images/computer.png" alt="" />
+            <img src="images/computer.png" alt="компьютер" />
           </div>
         </div>
       </div>

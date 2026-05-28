@@ -21,12 +21,14 @@ import Admin from './components/Admin/admin';
 import NewsAllPage from './components/News/NewsAllPage';
 import NewsDetailPage from './components/News/NewsDetailPage';
 import CaseDetailPage from './components/Cases/CaseDetailPage';
+import CasesArchivePage from './components/Cases/CasesArchivePage';
 import PrivacyPolicy from './components/Policy/PrivacyPolicy';
 import UserAgreement from './components/Policy/UserAgreement';
 import NotFound from './components/NotFound/NotFound';
 import PasswordResetRequestPage from './components/Admin/PasswordResetRequestPage';
 import PasswordResetPage from './components/Admin/PasswordResetPage';
 import PhotoGallery from './components/Photo/photogallery';
+import CookieNotice from './components/CookieNotice/CookieNotice';
 
 function Home() {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
@@ -55,12 +57,14 @@ function Home() {
 export default function App() {
   return (
     <div className="app-wrapper">
+      <CookieNotice />
       <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/news" element={<NewsAllPage />} />
           <Route path="/news/:id" element={<NewsDetailPage />} />
           <Route path='/photogallery' element={<PhotoGallery />} />
           <Route path="/case/:id" element={<CaseDetailPage />} />
+          <Route path="/old-cases" element={<CasesArchivePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/user-agreement" element={<UserAgreement />} />
           <Route path="*" element={<NotFound />} />

@@ -24,9 +24,9 @@ export default function Footer() {
     </div>
     <div className='politics'>
       <Link to="/privacy-policy">Политика конфиденциальности</Link>
-      <Link to="/UserAgreement">Пользовательское соглашение</Link>
+      <Link to="/user-agreement">Пользовательское соглашение</Link>
     </div>
-    <p className='copy'>© 2023 - {new Date().getFullYear()} ВСЕРОССИЙСКИЙ ХАКАТОН СВЯЗИ</p>
+    <p className='copy'>© 2022 - {new Date().getFullYear()} ВСЕРОССИЙСКИЙ ХАКАТОН СВЯЗИ</p>
     </footer>
   );
 }

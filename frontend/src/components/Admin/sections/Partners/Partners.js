@@ -2,6 +2,7 @@ import './Partners.css';
 import { useState, useEffect, useCallback } from 'react';
 import { getPartners, getArchivedPartners, createPartner, updatePartner, disablePartner, restorePartner } from '../../../../api/partnersService';
 import { PencilIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon, XMarkIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import FileInputButton from '../../FileInputButton';
 
 const SORTABLE_KEYS = ['name', 'description', 'full_description'];
 
@@ -11,7 +12,7 @@ function PartnersEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCance
   );
   return (
     <tr className="section-edit-row">
-      <td style={{ width: 56 }}>
+      <td style={{ width: 80 }}>
         {file ? (
           <img className="section-thumbnail partner-logo" src={URL.createObjectURL(file)} alt="" style={{ objectFit: 'contain', background: '#f3f0ff' }} />
         ) : form.image ? (
@@ -19,11 +20,20 @@ function PartnersEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCance
         ) : (
           <div style={{ width: 44, height: 44, background: '#f3f0ff', borderRadius: 8 }} />
         )}
+        <FileInputButton onChange={e => setFile(e.target.files[0])} />
       </td>
-      <td><input type="file" onChange={e => setFile(e.target.files[0])} /></td>
       <td>{inp('name', 'Название')}</td>
       <td>{inp('description', 'Описание')}</td>
-      <td>{inp('full_description', 'Полное описание')}</td>
+      <td>
+        <textarea
+          className="section-textarea"
+          value={form.full_description || ''}
+          placeholder="Полное описание"
+          rows={3}
+          style={{ resize: 'vertical', minHeight: 60 }}
+          onChange={e => setForm(p => ({ ...p, full_description: e.target.value }))}
+        />
+      </td>
       <td>{inp('site_link', 'Ссылка на сайт')}</td>
       <td>
         <div className="section-row-actions">
@@ -188,7 +198,6 @@ export default function Partners() {
             <tr>
               <th style={{ width: 56 }}>Лого</th>
               {[
-                { key: 'image', label: 'Путь к фото' },
                 { key: 'name', label: 'Название' },
                 { key: 'description', label: 'Описание' },
                 { key: 'full_description', label: 'Полное описание' },
@@ -240,9 +249,6 @@ export default function Partners() {
                   {item.image && (
                     <img className="section-thumbnail partner-logo" src={`${API_URL}${item.image}`} alt="" />
                   )}
-                </td>
-                <td style={{ fontSize: 11, color: '#aaa', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {item.image || '—'}
                 </td>
                 <td style={{ fontWeight: 600 }}>{item.name || '—'}</td>
                 <td className="partner-desc">{item.description || '—'}</td>
