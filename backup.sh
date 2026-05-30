@@ -1,8 +1,8 @@
 #!/bin/bash
 
 set -e
-PROJECT_DIR="/home/user/hakaton_uisi"
-BACKUP_DIR="/home/user/backups"
+PROJECT_DIR="/root/hakaton_uisi"
+BACKUP_DIR="/root/backups"
 mkdir -p "$BACKUP_DIR"
 
 echo "Запуск резервного копирования"
