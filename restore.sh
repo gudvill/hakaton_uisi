@@ -24,7 +24,10 @@ echo "Запуск контейнера базы данных..."
 docker-compose up -d db
 echo "Ожидание запуска PostgreSQL..."
 sleep 10
-
+echo "Остановка сервисов..."
+docker-compose stop backend nginx
+echo "Завершение активных подключений к базе данных..."
+docker-compose exec -T db psql -U "$POSTGRES_USER" -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$POSTGRES_DB' AND pid <> pg_backend_pid();"
 echo "Удаление существующей базы данных..."
 docker-compose exec -T db psql -U "$POSTGRES_USER" -d postgres -c "DROP DATABASE IF EXISTS \"$POSTGRES_DB\";"
 echo "Создание новой базы данных..."
@@ -42,4 +45,7 @@ fi
 
 echo "Восстановление файлов media..."
 tar -xzf "$BACKUP_DIR/media.tar.gz" -C "$PROJECT_DIR/backend"
+
+echo "Запуск сервисов..."
+docker-compose start backend nginx
 echo "Восстановление успешно завершено"
