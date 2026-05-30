@@ -21,16 +21,16 @@ if [ ! -f "$BACKUP_DIR/media.tar.gz" ]; then
 fi
 
 echo "Запуск контейнера базы данных..."
-docker compose up -d db
+docker-compose up -d db
 echo "Ожидание запуска PostgreSQL..."
 sleep 10
 
 echo "Удаление существующей базы данных..."
-docker compose exec -T db psql -U "$POSTGRES_USER" -d postgres -c "DROP DATABASE IF EXISTS \"$POSTGRES_DB\";"
+docker-compose exec -T db psql -U "$POSTGRES_USER" -d postgres -c "DROP DATABASE IF EXISTS \"$POSTGRES_DB\";"
 echo "Создание новой базы данных..."
-docker compose exec -T db psql -U "$POSTGRES_USER" -d postgres -c "CREATE DATABASE \"$POSTGRES_DB\";"
+docker-compose exec -T db psql -U "$POSTGRES_USER" -d postgres -c "CREATE DATABASE \"$POSTGRES_DB\";"
 echo "Восстановление базы данных..."
-docker compose exec -T db pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges < "$BACKUP_DIR/db.dump"
+docker-compose exec -T db pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges < "$BACKUP_DIR/db.dump"
 
 MEDIA_DIR="$PROJECT_DIR/backend/media"
 if [ -d "$MEDIA_DIR" ]; then

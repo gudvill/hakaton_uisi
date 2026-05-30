@@ -12,7 +12,7 @@ source .env
 set +a
 
 echo "Создание дампа базы данных..."
-docker compose exec -T db pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "$BACKUP_DIR/db.dump"
+docker-compose exec -T db pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "$BACKUP_DIR/db.dump"
 
 echo "Архивация папки media..."
 tar -czf "$BACKUP_DIR/media.tar.gz" -C "$PROJECT_DIR/backend" media
