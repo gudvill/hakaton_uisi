@@ -364,7 +364,7 @@ def get_cases(search: str = None, year: int = None, level: str = None, sort_by: 
     return [CaseSerializer(**row) for row in use_case.get_filtered(search, year, level, sort_by, sort_dir)]
 
 @cases_router.get("/archived/", response_model=List[CaseSerializer])
-def get_archived_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "case_number", sort_dir: str = "asc", use_case: CasesUseCase = Depends(get_cases_usecase), admin=Depends(get_current_admin)):
+def get_archived_cases(search: str = None, year: int = None, level: str = None, sort_by: str = "case_number", sort_dir: str = "asc", use_case: CasesUseCase = Depends(get_cases_usecase)):
     return [CaseSerializer(**row) for row in use_case.get_filtered_archived(search, year, level, sort_by, sort_dir)]
 
 @cases_router.get("/{case_id}", response_model=CaseSerializer)
