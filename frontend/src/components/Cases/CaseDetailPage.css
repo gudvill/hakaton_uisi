@@ -72,9 +72,9 @@
 .case-detail__partner-card {
   background: #fff;
   border-radius: 20px;
-  padding: 1.5rem 2rem;
-  min-width: 180px;
-  max-width: 220px;
+  padding: 1.5rem;
+  width: 200px;
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -85,9 +85,10 @@
 
 .case-detail__partner-img {
   width: 100%;
-  max-height: 80px;
+  flex: 1;
+  min-height: 0;
   object-fit: contain;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .case-detail__partner-name {

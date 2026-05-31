@@ -13,9 +13,13 @@ const NAV_LINKS = [
   { href: '/photogallery', label: 'Фотогалерея' },
 ];
 
-export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRegistrationOpen }) {
+export default function Header({ onOpenRegistration, isRegistrationOpen: externalOpen, setIsRegistrationOpen: externalSetOpen }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+
+  const isRegistrationOpen = onOpenRegistration ? externalOpen : localOpen;
+  const setIsRegistrationOpen = onOpenRegistration ? externalSetOpen : setLocalOpen;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -42,7 +46,11 @@ export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRe
 
   const handleRegistration = () => {
     closeMenu();
-    onOpenRegistration();
+    if (onOpenRegistration) {
+      onOpenRegistration();
+    } else {
+      setLocalOpen(true);
+    }
   };
 
   return (

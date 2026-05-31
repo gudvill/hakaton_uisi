@@ -129,7 +129,7 @@
 .partner-modal__name {
   font-size: clamp(1.25rem, 4vw, 2rem);
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
   color: #000;
   line-height: 1.2;
   padding-right: 2rem;
@@ -138,9 +138,10 @@
 .partner-modal__desc {
   font-size: clamp(0.9rem, 2.5vw, 1.3rem);
   line-height: 1.45;
-  font-weight: 400;
+  font-weight: 300;
   margin-bottom: clamp(1.25rem, 4vw, 2.5rem);
   color: #000;
+  white-space: pre-wrap;
 }
 
 .partner-modal__site {

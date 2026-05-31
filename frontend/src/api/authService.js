@@ -13,7 +13,8 @@ export const login = async (login, password) => {
 
 // выход
 export const logout = () => {
-  localStorage.clear();
+  localStorage.removeItem('access');
+  localStorage.removeItem('refresh');
 };
 
 // refresh
