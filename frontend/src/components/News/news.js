@@ -5,16 +5,6 @@ import { getNews } from '../../api/newsService';
 import FadeIn from '../FadeIn/FadeIn';
 import './news.css';
 
-const gridContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const cardVariant = {
-  hidden: { opacity: 0, y: 45 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] } },
-};
-
 export default function News() {
   const [news, setNews] = useState([]);
   const API_URL = process.env.REACT_APP_API_URL || '';
@@ -32,9 +22,7 @@ export default function News() {
       'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
       'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
     ];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return `${day} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   };
 
   return (
@@ -44,15 +32,16 @@ export default function News() {
           <h2>НОВОСТИ</h2>
         </div>
       </FadeIn>
-      <motion.div
-        className="news-grid"
-        variants={gridContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-      >
-        {news.slice(0, 4).map((item) => (
-          <motion.div key={item.id} className="news-card-wrapper" variants={cardVariant}>
+      <div className="news-grid">
+        {news.slice(0, 4).map((item, i) => (
+          <motion.div
+            key={item.id}
+            className="news-card-wrapper"
+            initial={{ opacity: 0, y: 45 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.55, delay: Math.min(i, 3) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+          >
             <Link className="news-card" to={`/news/${item.id}`}>
               <div className="news-card__img-wrap">
                 <img className="news-card__img" src={`${API_URL}${item.image}`} alt={item.name} />
@@ -66,7 +55,7 @@ export default function News() {
             </Link>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
       <FadeIn variant="fadeUp" delay={0.2}>
         <Link className="news-all-link" to="/news">
           все новости <img src="images/arrow_white.svg" alt="стрелка" />

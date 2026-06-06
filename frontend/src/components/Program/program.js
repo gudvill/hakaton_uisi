@@ -4,16 +4,6 @@ import { motion } from 'framer-motion';
 import { getProgram } from "../../api/programService";
 import FadeIn from '../FadeIn/FadeIn';
 
-const listContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const rowVariant = {
-  hidden: { opacity: 0, x: -40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
-};
-
 export default function Program() {
   const [programData, setProgramData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,19 +48,21 @@ export default function Program() {
       <FadeIn variant="fadeUp">
         <h2>ПРОГРАММА ХАКАТОНА</h2>
       </FadeIn>
-      <motion.div
-        variants={listContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-      >
-        {programData.map((item) => (
-          <motion.div className='program-card' key={item.id} variants={rowVariant}>
+      <div>
+        {programData.map((item, i) => (
+          <motion.div
+            className='program-card'
+            key={item.id}
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5, delay: Math.min(i, 4) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+          >
             <p className='date'>{formatDateRange(item.start_date, item.end_date)}</p>
             <p className='program-text'>{item.text}</p>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }

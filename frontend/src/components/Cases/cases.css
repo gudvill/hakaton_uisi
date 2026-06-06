@@ -2,7 +2,6 @@
   background-color: #06011f;
   min-height: 100vh;
   padding: clamp(2rem, 6vh, 4rem) 0;
-  overflow-x: clip;
 }
 
 .cases h2 {

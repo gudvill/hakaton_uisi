@@ -24,7 +24,7 @@ export default function FadeIn({
       style={style}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, amount: 0.1 }}
       variants={variants[variant]}
       transition={{ duration, delay, ease }}
     >

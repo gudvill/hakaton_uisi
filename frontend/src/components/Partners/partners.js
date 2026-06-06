@@ -4,16 +4,6 @@ import { motion } from 'framer-motion';
 import { getPartners } from '../../api/partnersService';
 import FadeIn from '../FadeIn/FadeIn';
 
-const gridContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
-};
-
-const cardVariant = {
-  hidden: { opacity: 0, scale: 0.88 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] } },
-};
-
 export default function Partners() {
   const [partnersData, setPartnersData] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -30,25 +20,22 @@ export default function Partners() {
       <FadeIn variant="fadeUp">
         <h2>ПАРТНЕРЫ</h2>
       </FadeIn>
-      <motion.div
-        className="partners-grid"
-        variants={gridContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-      >
-        {partnersData.map((partner) => (
+      <div className="partners-grid">
+        {partnersData.map((partner, i) => (
           <motion.div
             className="partner-card"
             key={partner.id}
             onClick={() => setSelected(partner)}
-            variants={cardVariant}
+            initial={{ opacity: 0, scale: 0.88 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.45, delay: Math.min(i, 5) * 0.07, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <img src={`${API_URL}${partner.image}`} alt={partner.name} />
             <p className="partner-name">{partner.name}</p>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
 
       {selected && (
         <div className="partner-modal-overlay" onClick={() => setSelected(null)}>

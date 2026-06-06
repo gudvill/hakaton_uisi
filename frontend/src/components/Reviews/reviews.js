@@ -5,9 +5,9 @@ import { getReviews } from '../../api/reviewsService';
 import FadeIn from '../FadeIn/FadeIn';
 
 const directions = [
-  { hidden: { opacity: 0, x: -50 }, visible: { opacity: 1, x: 0 } },
-  { hidden: { opacity: 0, y: 50 },  visible: { opacity: 1, y: 0 } },
-  { hidden: { opacity: 0, x: 50 },  visible: { opacity: 1, x: 0 } },
+  { x: -50, y: 0 },
+  { x: 0,   y: 50 },
+  { x: 50,  y: 0  },
 ];
 
 export default function Reviews() {
@@ -46,10 +46,9 @@ export default function Reviews() {
                 toggleFolder(review.id);
               }
             }}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-            variants={directions[i % 3]}
+            initial={{ opacity: 0, x: directions[i % 3].x, y: directions[i % 3].y }}
+            whileInView={{ opacity: 1, x: 0, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.6, delay: i * 0.12, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <img className="folder-back" src="/images/papka_back.svg" alt="" />

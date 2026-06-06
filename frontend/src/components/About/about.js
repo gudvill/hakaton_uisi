@@ -4,16 +4,6 @@ import { getAbout } from '../../api/aboutService';
 import FadeIn from '../FadeIn/FadeIn';
 import './about.css';
 
-const staggerContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-const cellVariant = {
-  hidden: { opacity: 0, y: 35 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] } },
-};
-
 export default function About() {
   const [steps, setSteps] = useState([]);
   const API_URL = process.env.REACT_APP_API_URL || '';
@@ -42,11 +32,7 @@ export default function About() {
       </FadeIn>
       <div className="roadmap">
         <FadeIn variant="fadeIn" duration={0.8}>
-          <svg
-            className="roadmap-svg"
-            viewBox="0 0 1200 900"
-            preserveAspectRatio="none"
-          >
+          <svg className="roadmap-svg" viewBox="0 0 1200 900" preserveAspectRatio="none">
             <defs>
               <linearGradient id="snakeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#A558F8" />
@@ -55,26 +41,20 @@ export default function About() {
             </defs>
             <path
               d="M 200,150 H 1050 A 50,50 0 0,1 1100,200 V 400 A 50,50 0 0,1 1050,450 H 150 A 50,50 0 0,0 100,500 V 700 A 50,50 0 0,0 150,750 H 600"
-              stroke="url(#snakeGrad)"
-              strokeWidth="15"
-              fill="none"
-              strokeLinecap="round"
+              stroke="url(#snakeGrad)" strokeWidth="15" fill="none" strokeLinecap="round"
             />
           </svg>
         </FadeIn>
-        <motion.div
-          className="roadmap-grid"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-        >
-          {orderedSteps.map((s) => (
+        <div className="roadmap-grid">
+          {orderedSteps.map((s, i) => (
             <motion.div
               key={s.id}
               className="roadmap-cell"
               style={getGridPosition(s.order_index)}
-              variants={cellVariant}
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.55, delay: Math.min(i, 4) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <div className="roadmap-circle"><img src={`${API_URL}${s.icon}`} alt={s.title} /></div>
               <div className="roadmap-label">
@@ -83,7 +63,7 @@ export default function About() {
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

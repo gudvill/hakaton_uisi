@@ -17,16 +17,6 @@ const formatCaseNumber = (num) => {
   return String(num).padStart(2, '0');
 };
 
-const gridContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
-const cardVariant = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
-};
-
 export default function Cases() {
   const [casesData, setCasesData] = useState([]);
 
@@ -41,19 +31,16 @@ export default function Cases() {
       <FadeIn variant="fadeUp">
         <h2>КЕЙСЫ</h2>
       </FadeIn>
-      <motion.div
-        className="cases_container"
-        variants={gridContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-      >
-        {casesData.map((caseItem) => (
+      <div className="cases_container">
+        {casesData.map((caseItem, i) => (
           <motion.a
             className={`case_card ${getLevelModifier(caseItem.level)}`}
             key={caseItem.id}
             href={`/case/${caseItem.id}`}
-            variants={cardVariant}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5, delay: Math.min(i, 3) * 0.08, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <h3 className="case_header">{caseItem.name}</h3>
             <span className="level">{caseItem.level}</span>
@@ -61,7 +48,13 @@ export default function Cases() {
             <p className="case_number">{formatCaseNumber(caseItem.case_number)}</p>
           </motion.a>
         ))}
-        <motion.div className="info-baner" variants={cardVariant}>
+        <motion.div
+          className="info-baner"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           <div className="info-text">
             <p><span className="info-level--starter">Стартовый уровень</span> — для студентов 1-2 курсов.</p>
             <p><span className="info-level--advanced">Продвинутый уровень</span> — для студентов 3-5 курса и студентов магистратуры.</p>
@@ -71,7 +64,7 @@ export default function Cases() {
             <img src="images/computer.png" alt="компьютер" />
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }
