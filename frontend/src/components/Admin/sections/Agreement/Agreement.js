@@ -1,4 +1,4 @@
-import './Agreement.css';
+import '../Policy/Policy.css';
 import { useState, useEffect } from 'react';
 import { getAcquaintanceById, updateAcquaintance } from '../../../../api/acquaintanceService';
 import { PencilIcon } from '@heroicons/react/24/outline';

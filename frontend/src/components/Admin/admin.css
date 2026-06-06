@@ -30,7 +30,6 @@
   position: relative;
   font-family: 'Montserrat', sans-serif;
   padding: 16px;
-  box-sizing: border-box;
   gap: 12px;
 }
 
@@ -275,7 +274,6 @@
   font-size: 13px;
   color: #1a1a2e;
   font-family: inherit;
-  box-sizing: border-box;
 }
 .admin-content .section-input:focus { outline: none; border-color: #6a35cc; }
 
@@ -290,7 +288,6 @@
   resize: vertical;
   min-height: 72px;
   font-family: inherit;
-  box-sizing: border-box;
 }
 .admin-content .section-textarea:focus { outline: none; border-color: #6a35cc; }
 
@@ -370,7 +367,6 @@
   padding: 7px 14px;
   flex: 1;
   min-width: 200px;
-  box-sizing: border-box;
 }
 
 .admin-content .participants-search-icon {
