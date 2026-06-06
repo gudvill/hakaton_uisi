@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getNews } from '../../api/newsService'; 
+import { motion } from 'framer-motion';
+import { getNews } from '../../api/newsService';
+import FadeIn from '../FadeIn/FadeIn';
 import './news.css';
+
+const gridContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const cardVariant = {
+  hidden: { opacity: 0, y: 45 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] } },
+};
 
 export default function News() {
   const [news, setNews] = useState([]);
@@ -13,7 +25,6 @@ export default function News() {
       .catch(err => console.error("Ошибка загрузки новостей:", err));
   }, []);
 
-  // Функция форматирования даты
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -28,13 +39,20 @@ export default function News() {
 
   return (
     <section className="news container" id="news">
-      <div className="news-header">
-        <h2>НОВОСТИ</h2>
-      </div>
-
-      <div className="news-grid">
+      <FadeIn variant="fadeUp">
+        <div className="news-header">
+          <h2>НОВОСТИ</h2>
+        </div>
+      </FadeIn>
+      <motion.div
+        className="news-grid"
+        variants={gridContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-60px' }}
+      >
         {news.slice(0, 4).map((item) => (
-          <div key={item.id} className="news-card-wrapper">
+          <motion.div key={item.id} className="news-card-wrapper" variants={cardVariant}>
             <Link className="news-card" to={`/news/${item.id}`}>
               <div className="news-card__img-wrap">
                 <img className="news-card__img" src={`${API_URL}${item.image}`} alt={item.name} />
@@ -46,13 +64,14 @@ export default function News() {
                 <span className="news-card__link">перейти →</span>
               </div>
             </Link>
-          </div>
+          </motion.div>
         ))}
-      </div>
-
-      <Link className="news-all-link" to="/news">
-        все новости <img src="images/arrow_white.svg" alt="стрелка" />
-      </Link>
+      </motion.div>
+      <FadeIn variant="fadeUp" delay={0.2}>
+        <Link className="news-all-link" to="/news">
+          все новости <img src="images/arrow_white.svg" alt="стрелка" />
+        </Link>
+      </FadeIn>
     </section>
   );
 }
