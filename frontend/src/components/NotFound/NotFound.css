@@ -1,19 +1,16 @@
 .notfound-page {
-  padding-top: 70px;
-  min-height: calc(100vh - 160px);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  font-family: 'Montserrat', sans-serif;
+  padding: calc(70px + 2rem) 1rem 2rem;
 }
 
 .notfound-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
   text-align: center;
 }
 
@@ -24,43 +21,38 @@
 }
 
 .notfound-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-family: 'HomeVideo', sans-serif;
+  font-size: clamp(1.4rem, 4.5vw, 2rem);
+  font-weight: 400;
   color: #ffffff;
-  text-transform: none;
-  margin: 0;
-}
-
-.notfound-description {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.55);
-  max-width: 360px;
-  line-height: 1.6;
+  margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
 }
 
 .notfound-button {
   margin-top: 16px;
   color: #ffffff;
+  background: transparent;
   border: 2px solid #ffffff;
-  padding: 14px 40px;
-  font-size: 15px;
-  font-weight: 700;
+  padding: 10px 30px;
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  font-weight: 400;
   letter-spacing: 0.06em;
   cursor: pointer;
   transition: all ease 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'HomeVideo', sans-serif;
 }
 
 .notfound-button:hover {
   transform: scale(1.1);
 }
 
-@media (max-width: 480px) {
-  .notfound-code {
-    font-size: 100px;
+@media (max-width: 767px) {
+  .notfound-page {
+    min-height: 60vh;
+    padding: calc(70px + 1.5rem) 1rem 2rem;
   }
 
-  .notfound-title {
-    font-size: 22px;
+  .notfound-code {
+    max-width: 80%;
   }
 }

@@ -9,33 +9,34 @@ import './NewsAllPage.css';
 const PER_PAGE = 20;
 
 export default function NewsAllPage() {
-  const [news, setNews] = useState([]);
+  const [allNews, setAllNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeYear, setActiveYear] = useState(null);
   const [page, setPage] = useState(1);
   const API_URL = process.env.REACT_APP_API_URL || '';
-  
+
   useEffect(() => {
     setLoading(true);
-
-    getNews({
-      year: activeYear || undefined
-    })
-      .then(setNews)
+    getNews()
+      .then(setAllNews)
       .catch(console.error)
       .finally(() => setLoading(false));
-
-  }, [activeYear]);
+  }, []);
 
   const years = useMemo(() => {
-    const set = new Set(news.map(n => new Date(n.created_at).getFullYear()));
+    const set = new Set(allNews.map(n => new Date(n.created_at).getFullYear()));
     return [...set].sort((a, b) => b - a);
-  }, [news]);
+  }, [allNews]);
 
-  const totalPages = Math.ceil(news.length / PER_PAGE);
+  const filtered = useMemo(() => {
+    if (!activeYear) return allNews;
+    return allNews.filter(n => new Date(n.created_at).getFullYear() === activeYear);
+  }, [allNews, activeYear]);
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paginated = useMemo(() => {
-    return news.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  }, [news, page]);
+    return filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  }, [filtered, page]);
 
   const setYear = (year) => { setActiveYear(year); setPage(1); };
   const goTo = (p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); };

@@ -32,29 +32,27 @@ export default function CaseDetailPage() {
           <article className="case-detail__article">
 
             <div className="case-detail__top">
-              <div className="case-detail__top-left">
-                <div className="case-detail__heading-row">
-                  <h1 className="case-detail__number">
-                    КЕЙС {String(item.case_number).padStart(2, '0')}
-                  </h1>
-                  {item.level && (
-                    <span className="case-detail__level">{item.level}</span>
-                  )}
-                </div>
-
-                <p className="case-detail__name">{item.name}</p>
-
-                <div className="case-detail__teams">
-                  <span className="case-detail__teams-badge">КОМАНД: {item.registered_teams_count } / {item.teams_count }</span>
-                </div>
+              <div className="case-detail__heading-row">
+                <h1 className="case-detail__number">
+                  КЕЙС {String(item.case_number).padStart(2, '0')}
+                </h1>
+                {item.level && (
+                  <span className="case-detail__level">{item.level}</span>
+                )}
               </div>
 
               {item.partner_name && (
                 <div className="case-detail__partner-card">
-                    <img src={`${API_URL}${item.partner_image}`} alt={item.partner_name} className="case-detail__partner-img" />
+                  <img src={`${API_URL}${item.partner_image}`} alt={item.partner_name} className="case-detail__partner-img" />
                   <span className="case-detail__partner-name">{item.partner_name}</span>
                 </div>
               )}
+
+              <p className="case-detail__name">{item.name}</p>
+
+              <div className="case-detail__teams">
+                <span className="case-detail__teams-badge">КОМАНД: {item.registered_teams_count} / {item.teams_count}</span>
+              </div>
             </div>
 
             <div className="case-detail__divider" />
