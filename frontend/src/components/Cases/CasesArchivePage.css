@@ -7,6 +7,12 @@
 .cases-archive h2 {
   color: white;
   margin-bottom: 0;
+  font-size: clamp(1.6rem, 5vw, 3.5rem);
+}
+
+.cases-archive.container {
+  width: 95vw !important;
+  max-width: none !important;
 }
 
 .cases-archive__header {
@@ -53,24 +59,33 @@
 }
 
 @media (max-width: 768px) {
-  .cases-archive {
-    padding-top: calc(90px + 1.5rem);
-    padding-bottom: 2rem;
-  }
-
   .cases-archive__header {
-    margin-bottom: 2rem;
-    gap: 1rem;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .cases-archive h2 {
-    font-size: 2rem;
+    font-size: clamp(2rem, 6vw, 2.8rem)!important;
+    line-height: 1.1;
+  }
+
+  .cases-archive__years {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .cases-archive__year-btn {
-    padding: 4px 12px;
-    font-size: 12px;
+  .cases-archive__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cases-archive h2 {
+    font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+    line-height: 1.6;
+  }
+
+  .cases-archive__years {
+    width: 100%;
   }
 }

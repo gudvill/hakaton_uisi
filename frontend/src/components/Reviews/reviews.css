@@ -61,7 +61,7 @@
   left: 0;
   width: 100%;
   z-index: 4;
-  max-height: 81%;
+  max-height: 85%;
   box-sizing: border-box;
   padding: clamp(0.65rem, 2vw, 1rem) clamp(0.875rem, 3vw, 1.875rem)
     clamp(1rem, 2.5vw, 1.625rem);
@@ -92,6 +92,7 @@
   color: white;
   font-size: clamp(0.75rem, 1.2vw + 0.3rem, 1.125rem);
   line-height: 1.45;
+  font-weight: 300;
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
