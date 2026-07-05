@@ -1,4 +1,4 @@
-import axios from "axios";
+/*import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -46,8 +46,8 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
-/* import axios from "axios";
+export default api;*/
+import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -73,4 +73,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api; */
+export default api;
