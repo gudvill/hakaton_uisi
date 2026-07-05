@@ -50,14 +50,19 @@
   color: #06011F;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  .news-all.container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .news-all {
     padding-top: calc(90px + 1.5rem);
     padding-bottom: 2rem;
   }
 
   .news-all h2 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
     margin-bottom: 0;
   }
 
@@ -67,8 +72,8 @@
   }
 
   .news-all .news-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.65rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 

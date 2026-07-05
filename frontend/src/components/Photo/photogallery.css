@@ -1,11 +1,12 @@
 .photogallery {
-  padding-top: calc(120px + 2rem);
-  padding-bottom: 4rem;
+  padding-top: clamp(calc(70px + 2rem), calc(80px + 4vw), calc(120px + 2rem));
+  padding-bottom: clamp(2rem, 4vw, 4rem);
   color: white;
   min-height: 80vh;
 }
 
 .photogallery h2 {
+  font-size: clamp(1.5rem, 5vw, 4rem);
   margin-bottom: clamp(1.5rem, 4vw, 4rem);
   text-transform: uppercase;
   color: white;
@@ -17,20 +18,11 @@
   font-size: clamp(0.85rem, 1.5vw, 1rem);
 }
 
-/* Сетка 4 в строку */
+/* Сетка */
 .photogallery__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: clamp(6px, 1.5vw, 12px);
-}
-
-@media (max-width: 1024px) {
-  .photogallery__grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 640px) {
-  .photogallery__grid { grid-template-columns: repeat(2, 1fr); }
-  .photogallery h2 { font-size: 2rem; margin-bottom: 2rem; }
 }
 
 /* Карточка фото */
@@ -38,7 +30,7 @@
   position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: clamp(8px, 2vw, 16px);
   cursor: pointer;
 }
 
@@ -64,7 +56,7 @@
   opacity: 0;
   transition: opacity 0.25s ease;
   color: white;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 300;
 }
 
@@ -81,12 +73,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: clamp(8px, 2vw, 16px);
+  padding: clamp(0.5rem, 2vw, 1rem);
 }
 
 .photogallery__lb-content {
-  max-width: 85vw;
-  max-height: 85vh;
+  max-width: 90vw;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -95,38 +88,42 @@
 
 .photogallery__lb-content img {
   max-width: 100%;
-  max-height: 80vh;
+  max-height: 85vh;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: clamp(4px, 1vw, 8px);
 }
 
 .photogallery__lb-caption {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
   text-align: center;
 }
 
 .photogallery__lb-close {
   position: absolute;
-  top: 20px;
-  right: 24px;
+  top: clamp(10px, 2vw, 20px);
+  right: clamp(12px, 2vw, 24px);
   background: none;
+  border: none;
   color: white;
-  font-size: 24px;
+  font-size: clamp(18px, 3vw, 24px);
   cursor: pointer;
   opacity: 0.7;
   transition: opacity 0.15s;
+  z-index: 2001;
 }
 
-.photogallery__lb-close:hover { opacity: 1; }
+.photogallery__lb-close:hover {
+  opacity: 1;
+}
 
 .photogallery__lb-prev,
 .photogallery__lb-next {
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  font-size: 2.5rem;
-  width: 52px;
-  height: 52px;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  width: clamp(36px, 6vw, 52px);
+  height: clamp(36px, 6vw, 52px);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -140,4 +137,35 @@
 .photogallery__lb-prev:hover,
 .photogallery__lb-next:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Адаптив ── */
+@media (max-width: 1024px) {
+  .photogallery__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .photogallery.container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .photogallery__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photogallery h2 {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+  }
+
+  .photogallery__lb-content {
+    max-width: 95vw;
+    max-height: 85vh;
+  }
+
+  .photogallery__lb-content img {
+    max-height: 75vh;
+  }
 }

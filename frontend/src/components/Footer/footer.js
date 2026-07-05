@@ -10,9 +10,9 @@ export default function Footer() {
         <p>ВСЕРОССИЙСКИЙ ХАКАТОН СВЯЗИ</p>
         </div>
         <div className='social-icon'>
-            <a href='https://t.me/vth2023'><img src='images/telegram.svg' alt='Телеграм'></img></a>
-            <a href='https://vk.com/hakatonurtisi'><img src='images/vk.svg' alt='Вконтакте'></img></a>
-            <a href='#'><img src='images/max.svg' alt='Макс'></img></a>
+            <a href='https://t.me/+igokew0Mc-43OWIy'><img src='/images/telegram.svg' alt='Телеграм'></img></a>
+            <a href='https://vk.com/hakatonurtisi'><img src='/images/vk.svg' alt='Вконтакте'></img></a>
+            <a href='https://max.ru/id5405101327_gos2'><img src='/images/max.svg' alt='Макс'></img></a>
         </div>
         <div>
             <p>priem@urtisi.ru<br/>laa@urtisi.ru</p>

@@ -23,7 +23,14 @@ function PartnersEditRow({ form, setForm, file, setFile, apiUrl, onSave, onCance
         <FileInputButton onChange={e => setFile(e.target.files[0])} />
       </td>
       <td>{inp('name', 'Название')}</td>
-      <td>{inp('description', 'Описание')}</td>
+      <td>
+        <textarea
+          className="section-input section-textarea"
+          value={form['description'] || ''}
+          placeholder="Описание"
+          onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+        />
+      </td>
       <td>{inp('site_link', 'Ссылка на сайт')}</td>
       <td>
         <div className="section-row-actions">

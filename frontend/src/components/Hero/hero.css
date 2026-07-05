@@ -119,13 +119,14 @@
 }
 
 @media (max-width: 768px) {
-<<<<<<< HEAD
-  .hero-visual { width: 55%; top: 25%; }
-=======
   .hero {
     min-height: auto;
     padding: 100px 0 40px;
     align-items: flex-start;
+  }
+
+  .hero-background {
+    background-size: 100% 100%;
   }
 
   .hero-body {
@@ -150,7 +151,6 @@
     align-items: center;
     gap: 0.75rem;
   }
->>>>>>> 8db12870e88075ddd2c7b8472c7f5bca0a2089bf
 
   .hero-btn.hero-btn-outline,
   .hero-btn.hero-btn-solid {
@@ -163,13 +163,9 @@
 }
 
 @media (max-width: 480px) {
-<<<<<<< HEAD
-  .hero-visual { width: 70%; top: 20%; }
-=======
   .hero {
     padding: 90px 0 32px;
   }
->>>>>>> 8db12870e88075ddd2c7b8472c7f5bca0a2089bf
 
   .hero-visual {
     width: 90%;

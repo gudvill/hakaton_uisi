@@ -21,9 +21,9 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          <img src='/images/logo2.svg' alt="logo" />
-      </div>
+      <Link to="/" className="login-logo">
+        <img src="/images/logo2.svg" alt="logo" />
+      </Link>
 
       <div className="login-card">
         <h2 className="login-title">Вход в админ-панель</h2>

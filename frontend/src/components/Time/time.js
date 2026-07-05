@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import FlipClockCountdown from '@leenguyen/react-flip-clock-countdown';
 import '@leenguyen/react-flip-clock-countdown/dist/index.css';
 import { getEventDate } from '../../api/programService';
+import FadeIn from '../FadeIn/FadeIn';
 import './time.css';
 
 export default function Time() {
@@ -28,21 +29,23 @@ export default function Time() {
   return (
     <section className="time">
       <div className="time-container container">
-        {!isComplete && <h2 className="time-title">до события осталось</h2>}
-        <FlipClockCountdown
-          to={eventDate}
-          className="time-flip-clock"
-          labels={['ДНЕЙ', 'ЧАСОВ', 'МИНУТ', 'СЕКУНД']}
-          showSeparators
-          duration={0.5}
-          hideOnComplete
-          stopOnHiddenVisibility
-          onComplete={() => setIsComplete(true)}
-          labelStyle={{ fontFamily: "'Montserrat', sans-serif" }}
-          digitBlockStyle={{ fontFamily: "'Russo One', sans-serif" }}
-        >
-          <h2 className="time-title time-title--complete">событие началось</h2>
-        </FlipClockCountdown>
+        <FadeIn variant="fadeUp" duration={0.6}>
+          {!isComplete && <h2 className="time-title">до события осталось</h2>}
+          <FlipClockCountdown
+            to={eventDate}
+            className="time-flip-clock"
+            labels={['ДНЕЙ', 'ЧАСОВ', 'МИНУТ', 'СЕКУНД']}
+            showSeparators
+            duration={0.5}
+            hideOnComplete
+            stopOnHiddenVisibility
+            onComplete={() => setIsComplete(true)}
+            labelStyle={{ fontFamily: "'Montserrat', sans-serif" }}
+            digitBlockStyle={{ fontFamily: "'Russo One', sans-serif" }}
+          >
+            <h2 className="time-title time-title--complete">событие началось</h2>
+          </FlipClockCountdown>
+        </FadeIn>
       </div>
     </section>
   );

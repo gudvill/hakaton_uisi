@@ -46,7 +46,7 @@ export default function CasesArchivePage() {
       <Header />
       <main className="cases-archive container">
         <div className="cases-archive__header">
-          <h2>КЕЙСЫ ПРОШЛЫХ ЛЕТ</h2>
+          <h2 className='archive-title'>КЕЙСЫ ПРОШЛЫХ ЛЕТ</h2>
           {!loading && years.length > 0 && (
             <div className="cases-archive__years">
               <button

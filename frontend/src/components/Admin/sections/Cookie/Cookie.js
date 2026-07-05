@@ -55,9 +55,6 @@ export default function Cookie() {
           </div>
         )}
       </div>
-      <p className="cookie-hint">
-        Текст, который отображается в баннере cookie при первом посещении сайта.
-      </p>
       {editing ? (
         <div className="policy-edit-form">
           <input

@@ -1,7 +1,7 @@
 import './header.css';
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import RegistrationModal from './registration';
 
 const NAV_LINKS = [
@@ -13,9 +13,15 @@ const NAV_LINKS = [
   { href: '/photogallery', label: 'Фотогалерея' },
 ];
 
-export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRegistrationOpen }) {
+export default function Header({ onOpenRegistration, isRegistrationOpen: externalOpen, setIsRegistrationOpen: externalSetOpen }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isRegistrationOpen = onOpenRegistration ? externalOpen : localOpen;
+  const setIsRegistrationOpen = onOpenRegistration ? externalSetOpen : setLocalOpen;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -40,9 +46,26 @@ export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRe
 
   const closeMenu = () => setMenuOpen(false);
 
+  const handleNavLink = (e, link) => {
+    if (!link.href.startsWith('/#')) { closeMenu(); return; }
+    e.preventDefault();
+    closeMenu();
+    const hash = link.href.slice(1);
+    if (location.pathname === '/') {
+      document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/');
+      setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  };
+
   const handleRegistration = () => {
     closeMenu();
-    onOpenRegistration();
+    if (onOpenRegistration) {
+      onOpenRegistration();
+    } else {
+      setLocalOpen(true);
+    }
   };
 
   return (
@@ -59,7 +82,7 @@ export default function Header({ onOpenRegistration, isRegistrationOpen, setIsRe
               className={`header-menu${menuOpen ? ' header-menu--open' : ''}`}
             >
               {NAV_LINKS.map((link) => (
-                <a key={link.href} href={link.href} className="header-link" onClick={closeMenu}>
+                <a key={link.href} href={link.href} className="header-link" onClick={(e) => handleNavLink(e, link)}>
                   {link.label}
                 </a>
               ))}

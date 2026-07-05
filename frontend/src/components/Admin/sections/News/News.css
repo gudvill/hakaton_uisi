@@ -208,3 +208,23 @@
   border-radius: 10px;
   line-height: 1.6;
 }
+
+@media (max-width: 900px) {
+  .admin-content .news-admin-table {
+    table-layout: auto;
+  }
+
+  .admin-content .news-admin-table col {
+    width: auto !important;
+  }
+
+  .admin-content .news-tabs {
+    overflow-x: auto;
+  }
+
+  .admin-content .news-tab {
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}

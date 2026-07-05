@@ -24,14 +24,19 @@
 .admin-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   background: linear-gradient(135deg, #3b1fa8 0%, #6a35cc 50%, #9b59d6 100%);
   position: relative;
   font-family: 'Montserrat', sans-serif;
   padding: 16px;
-  box-sizing: border-box;
   gap: 12px;
+}
+
+@media (min-width: 901px) {
+  .admin-layout {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
 /* Топ-бар: лого слева, юзер справа */
@@ -275,7 +280,6 @@
   font-size: 13px;
   color: #1a1a2e;
   font-family: inherit;
-  box-sizing: border-box;
 }
 .admin-content .section-input:focus { outline: none; border-color: #6a35cc; }
 
@@ -290,7 +294,6 @@
   resize: vertical;
   min-height: 72px;
   font-family: inherit;
-  box-sizing: border-box;
 }
 .admin-content .section-textarea:focus { outline: none; border-color: #6a35cc; }
 
@@ -370,7 +373,6 @@
   padding: 7px 14px;
   flex: 1;
   min-width: 200px;
-  box-sizing: border-box;
 }
 
 .admin-content .participants-search-icon {
@@ -451,6 +453,131 @@
 
 .admin-content .participants-reset-btn:hover {
   background: #fecaca;
+}
+
+/* ── Лёгкий адаптив ── */
+@media (max-width: 900px) {
+  .admin-layout {
+    padding: 10px;
+    gap: 8px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .admin-body {
+    flex-direction: column;
+    gap: 8px;
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    border-radius: 14px;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-shrink: 0;
+  }
+
+  .admin-profile {
+    border-bottom: none;
+    border-right: 1px solid #f0f0f0;
+    padding: 8px 10px;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .admin-avatar-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .admin-profile-name {
+    font-size: 12px;
+  }
+
+  .admin-logout-btn {
+    font-size: 10px;
+  }
+
+  .admin-nav {
+    flex-direction: row;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: none;
+  }
+
+  .admin-nav-item {
+    padding: 10px;
+    white-space: nowrap;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  .admin-nav-item span {
+    display: none;
+  }
+
+  .admin-content {
+    border-radius: 14px;
+    padding: 16px;
+    overflow: visible;
+    flex: none;
+    height: auto;
+  }
+
+  .admin-content .section-table-wrap,
+  .admin-content .news-table-wrap {
+    overflow-x: auto;
+  }
+
+  .admin-content .section-table,
+  .admin-content .news-admin-table {
+    table-layout: auto;
+  }
+
+  .admin-content .participants-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-content .participants-search-wrap {
+    min-width: 0;
+  }
+
+  .admin-content .section-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .admin-content .admin-program-thead,
+  .admin-content .admin-program-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .admin-content .admin-program-dates {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-logo img {
+    width: 110px;
+  }
+
+  .admin-topbar-user {
+    font-size: 12px;
+  }
+
+  .admin-content {
+    padding: 12px;
+  }
 }
 
 /* Динозавр */

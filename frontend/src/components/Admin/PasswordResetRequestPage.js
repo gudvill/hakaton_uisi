@@ -25,7 +25,7 @@ export default function PasswordResetRequestPage() {
   return (
     <div className="login-page">
       <Link to="/" className="login-logo">
-        <img src="/images/logo2.svg" alt="logo" style={{ width: 180 }} />
+        <img src="/images/logo2.svg" alt="logo" />
       </Link>
 
       <div className="login-card">

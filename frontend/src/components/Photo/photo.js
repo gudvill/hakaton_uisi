@@ -1,6 +1,8 @@
 import './photo.css';
 import { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { getPhotoAlbums } from '../../api/photoAlbumsService';
+import FadeIn from '../FadeIn/FadeIn';
 
 const SLIDE_INTERVAL = 2500;
 const DRAG_THRESHOLD = 30;
@@ -16,9 +18,7 @@ export default function Photo() {
 
   const API_URL = process.env.REACT_APP_API_URL;
 
-  useEffect(() => {
-    loadPhotos();
-  }, []);
+  useEffect(() => { loadPhotos(); }, []);
 
   const loadPhotos = async () => {
     try {
@@ -70,9 +70,7 @@ export default function Photo() {
   const stopAuto = () => clearInterval(autoTimer.current);
 
   useEffect(() => {
-    if (photos.length) {
-      startAuto();
-    }
+    if (photos.length) startAuto();
     return stopAuto;
   }, [photos]);
 
@@ -103,24 +101,24 @@ export default function Photo() {
   const onPointerUp = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
-
-    if (dragDelta.current > DRAG_THRESHOLD) {
-      goTo(currentIndex.current + 1);
-    } else if (dragDelta.current < -DRAG_THRESHOLD) {
-      goTo(currentIndex.current - 1);
-    } else {
-      goTo(currentIndex.current);
-    }
-
+    if (dragDelta.current > DRAG_THRESHOLD) goTo(currentIndex.current + 1);
+    else if (dragDelta.current < -DRAG_THRESHOLD) goTo(currentIndex.current - 1);
+    else goTo(currentIndex.current);
     startAuto();
   };
 
   return (
     <section className="photo container">
-      <h2>ФОТОАЛЬБОМ</h2>
-      <div
+      <FadeIn variant="fadeUp">
+        <h2>ФОТОАЛЬБОМ</h2>
+      </FadeIn>
+      <motion.div
         className="photo-track"
         ref={trackRef}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -131,7 +129,7 @@ export default function Photo() {
             <img src={src} alt={`фото ${i + 1}`} draggable={false} />
           </div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

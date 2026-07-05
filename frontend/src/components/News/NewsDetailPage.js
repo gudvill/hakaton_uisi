@@ -59,22 +59,18 @@ export default function NewsDetailPage() {
                 <div className="news-detail__intro">
                   <p className="news-detail__date">{formatDate(item.created_at)}</p>
                   <h1 className="news-detail__title">{item.name}</h1>
-                  {item.brief_description && (
-                    <p className="news-detail__brief">{item.brief_description}</p>
-                  )}
+                  <div className="news-detail__content">
+                    {item.full_description.split('\n').map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              <div className="news-detail__content">
-                {item.full_description.split('\n').map((line, i) => (
-                  <p key={i}>{line}</p>
-                ))}
               </div>
             </article>
 
             {others.length > 0 && (
               <section className="news-detail__others">
-                <h2 className="news-detail__others-title">ДРУГИЕ НОВОСТИ</h2>
+                <h2 className="news-detail__others-title">ЧИТАЙТЕ ТАК ЖЕ</h2>
                 <div className="news-grid">
                   {others.map(n => (
                     <div key={n.id} className="news-card-wrapper">

@@ -1,7 +1,9 @@
 import './cases.css';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { getCases } from '../../api/casesService';
+import FadeIn from '../FadeIn/FadeIn';
 
 const getLevelModifier = (level) => {
   const value = (level || '').toLowerCase();
@@ -26,21 +28,33 @@ export default function Cases() {
 
   return (
     <section id="cases" className="cases container">
-      <h2>КЕЙСЫ</h2>
+      <FadeIn variant="fadeUp">
+        <h2>КЕЙСЫ</h2>
+      </FadeIn>
       <div className="cases_container">
-        {casesData.map((caseItem) => (
-          <a
+        {casesData.map((caseItem, i) => (
+          <motion.a
             className={`case_card ${getLevelModifier(caseItem.level)}`}
             key={caseItem.id}
             href={`/case/${caseItem.id}`}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5, delay: Math.min(i, 3) * 0.08, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <h3 className="case_header">{caseItem.name}</h3>
             <span className="level">{caseItem.level}</span>
             <p className="partner_name">{caseItem.partner_name || 'Без партнёра'}</p>
             <p className="case_number">{formatCaseNumber(caseItem.case_number)}</p>
-          </a>
+          </motion.a>
         ))}
-        <div className="info-baner">
+        <motion.div
+          className="info-baner"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           <div className="info-text">
             <p><span className="info-level--starter">Стартовый уровень</span> — для студентов 1-2 курсов.</p>
             <p><span className="info-level--advanced">Продвинутый уровень</span> — для студентов 3-5 курса и студентов магистратуры.</p>
@@ -49,7 +63,7 @@ export default function Cases() {
           <div className="info-image">
             <img src="images/computer.png" alt="компьютер" />
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
