@@ -102,8 +102,8 @@
 
 @media (max-width: 768px) {
   .reviews-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.65rem;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 4rem;
   }
 
   .reviews-grid .folder-card:nth-child(3) {
@@ -124,7 +124,6 @@
 
   .folder-text {
     font-size: clamp(0.65rem, 2.8vw, 0.8125rem);
-    -webkit-line-clamp: 4;
     line-height: 1.4;
   }
 
@@ -139,7 +138,7 @@
 
 @media (max-width: 480px) {
   .reviews-grid {
-    gap: 0.5rem;
+    gap: 4rem;
   }
 
   .folder-body {
@@ -148,12 +147,11 @@
   }
 
   .folder-title {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
 
   .folder-text {
-    font-size: 0.625rem;
-    -webkit-line-clamp: 3;
+    font-size: 0.75rem;
   }
 
   .folder-photo {

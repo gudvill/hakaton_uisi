@@ -59,6 +59,12 @@
 }
 
 @media (max-width: 768px) {
+
+  .cases-archive.container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .cases-archive__header {
     align-items: flex-start;
     gap: 16px;

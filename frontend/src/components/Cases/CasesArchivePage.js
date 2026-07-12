@@ -36,6 +36,12 @@ export default function CasesArchivePage() {
     return [...set].filter(Boolean).sort((a, b) => b - a);
   }, [cases]);
 
+  useEffect(() => {
+  if (years.length > 0 && activeYear === null) {
+    setActiveYear(years[0]);
+  }
+  }, [years, activeYear]);
+
   const filtered = useMemo(() => {
     if (!activeYear) return cases;
     return cases.filter(c => getYear(c) === activeYear);
@@ -49,12 +55,6 @@ export default function CasesArchivePage() {
           <h2 className='archive-title'>КЕЙСЫ ПРОШЛЫХ ЛЕТ</h2>
           {!loading && years.length > 0 && (
             <div className="cases-archive__years">
-              <button
-                className={`cases-archive__year-btn ${activeYear === null ? 'cases-archive__year-btn--active' : ''}`}
-                onClick={() => setActiveYear(null)}
-              >
-                Все
-              </button>
               {years.map(year => (
                 <button
                   key={year}
