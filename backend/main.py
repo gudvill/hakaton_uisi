@@ -6,8 +6,8 @@ from routes import stats_router, analytics_router, admin_router, acquaintance_ro
 
 app = FastAPI()
 
-#app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://hakaton1.bizml.ru"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
+#app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://hakaton1.bizml.ru"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
 
 BASE_MEDIA = "media"
 MEDIA_FOLDERS = ["news", "partners", "reviews", "about", "albums"]

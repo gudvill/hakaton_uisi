@@ -1,5 +1,5 @@
 import api from "./axios";
-/*
+
 // login
 export const login = async (login, password) => {
   const res = await api.post("/admin/login", {
@@ -28,8 +28,8 @@ export const refreshToken = async () => {
   localStorage.setItem("access", res.data.access_token);
   return res.data;
 };
-*/
 
+/*
 // login
 export const login = async (login, password) => {
   const res = await api.post("/admin/login", {
@@ -49,7 +49,7 @@ export const refreshToken = async () => {
   const res = await api.post("/admin/refresh");
   return res.data;
 };
-
+*/
 // запрос сброса пароля
 export const requestPasswordReset = async (email) => {
   const res = await api.post("/admin/request-password-reset", {
