@@ -7,7 +7,7 @@
   &nbsp;&nbsp;
   <a href="https://www.typescriptlang.org/" title="TypeScript"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" height="55" alt="TypeScript"></a>
   &nbsp;&nbsp;
-  <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" height="55" alt="PostgreSQL"></a>
+  <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://cdn.simpleicons.org/postgresql" height="55" alt="PostgreSQL"></a>
   &nbsp;&nbsp;
   <a href="https://www.docker.com/" title="Docker"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" height="55" alt="Docker"></a>
   &nbsp;&nbsp;
@@ -15,7 +15,7 @@
   &nbsp;&nbsp;
   <a href="https://resend.com/" title="Resend"><img src="https://cdn.simpleicons.org/resend/000000" height="55" alt="Resend"></a>
   &nbsp;&nbsp;
-  <a href="https://yandex.ru/support/metrica/" title="Яндекс Метрика"><img src="https://yastatic.net/s3/home/services/all/svg/metrika.svg" height="55" alt="Яндекс Метрика"></a>
+  <a href="https://yandex.ru/support/metrica/" title="Яндекс Метрика"><img src="https://yastatic.net/s3/home/services/all/svg/metrika.svg" height="105" alt="Яндекс Метрика"></a>
 </p>
 
 <p align="center"> <img src="main.jpg" width="900"> </p>
