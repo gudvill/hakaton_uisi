@@ -15,7 +15,7 @@
   &nbsp;&nbsp;
   <a href="https://resend.com/" title="Resend"><img src="https://cdn.simpleicons.org/resend/000000" height="55" alt="Resend"></a>
   &nbsp;&nbsp;
-  <a href="https://yandex.ru/support/metrica/" title="Яндекс Метрика"><img src="https://www.ph4.ru/DL/LOGO/_old/ya_metrika__.zip" height="55" alt="Яндекс Метрика"></a>
+  <a href="https://yandex.ru/support/metrica/" title="Яндекс Метрика"><img src="https://logo-teka.com/wp-content/uploads/2026/02/yandex-metrika-icon-logo.svg" height="55" alt="Яндекс Метрика"></a>
 </p>
 
 <p align="center"> <img src="main.jpg" width="900"> </p>
