@@ -14,11 +14,7 @@
   <a href="https://nginx.org/" title="Nginx"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" height="55" alt="Nginx"></a>
 </p>
 
----
-
 <p align="center"> <img src="main.jpg" width="900"> </p>
-
----
 
 # Всероссийский хакатон связи
 
