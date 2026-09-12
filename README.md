@@ -12,6 +12,10 @@
   <a href="https://www.docker.com/" title="Docker"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" height="55" alt="Docker"></a>
   &nbsp;&nbsp;
   <a href="https://nginx.org/" title="Nginx"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" height="55" alt="Nginx"></a>
+  &nbsp;&nbsp;
+  <a href="https://resend.com/" title="Resend"><img src="https://cdn.simpleicons.org/resend/000000" height="55" alt="Resend"></a>
+  &nbsp;&nbsp;
+  <a href="https://yandex.ru/support/metrica/" title="Яндекс Метрика"><img src="https://yastatic.net/s3/home/services/all/svg/metrika.svg" height="55" alt="Яндекс Метрика"></a>
 </p>
 
 <p align="center"> <img src="main.jpg" width="900"> </p>
@@ -65,7 +69,7 @@
 ```
 
 ### Стек
-* **Backend** - Python, FastAPI;
+* **Backend** - FastAPI, Python;
 * **Frontend** - React, TypeScript;
 * **База данных** - PostgreSQL;
 * **Веб-сервер и обратный прокс** - Nginx;
