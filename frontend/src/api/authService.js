@@ -6,36 +6,6 @@ export const login = async (login, password) => {
     login,
     password,
   });
-  localStorage.setItem("access", res.data.access_token);
-  localStorage.setItem("refresh", res.data.refresh_token);
-  return res.data;
-};
-
-// выход
-export const logout = () => {
-  localStorage.removeItem('access');
-  localStorage.removeItem('refresh');
-};
-
-// refresh
-export const refreshToken = async () => {
-  const refresh = localStorage.getItem("refresh");
-
-  const res = await api.post("/admin/refresh", {
-    refresh_token: refresh,
-  });
-
-  localStorage.setItem("access", res.data.access_token);
-  return res.data;
-};
-
-/*
-// login
-export const login = async (login, password) => {
-  const res = await api.post("/admin/login", {
-    login,
-    password,
-  });
   return res.data;
 };
 
@@ -49,7 +19,7 @@ export const refreshToken = async () => {
   const res = await api.post("/admin/refresh");
   return res.data;
 };
-*/
+
 // запрос сброса пароля
 export const requestPasswordReset = async (email) => {
   const res = await api.post("/admin/request-password-reset", {

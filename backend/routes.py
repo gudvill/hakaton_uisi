@@ -65,36 +65,15 @@ def get_me(current_admin=Depends(get_current_admin), use_case: AdminUseCase = De
 @admin_router.put("/update-profile")
 def update_profile(data: UpdateProfileRequest, current_admin=Depends(get_current_admin), use_case: AdminUseCase = Depends(get_admin_usecase)):
     return use_case.update_profile(int(current_admin), data.login, data.email)
-
-@admin_router.post("/login")
-def login(admin_data: LoginRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
-    user = use_case.login(admin_data.login, admin_data.password)
-    if not user: raise HTTPException(status_code=401, detail="Неверный логин или пароль")
-    access = create_access_token({"sub": str(user["id"])})
-    refresh = create_refresh_token({"sub": str(user["id"])})
-    return {
-        "access_token": access,
-        "refresh_token": refresh
-    }
-
-@admin_router.post("/refresh")
-def refresh_token(data: RefreshRequest):
-    try:
-        payload = jwt.decode(data.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    new_access = create_access_token({"sub": user_id})
-    return {"access_token": new_access}
-"""
+ 
 @admin_router.post("/login")
 def login(admin_data: LoginRequest, response: Response, use_case: AdminUseCase = Depends(get_admin_usecase)):
     user = use_case.login(admin_data.login, admin_data.password)
     if not user: raise HTTPException(status_code=401, detail="Неверный логин или пароль")
     access = create_access_token({"sub": str(user["id"])})
     refresh = create_refresh_token({"sub": str(user["id"])})
-    response.set_cookie(key="access_token", value=access, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 30)
-    response.set_cookie(key="refresh_token", value=refresh, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 60 * 24 * 7)
+    response.set_cookie(key="access_token", value=access, httponly=True, secure=True, samesite="Lax", path="/", max_age=60 * 30)
+    response.set_cookie(key="refresh_token", value=refresh, httponly=True, secure=True, samesite="Lax", path="/", max_age=60 * 60 * 24 * 7)
     return {"message": "ok"}
 
 @admin_router.post("/logout")
@@ -115,7 +94,7 @@ def refresh_token(request: Request, response: Response):
     new_access = create_access_token({"sub": user_id})
     response.set_cookie(key="access_token", value=new_access, httponly=True, secure=False, samesite="Lax", path="/", max_age=60 * 30)
     return { "access_token": new_access }
-"""
+
 @admin_router.post("/request-password-reset")
 def request_password_reset(request: PasswordResetRequest, use_case: AdminUseCase = Depends(get_admin_usecase)):
     token = use_case.request_password_reset(request.email)

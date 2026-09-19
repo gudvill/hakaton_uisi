@@ -8,16 +8,7 @@ from repositories import StatsRepository, AdminRepository, AcquaintanceRepositor
 from use_cases import StatsUseCase, AdminUseCase, AcquaintanceUseCase, FaqUseCase, ProgramUseCase, AboutUseCase, CasesUseCase, NewsUseCase, PartnersUseCase, PhotoAlbumsUseCase, PhotosUseCase, ReviewsUseCase, RegistrationUseCase
 
 security = HTTPBearer()
-
-def get_current_admin(token=Depends(security)):
-    try:
-        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if not user_id: raise HTTPException(status_code=401)
-        return user_id
-    except JWTError:
-        raise HTTPException(status_code=401)
-"""   
+  
 def get_current_admin(request: Request):
     print(request.cookies)
     token = request.cookies.get("access_token")
@@ -31,7 +22,7 @@ def get_current_admin(request: Request):
         return user_id
     except JWTError:
         raise HTTPException(status_code=401, detail="Неверный токен")
-"""
+
 # connection к postgres
 def get_connection():
     conn = psycopg2.connect(settings.database_connection_string)
